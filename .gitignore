@@ -47,5 +47,5 @@ po/*~
 rsconnect/
 
 # test directories
-# /test_scripts
-# /data
+/test_scripts
+/data
