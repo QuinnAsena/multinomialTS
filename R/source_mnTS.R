@@ -202,6 +202,7 @@ mnTS <- function(Y, X = NULL, Tsample = 1:nrow(Y),
 	optim.control = NULL, maxit.optim = 1e+05,
 	hessian.method.args=list(eps=1e-4, d=0.0001, r=4, v=2)) {
 
+  require(Rcpp)
   sourceCpp("./R/source_mnTS_list.cpp")
 	# check and name Y
 	if (!is.matrix(Y)) {
