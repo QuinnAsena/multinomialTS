@@ -142,8 +142,8 @@ par.fixed <- c(other = 0, Pinus = NA, Tsuga = NA, sp.other.other = NA, sp.Pinus.
                v.other.Tsuga = NA, v.Pinus.Tsuga = NA, v.Tsuga.Tsuga = NA, dispersion = 0,
                x1.other = 0, x1.Pinus = NA, x1.Tsuga = NA)
 
-Rcpp::sourceCpp("./R/source_mnTS_list.cpp")
-Rcpp::sourceCpp("./R/source_mnTS.cpp")
+# Rcpp::sourceCpp("./R/source_mnTS_list.cpp")
+# Rcpp::sourceCpp("./R/source_mnTS.cpp")
 
 # Create data
 X_pulse <- c(rep(0, 30),
@@ -211,9 +211,9 @@ maxit.optim = 1e+06
 optim.control = list(maxfun = maxit.optim)
 
 # Run the c++ ml
-Rcpp::sourceCpp("./R/source_mnTS_list.cpp")
+# Rcpp::sourceCpp("./R/source_mnTS_list.cpp")
 
-mnTS_ml_cpp_list(par = par.start, par_fixed = par.fixed, Y = Y, X = X, Tsample = Tsample)
+mnTS_ml_cpp_listout(par = par.start, par_fixed = par.fixed, Y = Y, X = X, Tsample = Tsample)
 # mnTS_ml_cpp_list(par = par.start, par_fixed = par.fixed, Y = Y, X = X, Tsample = 1:ncol(X))
 test <- mnTS_ml_cpp_list(par = par.start, par_fixed = par.fixed, Y = Y, X = X, Tsample = Tsample)
 test$LL

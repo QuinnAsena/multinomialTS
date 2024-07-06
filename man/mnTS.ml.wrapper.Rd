@@ -4,7 +4,7 @@
 \alias{mnTS.ml.wrapper}
 \title{mnTS Wrapper}
 \usage{
-mnTS.ml.wrapper(par, par.fixed, Y, X = NULL, Tsample)
+mnTS.ml.wrapper(par, par.fixed, Y, X, Tsample)
 }
 \arguments{
 \item{par}{something}

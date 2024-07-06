@@ -21,9 +21,19 @@
 #'
 #' @export
 
-mnTS.ml.wrapper <- function(par, par.fixed, Y, X = NULL, Tsample) {
-  retval <- mnTS_ml_cpp_list(par, par.fixed, Y, X, Tsample)
+mnTS.ml.wrapper <- function(par, par.fixed, Y, X, Tsample) {
+  retval <- mnTS_ml_cpp_listout(par, par.fixed, Y, X, Tsample)
   return(retval$LL)
 }
 
 
+#' mnTS_ml_cpp_list
+#'
+#' This is a description of what the function does.
+#' @useDynLib multinomialTS, .registration = TRUE
+#' @import Rcpp
+#' @import RcppArmadillo
+#' @export
+mnTS_ml_cpp_listout <- function(par, par_fixed, Y, X, Tsample) {
+  .Call('_multinomialTS_mnTS_ml_cpp_list', par, par_fixed, Y, X, Tsample, PACKAGE = 'multinomialTS')
+}

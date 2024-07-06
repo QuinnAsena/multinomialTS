@@ -202,8 +202,6 @@ mnTS <- function(Y, X = NULL, Tsample = 1:nrow(Y),
 	optim.control = NULL, maxit.optim = 1e+05,
 	hessian.method.args=list(eps=1e-4, d=0.0001, r=4, v=2)) {
 
-  require(Rcpp)
-  sourceCpp("./R/source_mnTS_list.cpp")
 	# check and name Y
 	if (!is.matrix(Y)) {
 		Y <- as.matrix(Y)
@@ -333,14 +331,15 @@ mnTS <- function(Y, X = NULL, Tsample = 1:nrow(Y),
 	}
 
 	if (method == "bobyqa") {
-		opt <- bobyqa(fn = mnTS.ml.wrapper, par = par.start, control = optim.control, par.fixed = par.fixed, Y = Y, X = X, Tsample = Tsample)
+		opt <- bobyqa(fn = mnTS.ml.wrapper, par = par.start, control = optim.control,
+		              par.fixed = par.fixed, Y = Y, X = X, Tsample = Tsample)
 		if (opt$ierr != 0)
 			cat("\nbobyqa optimization failed to converge; check $opt.convergence\n")
 		opt.convergence <- opt$ierr
 		opt$value <- opt$fval
 	}
 
-	fitted <- mnTS_ml_cpp_list(opt$par, par_fixed = par.fixed, Y = Y, X = X, Tsample = Tsample)
+	fitted <- mnTS_ml_cpp_listout(opt$par, par_fixed = par.fixed, Y = Y, X = X, Tsample = Tsample)
 	if(is.numeric(fitted)) stop("Convergence failed.")
 	fitted_par <- as.vector(fitted$par)
 	names(fitted_par) <- names(par.fixed)[is.na(par.fixed)]
