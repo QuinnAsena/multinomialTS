@@ -4,7 +4,7 @@
 \alias{mnTS_ml_cpp_listout}
 \title{mnTS_ml_cpp_list}
 \usage{
-mnTS_ml_cpp_listout()
+mnTS_ml_cpp_listout(par, par_fixed, Y, X, Tsample)
 }
 \description{
 This is a description of what the function does.

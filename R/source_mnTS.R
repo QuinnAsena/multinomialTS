@@ -280,6 +280,7 @@ mnTS <- function(Y, X = NULL, Tsample = 1:nrow(Y),
 	par.fixed <- c(B0.fixed, C.fixed, sigma.fixed, L.fixed, dispersion.fixed, B.fixed)
 
 	B0.names <- colnames(Y)
+	X.names <- colnames(X)
 	C.names <- rep(NA, n * n)
 	for (j in 1:n) for (i in 1:n) C.names[i + n * (j - 1)] <- paste0("sp.", colnames(Y)[i], ".", colnames(Y)[j])
 	L.names <- rep(NA, n * n)
@@ -345,7 +346,11 @@ mnTS <- function(Y, X = NULL, Tsample = 1:nrow(Y),
 	names(fitted_par) <- names(par.fixed)[is.na(par.fixed)]
 
 	rownames(fitted$B) <- B0.names
+	colnames(fitted$B) <- X.names
+
 	rownames(fitted$B0) <- B0.names
+	colnames(fitted$B0) <- "(intercept)"
+
 	rownames(fitted$C) = colnames(fitted$C) = B0.names
 	rownames(fitted$V) = colnames(fitted$V) = B0.names
 
