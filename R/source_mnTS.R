@@ -188,6 +188,9 @@ mnTS.ml <- function(par, par.fixed, Y, X = NULL, Tsample, fitted.values = FALSE)
 #' hello_world(excited = TRUE)
 #' hello_world(to_print = "Hi world")
 #'
+#' @import numDeriv
+#' @import minqa
+#'
 #' @export
 
 mnTS <- function(Y, X = NULL, Tsample = 1:nrow(Y),
@@ -303,8 +306,8 @@ mnTS <- function(Y, X = NULL, Tsample = 1:nrow(Y),
 
 	if (!is.element(method, c("Nelder-Mead", "bobyqa", "BFGS")))
 		stop("Acceptable methods are Nelder-Mead {optim},  BFGS {optim}, and bobyqa {minqa}.")
-	if (method == "bobyqa")
-		require(minqa)
+	# if (method == "bobyqa")
+	# 	require(minqa)
 
 	if (is.null(optim.control)) {
 		if (method == "bobyqa") {
@@ -352,18 +355,6 @@ mnTS <- function(Y, X = NULL, Tsample = 1:nrow(Y),
 	# names(fitted_par) < names(par.fixed)[is.na(par.fixed)]
 
 	if (compute.information.matrix) {
-		if (!require("numDeriv")) {
-			install.numDeriv <- readline("Do you want to install package{numDeriv}? [yes or no] ")
-			if (is.element(substr(install.numDeriv, 1, 1), c("y", "Y"))) {
-				install.packages("numDeriv")
-			} else {
-				print("information.matrix not computed")
-				information.matrix <- NULL
-				break
-			}
-		}
-		require("numDeriv")
-
 		# compute information matrix excluding sigma and dispersion
 		par.with.se <- fitted_par
 		par.fixed.for.se <- par.fixed
@@ -570,33 +561,8 @@ coef.mnTS <- function(mod, ...) {
       coef.table <- as.matrix(mod$par.with.se)
       colnames(coef.table) <- "Coef."
     }
-    if (!all(is.na(mod$inv.information.matrix.cond))) {
-      t.scores.cond <- mod$par.with.se.cond/mod$se.cond
-      coef.table.cond <- as.matrix(cbind(mod$par.with.se.cond, mod$se.cond, t.scores.cond, 2 * pnorm(q = abs(t.scores.cond), lower.tail = F)))
-      colnames(coef.table.cond) <- c("Coef.", "se", "t", "P")
-    } else {
-      coef.table.cond <- as.matrix(mod$par.with.se.cond)
-      colnames(coef.table.cond) <- "Coef."
-      print(coef.table.cond)
-    }
-
-    if (!all(is.na(mod$information.matrix.cond))) {
-
-      se.diag.cond <- diag(mod$information.matrix.cond)^-0.5
-      names(se.diag.cond) <- names(mod$se.cond)
-
-      t.scores.cond.diag <- mod$par.with.se.cond/se.diag.cond
-      coef.table.cond.diag <- as.matrix(cbind(mod$par.with.se.cond, se.diag.cond, t.scores.cond.diag, 2 * pnorm(q = abs(t.scores.cond.diag), lower.tail = F)))
-      colnames(coef.table.cond.diag) <- c("Coef.", "se", "t", "P")
-    } else {
-      coef.table.cond.diag <- as.matrix(mod$par.with.se.cond)
-      colnames(coef.table.cond.diag) <- "Coef."
-      print(coef.table.cond.diag)
-    }
-
   }
-
-  return(list(coef.table = coef.table, coef.table.cond = coef.table.cond, coef.table.cond.diag = coef.table.cond.diag))
+  return(coef.table = coef.table)
 }
 
 
@@ -621,11 +587,13 @@ coef.mnTS <- function(mod, ...) {
 #' hello_world(excited = TRUE)
 #' hello_world(to_print = "Hi world")
 #'
+#' @importFrom mvtnorm rmvnorm
+#'
 #' @export
 
 simulate.mnTS <- function(mod, ...) {
 
-  require("mvtnorm")
+  # require("mvtnorm")
 
   Y <- t(mod$Y)
   n <- nrow(Y)
@@ -713,15 +681,15 @@ simulate.mnTS <- function(mod, ...) {
 #' hello_world(excited = TRUE)
 #' hello_world(to_print = "Hi world")
 #'
+#' @import matrixStats
+#' @import minqa
+#'
 #' @export
 
 boot.mnTS <- function(mod, reps, dispersion.fixed = 1, maxit.optim = 1e+05, ...) {
 
-  require(abind)
-  require(Rcpp)
-  require(RcppArmadillo)
-  require(minqa)
-  require(matrixStats)
+  # require(minqa)
+  # require(matrixStats)
   # sourceCpp("./R/source_mnTS.cpp")
 
   mods <- replicate(simulate(mod), n = reps)

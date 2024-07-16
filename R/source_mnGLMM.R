@@ -21,6 +21,9 @@
 #' hello_world(excited = TRUE)
 #' hello_world(to_print = "Hi world")
 #'
+#' @import minqa
+#' @import numDeriv
+#'
 #' @export
 
 # Import minqa and numDeriv
@@ -282,22 +285,7 @@ n <- ncol(Y)
 	names(fitted$par) <- names(par.fixed)[is.na(par.fixed)]
 
 	if (compute.information.matrix) {
-		if (!require("numDeriv")) {
-			install.numDeriv <- readline("Do you want to install package{numDeriv}? [yes or no] ")
-			if (is.element(substr(install.numDeriv, 1, 1), c("y", "Y"))) {
-				install.packages("numDeriv")
-			} else {
-				print("information.matrix not computed")
-				information.matrix <- NULL
-				break
-			}
-		}
-		require("numDeriv")
-		# par.with.se <- fitted$par[!is.element(names(fitted$par), c("sigma", "dispersion"))]
-		# par.fixed.for.se <- par.fixed
-		# par.fixed.for.se["sigma"] <- fitted$par["sigma"]
-		# if (!is.null(fitted$par["dispersion"]))
-			# par.fixed.for.se["dispersion"] <- fitted$par["dispersion"]
+
 		par.with.se <- fitted$par
 		par.fixed.for.se <- par.fixed
 
@@ -318,9 +306,9 @@ n <- ncol(Y)
 		# }
 		# gradL <- matrix(gradL, nrow = 1)
 		# robust.cov <- inv.information.matrix %*% (t(gradL) %*% gradL) %*% inv.information.matrix
-} else {
+		} else {
 		information.matrix <- NULL
-	}
+		}
 	# logLik <- logLik.glm +
 	# as.numeric(-LL + pglmm.LL(0 * ss, H = H, X = X, Zt = Zt, St = St, mu = mu,
 	# nested = nested, REML = REML, family = family,
