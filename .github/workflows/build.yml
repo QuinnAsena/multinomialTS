@@ -48,8 +48,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: multinomialTS-Windows
-          path: |
-            *.zip
+          path: D:/a/multinomialTS/multinomialTS_0.1.0.zip
 
       - name: List Uploaded Artifacts (macOS)
         if: matrix.os == 'macos-latest'
@@ -59,7 +58,7 @@ jobs:
       - name: List Uploaded Artifacts (Windows)
         if: matrix.os == 'windows-latest'
         run: |
-          if ls -l *.zip 2>/dev/null; then echo "Artifacts listed successfully"; else echo "No artifacts to list"; fi
+          if (Test-Path -Path D:/a/multinomialTS/multinomialTS_0.1.0.zip) { Get-ChildItem -Path D:/a/multinomialTS/multinomialTS_0.1.0.zip } else { Write-Output "No artifacts to list" }
 
   release:
     runs-on: ubuntu-latest
