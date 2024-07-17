@@ -74,6 +74,7 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: v1.0.0
           files: |
             /home/runner/work/multinomialTS/multinomialTS-macOS/*.tgz
             /home/runner/work/multinomialTS/multinomialTS-Windows/*.zip
