@@ -34,33 +34,45 @@ jobs:
       - name: Build package with verbose output
         run: Rscript -e 'devtools::build(binary = TRUE, args = c("--no-multiarch", "--preclean", "--clean", "--verbose"))'
 
-      - name: Check object file types
+      - name: Upload Release Asset (macOS)
         if: matrix.os == 'macos-latest'
-        run: file src/*.o
-
-      - name: Upload Release Asset
         uses: actions/upload-artifact@v2
         with:
-          name: multinomialTS
+          name: multinomialTS-macOS
           path: |
-            *.zip
             *.tgz
             *.tar.gz
 
-      - name: List Uploaded Artifacts
-        run: |
-          echo "Uploaded artifacts:"
-          ls -l *.zip *.tgz *.tar.gz            
+      - name: Upload Release Asset (Windows)
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-artifact@v2
+        with:
+          name: multinomialTS-Windows
+          path: |
+            *.zip
+
+      - name: List Uploaded Artifacts (macOS)
+        if: matrix.os == 'macos-latest'
+        run: ls -l *.tgz *.tar.gz
+
+      - name: List Uploaded Artifacts (Windows)
+        if: matrix.os == 'windows-latest'
+        run: ls -l *.zip
 
   release:
     runs-on: ubuntu-latest
-    needs: build
+    needs: build  # Ensures this job runs after the build job
 
     steps:
-      - name: Download Release Assets
+      - name: Download macOS Release Assets
         uses: actions/download-artifact@v2
         with:
-          name: multinomialTS
+          name: multinomialTS-macOS
+
+      - name: Download Windows Release Assets
+        uses: actions/download-artifact@v2
+        with:
+          name: multinomialTS-Windows
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
