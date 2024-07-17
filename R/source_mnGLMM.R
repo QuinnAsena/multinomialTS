@@ -26,8 +26,6 @@
 #'
 #' @export
 
-# Import minqa and numDeriv
-
 mnGLMM.ml <- function(par, par.fixed, Y, X, fitted.values = FALSE, REML = FALSE) {
 	parameters <- par.fixed
 	parameters[is.na(par.fixed)] <- par
@@ -119,6 +117,8 @@ if (!fitted.values) {
 #' hello_world()
 #' hello_world(excited = TRUE)
 #' hello_world(to_print = "Hi world")
+#'
+#' @import minqa
 #'
 #' @export
 
@@ -244,8 +244,8 @@ n <- ncol(Y)
 
 	if (!is.element(method, c("Nelder-Mead", "bobyqa", "BFGS")))
 		stop("Acceptable methods are Nelder-Mead {optim},  BFGS {optim}, and bobyqa {minqa}.")
-	if (method == "bobyqa")
-		require(minqa)
+	# if (method == "bobyqa")
+	# 	require(minqa)
 
 	if (is.null(optim.control)) {
 		if (method == "bobyqa") {
