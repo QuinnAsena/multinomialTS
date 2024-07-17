@@ -78,7 +78,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            /home/runner/work/multinomialTS/multinomialTS_*.tgz  # Wildcard for version number
-            /home/runner/work/multinomialTS/multinomialTS_*.zip  # Wildcard for version number
+            /home/runner/work/multinomialTS/*.tgz
+            /home/runner/work/multinomialTS/*.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
