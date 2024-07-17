@@ -28,8 +28,15 @@ jobs:
       - name: Install R package dependencies
         run: Rscript -e 'install.packages(c("devtools", "remotes", "RcppArmadillo", "minqa", "matrixStats", "numDeriv", "mvtnorm"))'
 
-      - name: Build package
-        run: Rscript -e 'devtools::build(binary = TRUE)'
+      - name: Clean previous builds
+        run: Rscript -e 'devtools::clean_dll()'
+
+      - name: Build package with verbose output
+        run: Rscript -e 'devtools::build(binary = TRUE, args = c("--no-multiarch", "--preclean", "--clean", "--verbose"))'
+
+      - name: Check object file types
+        if: matrix.os == 'macos-latest'
+        run: file src/*.o
 
       - name: Upload Release Asset
         uses: actions/upload-artifact@v2
