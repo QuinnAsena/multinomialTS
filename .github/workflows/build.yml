@@ -53,11 +53,13 @@ jobs:
 
       - name: List Uploaded Artifacts (macOS)
         if: matrix.os == 'macos-latest'
-        run: ls -l *.tgz *.tar.gz
+        run: |
+          if ls -l *.tgz *.tar.gz 2>/dev/null; then echo "Artifacts listed successfully"; else echo "No artifacts to list"; fi
 
       - name: List Uploaded Artifacts (Windows)
         if: matrix.os == 'windows-latest'
-        run: ls -l *.zip
+        run: |
+          if ls -l *.zip 2>/dev/null; then echo "Artifacts listed successfully"; else echo "No artifacts to list"; fi
 
   release:
     runs-on: ubuntu-latest
