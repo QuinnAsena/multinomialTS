@@ -34,14 +34,28 @@ jobs:
       - name: Build package with verbose output
         run: Rscript -e 'devtools::build(binary = TRUE, args = c("--no-multiarch", "--preclean", "--clean", "--verbose"))'
 
+      - name: List all files after build
+        run: ls -R
+
       - name: Upload Release Asset (macOS)
         if: matrix.os == 'macos-latest'
         uses: actions/upload-artifact@v2
         with:
           name: multinomialTS-macOS
           path: |
-            *.tgz
-            *.tar.gz
+            /Users/runner/work/multinomialTS/multinomialTS_0.1.0.tgz
+            /Users/runner/work/multinomialTS/multinomialTS_0.1.0.tar.gz
+          if-no-files-found: error  # Abort if no files are found
+        env:
+          R_LIBS_USER: /Users/runner/work/_temp/Library
+          TZ: UTC
+          _R_CHECK_SYSTEM_CLOCK_: FALSE
+          NOT_CRAN: true
+
+      - name: List Uploaded Artifacts (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          if ls -l /Users/runner/work/multinomialTS/*.tgz /Users/runner/work/multinomialTS/*.tar.gz 2>/dev/null; then echo "Artifacts listed successfully"; else echo "No artifacts to list"; fi
 
       - name: Upload Release Asset (Windows)
         if: matrix.os == 'windows-latest'
@@ -49,11 +63,6 @@ jobs:
         with:
           name: multinomialTS-Windows
           path: D:/a/multinomialTS/multinomialTS_0.1.0.zip
-
-      - name: List Uploaded Artifacts (macOS)
-        if: matrix.os == 'macos-latest'
-        run: |
-          if ls -l *.tgz *.tar.gz 2>/dev/null; then echo "Artifacts listed successfully"; else echo "No artifacts to list"; fi
 
       - name: List Uploaded Artifacts (Windows)
         if: matrix.os == 'windows-latest'
