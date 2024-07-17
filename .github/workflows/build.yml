@@ -47,6 +47,11 @@ jobs:
             *.tgz
             *.tar.gz
 
+      - name: List Uploaded Artifacts
+        run: |
+          echo "Uploaded artifacts:"
+          ls -l *.zip *.tgz *.tar.gz            
+
   release:
     runs-on: ubuntu-latest
     needs: build
