@@ -69,13 +69,13 @@ jobs:
           path: /home/runner/work/multinomialTS/
 
       - name: Show artifacts
-        run: ls /home/runner/work/multinomialTS/
+        run: find /home/runner/work/multinomialTS/
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            /home/runner/work/multinomialTS/*.tgz
-            /home/runner/work/multinomialTS/*.zip
+            /home/runner/work/multinomialTS/multinomialTS-macOS/*.tgz
+            /home/runner/work/multinomialTS/multinomialTS-Windows/*.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
