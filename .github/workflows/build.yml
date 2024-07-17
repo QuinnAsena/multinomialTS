@@ -1,4 +1,4 @@
-name: Build and Release
+name: Build and Release Binaries
 
 on:
   push:
@@ -7,11 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: macos-latest
 
     steps:
       - name: Checkout code
@@ -31,10 +27,7 @@ jobs:
         with:
           name: multinomialTS
           path: |
-            *.zip
             *.tgz
-            *.tar.gz
-        continue-on-error: true
 
   release:
     runs-on: ubuntu-latest
@@ -50,8 +43,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            *.zip
             *.tgz
-            *.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
