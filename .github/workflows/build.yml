@@ -89,8 +89,8 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            *.zip
-            *.tgz
+            multinomialTS-macOS/*.tgz
+            multinomialTS-Windows/*.zip
 #            *.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
