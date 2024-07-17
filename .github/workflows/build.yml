@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - 'v*.*.*'
+  workflow_dispatch: # Enables manual runs for GHA debugging
 
 jobs:
   build:
@@ -62,23 +63,19 @@ jobs:
     needs: build  # Ensures this job runs after the build job
 
     steps:
-      - name: Download macOS Release Assets
+      - name: Download all artifacts
         uses: actions/download-artifact@v2
         with:
-          name: multinomialTS-macOS
-          path: /home/runner/work/multinomialTS/*.tgz  # Adjusted wildcard path for macOS
+          path: /home/runner/work/multinomialTS/
 
-      - name: Download Windows Release Assets
-        uses: actions/download-artifact@v2
-        with:
-          name: multinomialTS-Windows
-          path: /home/runner/work/multinomialTS/*.zip  # Adjusted wildcard path for Windows
+      - name: Show artifacts
+        run: find /home/runner/work/multinomialTS/
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            /home/runner/work/multinomialTS/*.tgz
-            /home/runner/work/multinomialTS/*.zip
+            /home/runner/work/multinomialTS/multinomialTS-macOS/*.tgz
+            /home/runner/work/multinomialTS/multinomialTS-Windows/*.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
