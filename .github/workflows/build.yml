@@ -44,7 +44,7 @@ jobs:
           name: multinomialTS-macOS
           path: |
             /Users/runner/work/multinomialTS/multinomialTS_0.1.0.tgz
-            /Users/runner/work/multinomialTS/multinomialTS_0.1.0.tar.gz
+#            /Users/runner/work/multinomialTS/multinomialTS_0.1.0.tar.gz
           if-no-files-found: error  # Abort if no files are found
         env:
           R_LIBS_USER: /Users/runner/work/_temp/Library
@@ -55,7 +55,8 @@ jobs:
       - name: List Uploaded Artifacts (macOS)
         if: matrix.os == 'macos-latest'
         run: |
-          if ls -l /Users/runner/work/multinomialTS/*.tgz /Users/runner/work/multinomialTS/*.tar.gz 2>/dev/null; then echo "Artifacts listed successfully"; else echo "No artifacts to list"; fi
+          if ls -l /Users/runner/work/multinomialTS/*.tgz 2>/dev/null; then echo "Artifacts listed successfully"; else echo "No artifacts to list"; fi
+#          if ls -l /Users/runner/work/multinomialTS/*.tgz /Users/runner/work/multinomialTS/*.tar.gz 2>/dev/null; then echo "Artifacts listed successfully"; else echo "No artifacts to list"; fi
 
       - name: Upload Release Asset (Windows)
         if: matrix.os == 'windows-latest'
@@ -90,6 +91,6 @@ jobs:
           files: |
             *.zip
             *.tgz
-            *.tar.gz
+#            *.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
