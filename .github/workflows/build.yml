@@ -42,33 +42,20 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: multinomialTS-macOS
-          path: |
-            /Users/runner/work/multinomialTS/multinomialTS_0.1.0.tgz
-#            /Users/runner/work/multinomialTS/multinomialTS_0.1.0.tar.gz
-          if-no-files-found: error  # Abort if no files are found
+          path: /Users/runner/work/multinomialTS/multinomialTS_*.tgz  # Wildcard for version number
+          if-no-files-found: error
         env:
           R_LIBS_USER: /Users/runner/work/_temp/Library
           TZ: UTC
           _R_CHECK_SYSTEM_CLOCK_: FALSE
           NOT_CRAN: true
 
-      - name: List Uploaded Artifacts (macOS)
-        if: matrix.os == 'macos-latest'
-        run: |
-          if ls -l /Users/runner/work/multinomialTS/*.tgz 2>/dev/null; then echo "Artifacts listed successfully"; else echo "No artifacts to list"; fi
-#          if ls -l /Users/runner/work/multinomialTS/*.tgz /Users/runner/work/multinomialTS/*.tar.gz 2>/dev/null; then echo "Artifacts listed successfully"; else echo "No artifacts to list"; fi
-
       - name: Upload Release Asset (Windows)
         if: matrix.os == 'windows-latest'
         uses: actions/upload-artifact@v2
         with:
           name: multinomialTS-Windows
-          path: D:/a/multinomialTS/multinomialTS_0.1.0.zip
-
-      - name: List Uploaded Artifacts (Windows)
-        if: matrix.os == 'windows-latest'
-        run: |
-          if (Test-Path -Path D:/a/multinomialTS/multinomialTS_0.1.0.zip) { Get-ChildItem -Path D:/a/multinomialTS/multinomialTS_0.1.0.zip } else { Write-Output "No artifacts to list" }
+          path: D:/a/multinomialTS/multinomialTS_*.zip  # Wildcard for version number
 
   release:
     runs-on: ubuntu-latest
@@ -79,18 +66,19 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: multinomialTS-macOS
+          path: /home/runner/work/multinomialTS/multinomialTS_*.tgz  # Wildcard for version number
 
       - name: Download Windows Release Assets
         uses: actions/download-artifact@v2
         with:
           name: multinomialTS-Windows
+          path: /home/runner/work/multinomialTS/multinomialTS_*.zip  # Wildcard for version number
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            /home/runner/work/multinomialTS/multinomialTS/multinomialTS-macOS/*.tgz
-            /home/runner/work/multinomialTS/multinomialTS-Windows/*.zip
-#            *.tar.gz
+            /home/runner/work/multinomialTS/multinomialTS_*.tgz  # Wildcard for version number
+            /home/runner/work/multinomialTS/multinomialTS_*.zip  # Wildcard for version number
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
