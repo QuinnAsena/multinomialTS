@@ -97,23 +97,12 @@ jobs:
     needs: build  # Ensures this job runs after the build job
 
     steps:
-      - name: Download macOS ARM64 Release Assets
+      - name: Download all artifacts
         uses: actions/download-artifact@v2
         with:
-          name: multinomialTS-macOS-arm64
           path: /home/runner/work/multinomialTS/
-
-      - name: Download macOS x86_64 Release Assets
-        uses: actions/download-artifact@v2
-        with:
-          name: multinomialTS-macOS-x86_64
-          path: /home/runner/work/multinomialTS/
-
-      - name: Download Windows Release Assets
-        uses: actions/download-artifact@v2
-        with:
-          name: multinomialTS-Windows
-          path: /home/runner/work/multinomialTS/
+      - name: Show artifacts
+        run: find /home/runner/work/multinomialTS/
 
       - name: List all downloaded files
         run: ls -R /home/runner/work/multinomialTS/
