@@ -12,8 +12,15 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest, macos-latest]
-        r-version: ['4.4.1']
-        architecture: [x86_64, arm64]  # Adding architecture matrix
+        include:
+          - os: windows-latest
+            r-version: '4.4.2'
+          - os: macos-latest
+            r-version: '4.4.2'
+            architecture: x86_64
+          - os: macos-latest
+            r-version: '4.4.2'
+            architecture: arm64
 
     steps:
       - name: Checkout code
@@ -60,7 +67,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: multinomialTS-macOS-arm64
-          path: /Users/runner/work/multinomialTS/multinomialTS_*.tgz
+          path: /Users/runner/work/multinomialTS/multinomialTS-arm64_*.tgz
         env:
           R_LIBS_USER: /Users/runner/work/_temp/Library
           TZ: UTC
@@ -72,7 +79,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: multinomialTS-macOS-x86_64
-          path: /Users/runner/work/multinomialTS/multinomialTS_*.tgz
+          path: /Users/runner/work/multinomialTS/multinomialTS-x86_64_*.tgz
         env:
           R_LIBS_USER: /Users/runner/work/_temp/Library
           TZ: UTC
@@ -91,13 +98,26 @@ jobs:
     needs: build  # Ensures this job runs after the build job
 
     steps:
-      - name: Download all artifacts
+      - name: Download macOS ARM64 Release Assets
         uses: actions/download-artifact@v2
         with:
+          name: multinomialTS-macOS-arm64
           path: /home/runner/work/multinomialTS/
 
-      - name: Show artifacts
-        run: find /home/runner/work/multinomialTS/
+      - name: Download macOS x86_64 Release Assets
+        uses: actions/download-artifact@v2
+        with:
+          name: multinomialTS-macOS-x86_64
+          path: /home/runner/work/multinomialTS/
+
+      - name: Download Windows Release Assets
+        uses: actions/download-artifact@v2
+        with:
+          name: multinomialTS-Windows
+          path: /home/runner/work/multinomialTS/
+
+      - name: List all downloaded files
+        run: ls -R /home/runner/work/multinomialTS/
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
