@@ -13,6 +13,7 @@ jobs:
       matrix:
         os: [windows-latest, macos-latest]
         r-version: ['4.4.1']
+        architecture: [x86_64, arm64]  # Adding architecture matrix
 
     steps:
       - name: Checkout code
@@ -20,6 +21,8 @@ jobs:
 
       - name: Set up R
         uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: ${{ matrix.r-version }}
 
       - name: Install system dependencies (macOS)
         if: matrix.os == 'macos-latest'
@@ -33,19 +36,43 @@ jobs:
       - name: Clean previous builds
         run: Rscript -e 'devtools::clean_dll()'
 
-      - name: Build package with verbose output
+      - name: Build package with verbose output (macOS ARM64)
+        if: matrix.os == 'macos-latest' && matrix.architecture == 'arm64'
+        run: |
+          export ARCHFLAGS="-arch arm64"
+          Rscript -e 'devtools::build(binary = TRUE, args = c("--no-multiarch", "--preclean", "--clean", "--verbose"))'
+
+      - name: Build package with verbose output (macOS x86_64)
+        if: matrix.os == 'macos-latest' && matrix.architecture == 'x86_64'
+        run: |
+          export ARCHFLAGS="-arch x86_64"
+          Rscript -e 'devtools::build(binary = TRUE, args = c("--no-multiarch", "--preclean", "--clean", "--verbose"))'
+
+      - name: Build package with verbose output (Windows)
+        if: matrix.os == 'windows-latest'
         run: Rscript -e 'devtools::build(binary = TRUE, args = c("--no-multiarch", "--preclean", "--clean", "--verbose"))'
 
       - name: List all files after build
         run: ls -R
 
-      - name: Upload Release Asset (macOS)
-        if: matrix.os == 'macos-latest'
+      - name: Upload Release Asset (macOS ARM64)
+        if: matrix.os == 'macos-latest' && matrix.architecture == 'arm64'
         uses: actions/upload-artifact@v2
         with:
-          name: multinomialTS-macOS
-          path: /Users/runner/work/multinomialTS/multinomialTS_*.tgz  # Adjusted wildcard path for macOS
-          if-no-files-found: error
+          name: multinomialTS-macOS-arm64
+          path: /Users/runner/work/multinomialTS/multinomialTS_*.tgz
+        env:
+          R_LIBS_USER: /Users/runner/work/_temp/Library
+          TZ: UTC
+          _R_CHECK_SYSTEM_CLOCK_: FALSE
+          NOT_CRAN: true
+
+      - name: Upload Release Asset (macOS x86_64)
+        if: matrix.os == 'macos-latest' && matrix.architecture == 'x86_64'
+        uses: actions/upload-artifact@v2
+        with:
+          name: multinomialTS-macOS-x86_64
+          path: /Users/runner/work/multinomialTS/multinomialTS_*.tgz
         env:
           R_LIBS_USER: /Users/runner/work/_temp/Library
           TZ: UTC
@@ -57,7 +84,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: multinomialTS-Windows
-          path: D:/a/multinomialTS/multinomialTS_*.zip  # Adjusted wildcard path for Windows
+          path: D:/a/multinomialTS/multinomialTS_*.zip
 
   release:
     runs-on: ubuntu-latest
@@ -77,7 +104,8 @@ jobs:
         with:
           tag_name: v1.0.0
           files: |
-            /home/runner/work/multinomialTS/multinomialTS-macOS/*.tgz
+            /home/runner/work/multinomialTS/multinomialTS-macOS-arm64/*.tgz
+            /home/runner/work/multinomialTS/multinomialTS-macOS-x86_64/*.tgz
             /home/runner/work/multinomialTS/multinomialTS-Windows/*.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
