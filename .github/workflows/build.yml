@@ -46,7 +46,7 @@ jobs:
         if: matrix.os == 'macos-latest' && matrix.architecture == 'arm64'
         run: |
           export ARCHFLAGS="-arch arm64"
-          Rscript -e 'devtools::build(binary = TRUE, path = "../multinomialTS-arm64.tgz" args = c("--no-multiarch", "--preclean", "--clean", "--verbose"))'
+          Rscript -e 'devtools::build(binary = TRUE, path = "../multinomialTS-arm64.tgz", args = c("--no-multiarch", "--preclean", "--clean", "--verbose"))'
 
       - name: Build package with verbose output (macOS x86_64)
         if: matrix.os == 'macos-latest' && matrix.architecture == 'x86_64'
