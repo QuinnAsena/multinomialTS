@@ -67,7 +67,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: multinomialTS-macOS-arm64
-          path: /Users/runner/work/multinomialTS/multinomialTS-arm64_*.tgz
+          path: /Users/runner/work/multinomialTS/multinomialTS_*.tgz
         env:
           R_LIBS_USER: /Users/runner/work/_temp/Library
           TZ: UTC
@@ -79,7 +79,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: multinomialTS-macOS-x86_64
-          path: /Users/runner/work/multinomialTS/multinomialTS-x86_64_*.tgz
+          path: /Users/runner/work/multinomialTS/multinomialTS_*.tgz
         env:
           R_LIBS_USER: /Users/runner/work/_temp/Library
           TZ: UTC
