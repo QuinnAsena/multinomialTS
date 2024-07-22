@@ -2,7 +2,7 @@
 % Please edit documentation in R/source_mnTS.R
 \name{boot.mnTS}
 \alias{boot.mnTS}
-\title{Multinomial state-space coefficient summary}
+\title{Multinomial state-space bootstrap}
 \usage{
 boot.mnTS(mod, reps, dispersion.fixed = 1, maxit.optim = 1e+05, ...)
 }
@@ -18,12 +18,4 @@ This function returns a phrase to print, with or without an
 }
 \description{
 This is a simple function
-customize the text to print (using the \code{to_print} argument) and add
-an exclamation point (\code{excited = TRUE}).
-}
-\examples{
-hello_world()
-hello_world(excited = TRUE)
-hello_world(to_print = "Hi world")
-
 }

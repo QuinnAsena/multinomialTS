@@ -2,8 +2,7 @@
 #' mnTS Wrapper
 #'
 #' This is a simple function that, by default, prints "Hello world". You can
-#' customize the text to print (using the \code{to_print} argument) and add
-#' an exclamation point (\code{excited = TRUE}).
+#' customize the text to print
 #'
 #' @param par something
 #' @param par.fixed More things
@@ -14,10 +13,6 @@
 #'    exclamation point added. As a side effect, this function also prints out
 #'    the phrase.
 #'
-#' @examples
-#' hello_world()
-#' hello_world(excited = TRUE)
-#' hello_world(to_print = "Hi world")
 #'
 #' @export
 

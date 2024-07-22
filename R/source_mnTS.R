@@ -2,8 +2,7 @@
 #' Multinomial state-space Maximum likelihood
 #'
 #' This is a simple function that, by default, prints "Hello world". You can
-#' customize the text to print (using the \code{to_print} argument) and add
-#' an exclamation point (\code{excited = TRUE}).
+#' customize the text to print
 #'
 #' @param par something
 #' @param par.fixed More things
@@ -16,10 +15,6 @@
 #'    exclamation point added. As a side effect, this function also prints out
 #'    the phrase.
 #'
-#' @examples
-#' hello_world()
-#' hello_world(excited = TRUE)
-#' hello_world(to_print = "Hi world")
 #'
 #' @export
 
@@ -172,8 +167,7 @@ mnTS.ml <- function(par, par.fixed, Y, X = NULL, Tsample, fitted.values = FALSE)
 #' Multinomial state-space
 #'
 #' This is a simple function that, by default, prints "Hello world". You can
-#' customize the text to print (using the \code{to_print} argument) and add
-#' an exclamation point (\code{excited = TRUE}).
+#' customize the text to prin
 #'
 #' @param Y inout matrix of
 #' @param X input matrix of
@@ -183,13 +177,10 @@ mnTS.ml <- function(par, par.fixed, Y, X = NULL, Tsample, fitted.values = FALSE)
 #'    exclamation point added. As a side effect, this function also prints out
 #'    the phrase.
 #'
-#' @examples
-#' hello_world()
-#' hello_world(excited = TRUE)
-#' hello_world(to_print = "Hi world")
 #'
 #' @import numDeriv
 #' @import minqa
+#' @import stats
 #'
 #' @export
 
@@ -453,16 +444,11 @@ mnTS <- function(Y, X = NULL, Tsample = 1:nrow(Y),
 #' an exclamation point (\code{excited = TRUE}).
 #'
 #' @param mod inout matrix of
-#' @param ... input matrix of
 #'
 #' @return This function returns a phrase to print, with or without an
 #'    exclamation point added. As a side effect, this function also prints out
 #'    the phrase.
 #'
-#' @examples
-#' hello_world()
-#' hello_world(excited = TRUE)
-#' hello_world(to_print = "Hi world")
 #'
 #' @export
 
@@ -470,8 +456,6 @@ summary.mnTS <- function(mod, ...) {
 
 	cat("\nCall: mnTS with Tmax = ", nrow(mod$Y), " n = ", ncol(mod$Y), "\n")
 
-	# npar <- length(mod$par)
-	# AIC <- -2*mod$logLik + 2*npar
 	cat("\nlogLik = ", mod$logLik, ",  AIC = ", mod$AIC, " [df = ", mod$npar, "]\n", sep = "")
 
 	cat("\ndispersion parameter = ", mod$dispersion)
@@ -534,8 +518,7 @@ print.mnTS <- summary.mnTS
 #' Multinomial state-space coefficient summary
 #'
 #' This is a simple function
-#' customize the text to print (using the \code{to_print} argument) and add
-#' an exclamation point (\code{excited = TRUE}).
+#' customize the text to print
 #'
 #' @param mod inout matrix of
 #' @param ... input matrix of
@@ -544,10 +527,6 @@ print.mnTS <- summary.mnTS
 #'    exclamation point added. As a side effect, this function also prints out
 #'    the phrase.
 #'
-#' @examples
-#' hello_world()
-#' hello_world(excited = TRUE)
-#' hello_world(to_print = "Hi world")
 #'
 #' @export
 
@@ -571,14 +550,11 @@ coef.mnTS <- function(mod, ...) {
 }
 
 
-
-
 # simulate.mnTS -------------------------------------------------------
-#' Multinomial state-space coefficient summary
+#' Multinomial state-space simulate object
 #'
 #' This is a simple function
-#' customize the text to print (using the \code{to_print} argument) and add
-#' an exclamation point (\code{excited = TRUE}).
+#' customize the text
 #'
 #' @param mod inout matrix of
 #' @param ... input matrix of
@@ -587,18 +563,11 @@ coef.mnTS <- function(mod, ...) {
 #'    exclamation point added. As a side effect, this function also prints out
 #'    the phrase.
 #'
-#' @examples
-#' hello_world()
-#' hello_world(excited = TRUE)
-#' hello_world(to_print = "Hi world")
-#'
 #' @importFrom mvtnorm rmvnorm
 #'
 #' @export
 
 simulate.mnTS <- function(mod, ...) {
-
-  # require("mvtnorm")
 
   Y <- t(mod$Y)
   n <- nrow(Y)
@@ -668,11 +637,9 @@ simulate.mnTS <- function(mod, ...) {
 
 
 # boot.mnTS -------------------------------------------------------
-#' Multinomial state-space coefficient summary
+#' Multinomial state-space bootstrap
 #'
 #' This is a simple function
-#' customize the text to print (using the \code{to_print} argument) and add
-#' an exclamation point (\code{excited = TRUE}).
 #'
 #' @param mod inout matrix of
 #' @param ... input matrix of
@@ -681,10 +648,6 @@ simulate.mnTS <- function(mod, ...) {
 #'    exclamation point added. As a side effect, this function also prints out
 #'    the phrase.
 #'
-#' @examples
-#' hello_world()
-#' hello_world(excited = TRUE)
-#' hello_world(to_print = "Hi world")
 #'
 #' @import matrixStats
 #' @import minqa
@@ -693,12 +656,7 @@ simulate.mnTS <- function(mod, ...) {
 
 boot.mnTS <- function(mod, reps, dispersion.fixed = 1, maxit.optim = 1e+05, ...) {
 
-  # require(minqa)
-  # require(matrixStats)
-  # sourceCpp("./R/source_mnTS.cpp")
-
   mods <- replicate(simulate(mod), n = reps)
-  # print(mods)
   fit_mods <- vector(mode = "list", length = ncol(mods))
 
   for (j in seq_len(ncol(mods))) {
@@ -714,16 +672,12 @@ boot.mnTS <- function(mod, reps, dispersion.fixed = 1, maxit.optim = 1e+05, ...)
     }
 
     n <- ncol(mods[1, j]$Y)
-
-    # B.fixed
     B.fixed <- matrix(NA, p, n)
     B.fixed[,1] <- 0
 
-    # V.fixed
     V.fixed <- matrix(NA, n, n)
     V.fixed[1] <- 1
 
-    # C.fixed
     C.fixed <- mod$C
     C.fixed[C.fixed != 0] <- NA
 
@@ -783,7 +737,5 @@ boot.mnTS <- function(mod, reps, dispersion.fixed = 1, maxit.optim = 1e+05, ...)
     n_fail_converged = n_fail_converged,
     n_total = n_total
   )
-  ###
-
   return(list(coef.table.boot = boot_bind, all_mods_pars = all_pars, all_mods = fit_mods))
 }

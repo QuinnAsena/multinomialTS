@@ -8,8 +8,6 @@
 }
 \arguments{
 \item{mod}{inout matrix of}
-
-\item{...}{input matrix of}
 }
 \value{
 This function returns a phrase to print, with or without an
@@ -20,10 +18,4 @@ This function returns a phrase to print, with or without an
 This is a simple function
 customize the text to print (using the \code{to_print} argument) and add
 an exclamation point (\code{excited = TRUE}).
-}
-\examples{
-hello_world()
-hello_world(excited = TRUE)
-hello_world(to_print = "Hi world")
-
 }
