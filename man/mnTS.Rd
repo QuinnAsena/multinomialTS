@@ -2,7 +2,7 @@
 % Please edit documentation in R/source_mnTS.R
 \name{mnTS}
 \alias{mnTS}
-\title{Multinomial state-space}
+\title{Multinomial State-Space Model (mnTS)}
 \usage{
 mnTS(
   Y,
@@ -28,18 +28,69 @@ mnTS(
 )
 }
 \arguments{
-\item{Y}{inout matrix of}
+\item{Y}{A matrix of multinomially distributed count data (e.g.,
+community count data).}
 
-\item{X}{input matrix of}
+\item{X}{A matrix of covariates (predictors), which may be of mixed type.
+Covariates should be scaled when appropriate. Can be \code{NULL}.}
 
-\item{Tsample}{Placement of observations}
+\item{Tsample}{A vector of row indices specifying the subset of
+observations in \code{Y} to treat as temporal samples.}
+
+\item{B0.fixed}{A 1 by \code{ncol(Y)} matrix of species
+intercepts to estimate.}
+
+\item{B0.start}{A matrix of starting values for \code{B0.fixed}.}
+
+\item{C.fixed}{A species-by-species matrix of interactions,
+indicating which interactions to estimate.}
+
+\item{C.start}{A matrix of starting values for \code{C.fixed}.}
+
+\item{B.fixed}{A matrix indicating which B coefficients (driver-species
+relationships) to estimate. Should have \code{ncol(Y)} columns and
+\code{ncol(X)} rows.}
+
+\item{B.start}{A matrix of starting values for \code{B.fixed}. Dimensions
+of \code{B.start} should match \code{B.fixed}.}
+
+\item{sigma.fixed}{Fixed value for the overall model variance. Use
+\code{NA} to estimate it from the model.}
+
+\item{sigma.start}{Starting value for estimating \code{sigma.fixed}.}
+
+\item{dispersion.fixed}{Fixed dispersion parameter for observation-level
+variation. A value of 1 corresponds to no over- or under-dispersion.}
+
+\item{dispersion.start}{Starting value for estimating
+\code{dispersion.fixed}.}
+
+\item{V.fixed}{A species-by-species covariance matrix representing
+environmental variation.}
+
+\item{V.start}{Starting values for \code{V.fixed}.}
+
+\item{compute.information.matrix}{Logical. If \code{TRUE}, computes the
+observed information matrix.}
+
+\item{method}{Optimization method. Acceptable values include
+\code{"Nelder-Mead"}, \code{"BFGS"} (via \code{optim}),
+and \code{"bobyqa"} (via the \code{minqa} package).}
+
+\item{optim.control}{Optional list of control parameters passed to the
+optimizer. See the \code{minqa} package documentation for details.}
+
+\item{maxit.optim}{Maximum number of iterations for the optimizer
+(default is 1e+05). Increase if the optimizer needs more iterations.}
+
+\item{hessian.method.args}{A list of control parameters passed to the
+numerical Hessian calculator (e.g., \code{numDeriv::hessian}).}
 }
 \value{
-This function returns a phrase to print, with or without an
-   exclamation point added. As a side effect, this function also prints out
-   the phrase.
+An object of class \code{"mnTS"} containing estimated parameters.
 }
 \description{
-This is a simple function that, by default, prints "Hello world". You can
-customize the text to prin
+Fits a multinomial state-space model for multivariate count data,
+allowing for latent temporal processes, covariate effects, and species
+interactions.
 }

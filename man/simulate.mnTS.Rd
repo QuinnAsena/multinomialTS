@@ -2,21 +2,20 @@
 % Please edit documentation in R/source_mnTS.R
 \name{simulate.mnTS}
 \alias{simulate.mnTS}
-\title{Multinomial state-space simulate object}
+\title{Simulate Data from a Multinomial State-Space Model}
 \usage{
 \method{simulate}{mnTS}(mod, ...)
 }
 \arguments{
-\item{mod}{inout matrix of}
+\item{mod}{An object of class \code{"mnTS"}, as returned by the
+\code{\link{mnTS}} function.}
 
-\item{...}{input matrix of}
+\item{...}{Additional arguments passed to the simulation routine.}
 }
 \value{
-This function returns a phrase to print, with or without an
-   exclamation point added. As a side effect, this function also prints out
-   the phrase.
+A simulated dataset in the same structure as the response variable
+    \code{Y} used to fit the model.
 }
 \description{
-This is a simple function
-customize the text
+Generates simulated datasets from a fitted mnTS object.
 }

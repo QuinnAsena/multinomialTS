@@ -2,20 +2,20 @@
 % Please edit documentation in R/source_mnTS.R
 \name{summary.mnTS}
 \alias{summary.mnTS}
-\title{Multinomial state-space summary}
+\title{Summary Method for Multinomial State-Space Models}
 \usage{
 \method{summary}{mnTS}(mod, ...)
 }
 \arguments{
-\item{mod}{inout matrix of}
+\item{mod}{An object of class \code{"mnTS"}, typically returned by the
+\code{\link{mnTS}} function.}
+
+\item{...}{Additional arguments (currently unused).}
 }
 \value{
-This function returns a phrase to print, with or without an
-   exclamation point added. As a side effect, this function also prints out
-   the phrase.
+Returns a summary list containing key model estimates.
+    Also prints the summary to the console.
 }
 \description{
-This is a simple function
-customize the text to print (using the \code{to_print} argument) and add
-an exclamation point (\code{excited = TRUE}).
+Provides a summary of the fitted multinomial state-space model.
 }

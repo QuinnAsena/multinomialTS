@@ -2,21 +2,19 @@
 % Please edit documentation in R/source_mnTS.R
 \name{coef.mnTS}
 \alias{coef.mnTS}
-\title{Multinomial state-space coefficient summary}
+\title{Coefficients for Multinomial State-Space Model}
 \usage{
 \method{coef}{mnTS}(mod, ...)
 }
 \arguments{
-\item{mod}{inout matrix of}
+\item{mod}{An object of class \code{"mnTS"}, as returned by the
+\code{\link{mnTS}} function.}
 
-\item{...}{input matrix of}
+\item{...}{Additional arguments (currently unused).}
 }
 \value{
-This function returns a phrase to print, with or without an
-   exclamation point added. As a side effect, this function also prints out
-   the phrase.
+A list of estimated model coefficients.
 }
 \description{
-This is a simple function
-customize the text to print
+Extracts estimated coefficients from a fitted multinomial state-space model.
 }

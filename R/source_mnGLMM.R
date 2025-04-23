@@ -81,41 +81,52 @@ if (!fitted.values) {
 
 
 # Multinomial GLMM --------------------------------------------------------
-#' Multinomial GLMM
+#' Multinomial Generalized Linear Mixed Model (mnGLMM)
 #'
-#' This is a multivariate generalized linear regression model.
+#' Fits a multivariate generalized linear regression model for multinomially
+#' distributed response data. This function estimates driver-species
+#' relationships (B coefficients), observation-level dispersion,
+#' and species covariance structures via maximum likelihood or REML.
 #'
-#' @param Y Input matrix of multinomially distributed data as the response
-#'    variable. For example a site-by-species matrix of species counts.
-#' @param X Input matrix of covariates (predictors). Covariates are not
-#'    required to be multinomially distributed and may be of mixed type.
-#'    Multiple covariates should be scaled.
-#' @param B.fixed Matrix of B coefficients (driver-species relationships)
-#'    to estimate. Number of columns must equal the number of species in Y.
-#'    Number of rows must equal the number of covariates, plus one.
-#' @param B.start Matrix of starting values. Dimensions should batch B.fixed.
-#' @param sigma.fixed Overall model variance, set to NA to estimate from model.
-#' @param sigma.start Starting value for sigma.fixed
-#' @param dispersion.fixed Dispersion parameter to inflate (or deflate)
-#'     the observation variation from that anticipated for a pure
-#'     multinomial sampling process. Defaults to 1 for no over/under dispersion.
-#' @param dispersion.start Starting value for dispersion.fixed.
-#' @param V.fixed A species by species covariance matrix of environmental
-#'     variation.
-#' @param V.start Starting values for V.fixed.
-#' @param method Method used by optimiser. Acceptable methods are
-#'     Nelder-Mead {optim},  BFGS {optim}, and bobyqa {minqa}.
-#' @param optim.control An optional list of control settings for the optimisiser.
-#'     See the minqua package for details.
-#' @param maxit.optim Number of iterations used by the optimiser.
-#' @param REML TRUE/FALSE parameter for using Restricted maximum likelihood.
-#' @return This function returns an object of class "mnGLMM" containing
-#'    parameter estimates from the model.
+#' @param Y A matrix of multinomially distributed count data
+#'     (e.g., community count data).
+#' @param X A matrix of covariates (predictors), which may be of mixed type
+#'     Covariates should be scaled when appropriate. Can be \code{NULL}.
+#' @param B.fixed A matrix indicating which B coefficients
+#'     (driver-species relationships) to estimate. The number of columns must
+#'     equal \code{ncol(Y)} (number of species), and the number of rows must
+#'     equal \code{ncol(X) + 1} (intercept + covariates).
+#' @param B.start A matrix of starting values for the B coefficients.
+#'     Dimensions must match \code{B.fixed}.
+#' @param sigma.fixed Fixed value for the overall model variance. Use \code{NA}
+#'     to estimate it from the model.
+#' @param sigma.start Starting value for estimating \code{sigma.fixed}
+#'     (default is 0.1).
+#' @param dispersion.fixed Fixed dispersion parameter to account for
+#'     over- or under-dispersion. A value of 1 corresponds to no
+#'     extra dispersion (pure multinomial).
+#' @param dispersion.start Starting value for estimating
+#'     \code{dispersion.fixed}.
+#' @param V.fixed A species-by-species covariance matrix representing
+#'     environmental variation.
+#' @param V.start Starting values for \code{V.fixed}.
+#' @param method Optimization method. Acceptable values include
+#'     \code{"Nelder-Mead"}, \code{"BFGS"} (via \code{optim}),
+#'     and \code{"bobyqa"} (via the \code{minqa} package).
+#' @param optim.control Optional list of control parameters passed to the
+#'     optimizer. See the \code{minqa} package documentation for details.
+#' @param maxit.optim Maximum number of iterations for the optimizer
+#'     (default is 1e+05). Increase if of optimizer needs more itterations.
+#' @param REML Logical. If \code{TRUE}, uses restricted maximum likelihood
+#'     for variance estimation.
+#' @param compute.information.matrix Logical. If \code{TRUE},
+#'     computes the observed information matrix.
 #'
+#' @return An object of class \code{"mnGLMM"}.
 #'
 #' @import minqa
-#'
 #' @export
+
 
 mnGLMM <- function(Y, X = NULL, B.fixed = if (is.null(X))
 	matrix(c(0, rep(NA, ncol(Y) - 1)), nrow = 1, ncol = ncol(Y))

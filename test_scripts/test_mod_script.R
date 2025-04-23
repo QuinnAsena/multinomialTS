@@ -56,8 +56,8 @@ ss_mod <- mnTS(Y = Y[Tsample, ], X = X, Tsample = Tsample, B0.start = B0.start, 
 summary(ss_mod)
 
 simulate(ss_mod)
-multinomialTS::boot.mnTS(ss_mod, 3)
+# multinomialTS::boot.mnTS(ss_mod, 3)
 coef(ss_mod)
 
-
+boot(ss_mod, reps = 3)
 

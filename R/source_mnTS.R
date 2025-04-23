@@ -150,24 +150,56 @@ mnTS.ml <- function(par, par.fixed, Y, X = NULL, Tsample, fitted.values = FALSE)
 }
 
 # mnTS ------------------------------------------------------------------------
-#' Multinomial state-space
+#' Multinomial State-Space Model (mnTS)
 #'
-#' This is a simple function that, by default, prints "Hello world". You can
-#' customize the text to prin
+#' Fits a multinomial state-space model for multivariate count data,
+#' allowing for latent temporal processes, covariate effects, and species
+#' interactions.
 #'
-#' @param Y inout matrix of
-#' @param X input matrix of
-#' @param Tsample Placement of observations
+#' @param Y A matrix of multinomially distributed count data (e.g.,
+#'     community count data).
+#' @param X A matrix of covariates (predictors), which may be of mixed type.
+#'     Covariates should be scaled when appropriate. Can be \code{NULL}.
+#' @param Tsample A vector of row indices specifying the subset of
+#'     observations in \code{Y} to treat as temporal samples.
+#' @param B0.fixed A 1 by \code{ncol(Y)} matrix of species
+#'     intercepts to estimate.
+#' @param B0.start A matrix of starting values for \code{B0.fixed}.
+#' @param B.fixed A matrix indicating which B coefficients (driver-species
+#'     relationships) to estimate. Should have \code{ncol(Y)} columns and
+#'     \code{ncol(X)} rows.
+#' @param B.start A matrix of starting values for \code{B.fixed}. Dimensions
+#'    of \code{B.start} should match \code{B.fixed}.
+#' @param C.fixed A species-by-species matrix of interactions,
+#'     indicating which interactions to estimate.
+#' @param C.start A matrix of starting values for \code{C.fixed}.
+#' @param sigma.fixed Fixed value for the overall model variance. Use
+#'     \code{NA} to estimate it from the model.
+#' @param sigma.start Starting value for estimating \code{sigma.fixed}.
+#' @param dispersion.fixed Fixed dispersion parameter for observation-level
+#'     variation. A value of 1 corresponds to no over- or under-dispersion.
+#' @param dispersion.start Starting value for estimating
+#'     \code{dispersion.fixed}.
+#' @param V.fixed A species-by-species covariance matrix representing
+#'     environmental variation.
+#' @param V.start Starting values for \code{V.fixed}.
+#' @param method Optimization method. Acceptable values include
+#'     \code{"Nelder-Mead"}, \code{"BFGS"} (via \code{optim}),
+#'     and \code{"bobyqa"} (via the \code{minqa} package).
+#' @param optim.control Optional list of control parameters passed to the
+#'     optimizer. See the \code{minqa} package documentation for details.
+#' @param maxit.optim Maximum number of iterations for the optimizer
+#'     (default is 1e+05). Increase if the optimizer needs more iterations.
+#' @param compute.information.matrix Logical. If \code{TRUE}, computes the
+#'     observed information matrix.
+#' @param hessian.method.args A list of control parameters passed to the
+#'     numerical Hessian calculator (e.g., \code{numDeriv::hessian}).
 #'
-#' @return This function returns a phrase to print, with or without an
-#'    exclamation point added. As a side effect, this function also prints out
-#'    the phrase.
-#'
+#' @return An object of class \code{"mnTS"} containing estimated parameters.
 #'
 #' @import numDeriv
 #' @import minqa
 #' @import stats
-#'
 #' @export
 
 mnTS <- function(Y, X = NULL, Tsample = 1:nrow(Y),
@@ -423,18 +455,16 @@ mnTS <- function(Y, X = NULL, Tsample = 1:nrow(Y),
 }
 
 # summary.mnTS --------------------------------------------------------
-#' Multinomial state-space summary
+#' Summary Method for Multinomial State-Space Models
 #'
-#' This is a simple function
-#' customize the text to print (using the \code{to_print} argument) and add
-#' an exclamation point (\code{excited = TRUE}).
+#' Provides a summary of the fitted multinomial state-space model.
 #'
-#' @param mod inout matrix of
+#' @param mod An object of class \code{"mnTS"}, typically returned by the
+#'     \code{\link{mnTS}} function.
+#' @param ... Additional arguments (currently unused).
 #'
-#' @return This function returns a phrase to print, with or without an
-#'    exclamation point added. As a side effect, this function also prints out
-#'    the phrase.
-#'
+#' @return Returns a summary list containing key model estimates.
+#'     Also prints the summary to the console.
 #'
 #' @export
 
@@ -501,18 +531,16 @@ print.mnTS <- summary.mnTS
 
 
 # coef.mnTS -----------------------------------------------------------
-#' Multinomial state-space coefficient summary
+#' Coefficients for Multinomial State-Space Model
 #'
-#' This is a simple function
-#' customize the text to print
+#' Extracts estimated coefficients from a fitted multinomial state-space model.
+
 #'
-#' @param mod inout matrix of
-#' @param ... input matrix of
+#' @param mod An object of class \code{"mnTS"}, as returned by the
+#'     \code{\link{mnTS}} function.
+#' @param ... Additional arguments (currently unused).
 #'
-#' @return This function returns a phrase to print, with or without an
-#'    exclamation point added. As a side effect, this function also prints out
-#'    the phrase.
-#'
+#' @return A list of estimated model coefficients.
 #'
 #' @export
 
@@ -537,21 +565,20 @@ coef.mnTS <- function(mod, ...) {
 
 
 # simulate.mnTS -------------------------------------------------------
-#' Multinomial state-space simulate object
+#' Simulate Data from a Multinomial State-Space Model
 #'
-#' This is a simple function
-#' customize the text
+#' Generates simulated datasets from a fitted mnTS object.
 #'
-#' @param mod inout matrix of
-#' @param ... input matrix of
+#' @param mod An object of class \code{"mnTS"}, as returned by the
+#'     \code{\link{mnTS}} function.
+#' @param ... Additional arguments passed to the simulation routine.
 #'
-#' @return This function returns a phrase to print, with or without an
-#'    exclamation point added. As a side effect, this function also prints out
-#'    the phrase.
+#' @return A simulated dataset in the same structure as the response variable
+#'     \code{Y} used to fit the model.
 #'
 #' @importFrom mvtnorm rmvnorm
-#'
 #' @export
+
 
 simulate.mnTS <- function(mod, ...) {
 
@@ -621,24 +648,33 @@ simulate.mnTS <- function(mod, ...) {
 }
 
 
-
-# boot.mnTS -------------------------------------------------------
+# boot ------------------------------------------------------------
 #' Multinomial state-space bootstrap
 #'
-#' This is a simple function
+#' This is a generic bootstrap function for models.
 #'
-#' @param mod inout matrix of
-#' @param ... input matrix of
-#'
-#' @return This function returns a phrase to print, with or without an
-#'    exclamation point added. As a side effect, this function also prints out
-#'    the phrase.
-#'
-#'
-#' @import matrixStats
-#' @import minqa
+#' @param object An object for which the bootstrap method is defined.
+#' @param ... Additional arguments passed to the method.
 #'
 #' @export
+boot <- function(object, ...) {
+  UseMethod("boot")
+}
+
+
+# boot.mnTS -------------------------------------------------------
+#' Bootstrap method for mnTS objects
+#'
+#' Provides bootstrapped confidence intervals for an object of class \code{mnTS}.
+#'
+#' @param object An object of class \code{mnTS}.
+#' @param reps Integer. Number of bootstrap replications.
+#' @param dispersion.fixed Numeric. Dispersion parameter (default is 1).
+#' @param maxit.optim Integer. Max iterations for optimization (default 100000).
+#' @param ... Additional arguments (not currently used).
+#'
+#' @export
+#' @method boot mnTS
 
 boot.mnTS <- function(mod, reps, dispersion.fixed = 1, maxit.optim = 1e+05, ...) {
 
