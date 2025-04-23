@@ -7,5 +7,5 @@
 mnTS_ml_cpp_listout(par, par_fixed, Y, X, Tsample)
 }
 \description{
-This is a description of what the function does.
+These are internal functions required by multinomialTS.
 }

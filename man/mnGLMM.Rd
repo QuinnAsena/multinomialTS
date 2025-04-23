@@ -26,20 +26,48 @@ mnGLMM(
 )
 }
 \arguments{
-\item{Y}{inout matrix of}
+\item{Y}{Input matrix of multinomially distributed data as the response
+variable. For example a site-by-species matrix of species counts.}
 
-\item{X}{input matrix of}
+\item{X}{Input matrix of covariates (predictors). Covariates are not
+required to be multinomially distributed and may be of mixed type.
+Multiple covariates should be scaled.}
 
-\item{REML}{Description}
+\item{B.fixed}{Matrix of B coefficients (driver-species relationships)
+to estimate. Number of columns must equal the number of species in Y.
+Number of rows must equal the number of covariates, plus one.}
 
-\item{fitted.values}{TRUE/FALSE argument indicating}
+\item{B.start}{Matrix of starting values. Dimensions should batch B.fixed.}
+
+\item{sigma.fixed}{Overall model variance, set to NA to estimate from model.}
+
+\item{sigma.start}{Starting value for sigma.fixed}
+
+\item{dispersion.fixed}{Dispersion parameter to inflate (or deflate)
+the observation variation from that anticipated for a pure
+multinomial sampling process. Defaults to 1 for no over/under dispersion.}
+
+\item{dispersion.start}{Starting value for dispersion.fixed.}
+
+\item{V.fixed}{A species by species covariance matrix of environmental
+variation.}
+
+\item{V.start}{Starting values for V.fixed.}
+
+\item{method}{Method used by optimiser. Acceptable methods are
+Nelder-Mead {optim},  BFGS {optim}, and bobyqa {minqa}.}
+
+\item{optim.control}{An optional list of control settings for the optimisiser.
+See the minqua package for details.}
+
+\item{maxit.optim}{Number of iterations used by the optimiser.}
+
+\item{REML}{TRUE/FALSE parameter for using Restricted maximum likelihood.}
 }
 \value{
-This function returns a phrase to print, with or without an
-   exclamation point added. As a side effect, this function also prints out
-   the phrase.
+This function returns an object of class "mnGLMM" containing
+   parameter estimates from the model.
 }
 \description{
-This is a not a simple function
-customize the text to print.
+This is a multivariate generalized linear regression model.
 }

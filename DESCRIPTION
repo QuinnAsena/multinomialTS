@@ -4,8 +4,8 @@ Title: State-Space Modelling of Multinomially Distributed Data
 Version: 1.0.0
 Author: Anthony Ives and Quinn Asena
 Maintainer: Quinn Asena <qasena@wisc.edu>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Description: This is a package for state-space modelling of multinomially
+    distributed data e.g., community count data or palaeoecological time series.
 License: MIT
 Encoding: UTF-8
 LazyData: true

@@ -6,21 +6,6 @@
 \usage{
 mnTS.ml.wrapper(par, par.fixed, Y, X, Tsample)
 }
-\arguments{
-\item{par}{something}
-
-\item{par.fixed}{More things}
-
-\item{Y}{inout matrix of}
-
-\item{X}{input matrix of}
-}
-\value{
-This function returns a phrase to print, with or without an
-   exclamation point added. As a side effect, this function also prints out
-   the phrase.
-}
 \description{
-This is a simple function that, by default, prints "Hello world". You can
-customize the text to print
+These are internal functions required by multinomialTS.
 }

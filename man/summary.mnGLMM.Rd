@@ -7,16 +7,11 @@
 \method{summary}{mnGLMM}(mod, ...)
 }
 \arguments{
-\item{mod}{inout matrix of}
-
-\item{...}{input matrix of}
+\item{mod}{An object of class "mnGLMM"}
 }
 \value{
-This function returns a phrase to print, with or without an
-   exclamation point added. As a side effect, this function also prints out
-   the phrase.
+Prints coefficient estimates from a fitted mnGLMM
 }
 \description{
-This is a simple function
-customize the text to
+Prints the summary of a mnGLMM model.
 }

@@ -1,26 +1,13 @@
 # Multinomial GLMM ML -----------------------------------------------------
 #' Multinomial GLMM Maximum likelihood
 #'
-#' This is a simple function that, by default, prints "Hello world". You can
-#' customize the text to prin
-#'
-#' @param par something
-#' @param par.fixed More things
-#' @param Y inout matrix of
-#' @param X input matrix of
-#' @param fitted.values TRUE/FALSE argument indicating
-#' @param REML Description
-#'
-#' @return This function returns a phrase to print, with or without an
-#'    exclamation point added. As a side effect, this function also prints out
-#'    the phrase.
+#' This is an internal function called by mnGLMM.
 #'
 #'
 #' @import minqa
 #' @import numDeriv
 #' @import stats
 #'
-#' @export
 
 mnGLMM.ml <- function(par, par.fixed, Y, X, fitted.values = FALSE, REML = FALSE) {
 	parameters <- par.fixed
@@ -96,17 +83,34 @@ if (!fitted.values) {
 # Multinomial GLMM --------------------------------------------------------
 #' Multinomial GLMM
 #'
-#' This is a not a simple function
-#' customize the text to print.
+#' This is a multivariate generalized linear regression model.
 #'
-#' @param Y inout matrix of
-#' @param X input matrix of
-#' @param fitted.values TRUE/FALSE argument indicating
-#' @param REML Description
-#'
-#' @return This function returns a phrase to print, with or without an
-#'    exclamation point added. As a side effect, this function also prints out
-#'    the phrase.
+#' @param Y Input matrix of multinomially distributed data as the response
+#'    variable. For example a site-by-species matrix of species counts.
+#' @param X Input matrix of covariates (predictors). Covariates are not
+#'    required to be multinomially distributed and may be of mixed type.
+#'    Multiple covariates should be scaled.
+#' @param B.fixed Matrix of B coefficients (driver-species relationships)
+#'    to estimate. Number of columns must equal the number of species in Y.
+#'    Number of rows must equal the number of covariates, plus one.
+#' @param B.start Matrix of starting values. Dimensions should batch B.fixed.
+#' @param sigma.fixed Overall model variance, set to NA to estimate from model.
+#' @param sigma.start Starting value for sigma.fixed
+#' @param dispersion.fixed Dispersion parameter to inflate (or deflate)
+#'     the observation variation from that anticipated for a pure
+#'     multinomial sampling process. Defaults to 1 for no over/under dispersion.
+#' @param dispersion.start Starting value for dispersion.fixed.
+#' @param V.fixed A species by species covariance matrix of environmental
+#'     variation.
+#' @param V.start Starting values for V.fixed.
+#' @param method Method used by optimiser. Acceptable methods are
+#'     Nelder-Mead {optim},  BFGS {optim}, and bobyqa {minqa}.
+#' @param optim.control An optional list of control settings for the optimisiser.
+#'     See the minqua package for details.
+#' @param maxit.optim Number of iterations used by the optimiser.
+#' @param REML TRUE/FALSE parameter for using Restricted maximum likelihood.
+#' @return This function returns an object of class "mnGLMM" containing
+#'    parameter estimates from the model.
 #'
 #'
 #' @import minqa
@@ -320,16 +324,11 @@ n <- ncol(Y)
 # summary.mnGLMM --------------------------------------------------------
 #' GLMM summary
 #'
-#' This is a simple function
-#' customize the text to
+#' Prints the summary of a mnGLMM model.
 #'
-#' @param mod inout matrix of
-#' @param ... input matrix of
+#' @param mod An object of class "mnGLMM"
 #'
-#' @return This function returns a phrase to print, with or without an
-#'    exclamation point added. As a side effect, this function also prints out
-#'    the phrase.
-#'
+#' @return Prints coefficient estimates from a fitted mnGLMM
 #'
 #' @export
 

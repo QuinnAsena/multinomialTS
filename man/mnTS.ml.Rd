@@ -6,25 +6,6 @@
 \usage{
 mnTS.ml(par, par.fixed, Y, X = NULL, Tsample, fitted.values = FALSE)
 }
-\arguments{
-\item{par}{something}
-
-\item{par.fixed}{More things}
-
-\item{Y}{inout matrix of}
-
-\item{X}{input matrix of}
-
-\item{Tsample}{Placement of observations}
-
-\item{fitted.values}{TRUE/FALSE argument indicating}
-}
-\value{
-This function returns a phrase to print, with or without an
-   exclamation point added. As a side effect, this function also prints out
-   the phrase.
-}
 \description{
-This is a simple function that, by default, prints "Hello world". You can
-customize the text to print
+This is an internal function called by mnTS
 }
