@@ -12,3 +12,9 @@ LazyData: true
 RoxygenNote: 7.3.2
 LinkingTo: Rcpp, RcppArmadillo
 Imports: Rcpp, RcppArmadillo, minqa, matrixStats, numDeriv, mvtnorm, stats
+URL: https://quinnasena.github.io/multinomialTS/
+Suggests: 
+    knitr,
+    rmarkdown,
+    quarto
+VignetteBuilder: quarto
