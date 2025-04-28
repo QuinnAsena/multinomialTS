@@ -14,7 +14,7 @@ One of the primary goals of this model is to be able to test multiple hypotheses
 
 ## This vignette
 
-This document will take us through:
+This vignette will take us through:
 
 - Choosing a binning resolution for `mnTS()`
 - Finding initial conditions with `mnGLMM()`
@@ -46,7 +46,7 @@ library(multinomialTS)
 # Read in our X variables
 data("story_char_wide", package = "multinomialTS")
 # Read in the long data for plotting
-data("state_variables_wide", package = "multinomialTS")
+data("story_pollen_wide", package = "multinomialTS")
 ```
 
 Here is what the state variable ($Y$) data look like:
@@ -54,7 +54,7 @@ Here is what the state variable ($Y$) data look like:
 ```{r}
 #| include: false
 
-head(state_variables_wide)
+head(story_pollen_wide)
 ```
 
 And our covariate ($X$):
@@ -73,19 +73,19 @@ We will start off by chosing a resolution for the model predictions (_e.g.,_ pre
 
 ```{r}
 # Time-span of the data divided by the numer of observations
-max(state_variables_wide$age) / nrow(state_variables_wide)
+max(story_pollen_wide$age) / nrow(story_pollen_wide)
 
 # Age differences between successive observations
-diff(state_variables_wide$age)
+diff(story_pollen_wide$age)
 
 
 # The range of the age differences
-range(diff(state_variables_wide$age))
+range(diff(story_pollen_wide$age))
 
 # the average of the age differences
-mean(diff(state_variables_wide$age))
+mean(diff(story_pollen_wide$age))
 
-sd(diff(state_variables_wide$age))
+sd(diff(story_pollen_wide$age))
 ```
 
 This all looks great! If we bin the data at around 50-75 years, we will still have most of our data in independent bins.
@@ -99,7 +99,7 @@ What questions do you have so far?
 
 ## Handling the covariates $X$
 
-Covariates need to be handled according to decisions that were made around the state variables, that is, if the state variables were binned at a century-level resolution then the covariates must match that resolution. We _can_ have a finer temporal resolution of the covariates than we do of the state variables. In this dataset, our state variables have `r nrow(state_variables_wide)` observations, and our covariate has `r nrow(story_char_wide[story_char_wide$age <= max(state_variables_wide$age), ])` observations over the same time-span. Having more observations of environmental covariates is common in palaeo-data and works well with fitting the model.
+Covariates need to be handled according to decisions that were made around the state variables, that is, if the state variables were binned at a century-level resolution then the covariates must match that resolution. We _can_ have a finer temporal resolution of the covariates than we do of the state variables. In this dataset, our state variables have `r nrow(story_pollen_wide)` observations, and our covariate has `r nrow(story_char_wide[story_char_wide$age <= max(story_pollen_wide$age), ])` observations over the same time-span. Having more observations of environmental covariates is common in palaeo-data and works well with fitting the model.
 
 Since we need to apply the same binning procedure to both the state variables and the covariate, I like to join both datasets. Charcoal was sampled to a greater depth than the pollen data, so we are going to clip the covariate to the extent of the state variables and join the two datasets by their common variable, age.
 
@@ -109,8 +109,8 @@ Since we need to apply the same binning procedure to both the state variables an
 # Clip covariate data to the extent of the state variables
 # Join the two by age so that we get a square matrix
 story_join <- story_char_wide |>
-  filter(age <= max(state_variables_wide$age)) |>
-  left_join(state_variables_wide)
+  filter(age <= max(story_pollen_wide$age)) |>
+  left_join(story_pollen_wide)
 
 # Always double check dimensions before/after joining!
 # dim(story_join)
@@ -165,7 +165,7 @@ Let's see what the data look like binned at a 50 year resolution:
 head(story_binned, n = 10)
 ```
 
-This is looking good, we have reduced the time-intervals over which to run the model. The data are now `r nrow(story_binned)` rows with complete covariate data, containing `r nrow(story_binned[which(rowSums(story_binned[ ,4:7]) != 0), ])` state variable observations. The original number of pollen observations was `r nrow(state_variables_wide)`, so we have not summed many observations within the same bins.
+This is looking good, we have reduced the time-intervals over which to run the model. The data are now `r nrow(story_binned)` rows with complete covariate data, containing `r nrow(story_binned[which(rowSums(story_binned[ ,4:7]) != 0), ])` state variable observations. The original number of pollen observations was `r nrow(story_pollen_wide)`, so we have not summed many observations within the same bins.
 
 `multinomialTS` requires two matrices, a site-by-species matrix $Y$, and a covariate matrix $X$, so we will leave `tibbles` behind and split the data. $X$ variables may be of different types (e.g., continuous, categorical...) but should be scaled relative to each other.
 
