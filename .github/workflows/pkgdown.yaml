@@ -41,8 +41,6 @@ jobs:
           quarto --version
           Rscript -e 'quarto::quarto_path()'
           Rscript -e 'quarto::quarto_render(".", quiet = FALSE)'
-
-
      
       - uses: r-lib/actions/setup-pandoc@v2
 
