@@ -1,2 +1,3 @@
 PKG_CPPFLAGS += -I"$(R_HOME)/include"
-PKG_LIBS += -L"$(R_HOME)/lib" -lRlapack -lRblas
+PKG_LIBS += -L"$(R_HOME)/lib/R/lib" -lRlapack -lRblas
+
