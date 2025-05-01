@@ -37,7 +37,7 @@ if (!requireNamespace("pak", quietly = TRUE)) {
 packages <- c(
   "rmarkdown", "languageserver", "ggplot2", "dplyr", "tidyr",
   "stringr", "scales", "RcppArmadillo", "minqa", "matrixStats",
-  "numDeriv", "mvtnorm"
+  "numDeriv", "mvtnorm", "quarto"
 )
 pak::pak(packages)
 lapply(packages, library, character.only = TRUE)
