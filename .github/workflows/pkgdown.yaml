@@ -28,7 +28,9 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libopenblas-dev liblapack-dev libblas-dev   
+          sudo apt-get install -y libopenblas-dev liblapack-dev libblas-dev
+
+      - uses: quarto-dev/quarto-actions/setup@v2
       
       - uses: r-lib/actions/setup-pandoc@v2
 
