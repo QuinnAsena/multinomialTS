@@ -34,7 +34,16 @@ jobs:
       
       - name: Add Quarto to PATH
         run: echo "/opt/quarto/bin" >> $GITHUB_PATH
-      
+     
+      - name: Diagnostics: Check Quarto CLI path and version
+        run: |
+          which quarto
+          quarto --version
+          Rscript -e 'quarto::quarto_path()'
+          Rscript -e 'quarto::quarto_render(".", quiet = FALSE)'
+
+
+     
       - uses: r-lib/actions/setup-pandoc@v2
 
       - uses: r-lib/actions/setup-r@v2
