@@ -41,6 +41,16 @@ jobs:
           quarto --version
           Rscript -e 'quarto::quarto_path()'
           Rscript -e 'quarto::quarto_render(".", quiet = FALSE)'
+          
+      - name: Set R environment variable for Quarto
+        run: echo "QUARTO_PATH=$(which quarto)" >> $GITHUB_ENV
+        
+      - name: Diagnostics: Check Quarto CLI path and version
+        run: |
+          which quarto
+          quarto --version
+          Rscript -e 'quarto::quarto_path()'
+          Rscript -e 'quarto::quarto_render(".", quiet = FALSE)'        
      
       - uses: r-lib/actions/setup-pandoc@v2
 
