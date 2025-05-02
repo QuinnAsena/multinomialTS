@@ -37,15 +37,16 @@ jobs:
      
       - name: Diagnostics: Check Quarto CLI path and version
         run: |
-          which quarto
-          quarto --version
-          Rscript -e 'quarto::quarto_path()'
-          Rscript -e 'quarto::quarto_render(".", quiet = FALSE)'
+            which quarto
+            quarto --version
+            Rscript -e 'quarto::quarto_path()'
+            Rscript -e 'quarto::quarto_render(".", quiet = FALSE)'
+
           
       - name: Set R environment variable for Quarto attempt 2
         run: echo "QUARTO_PATH=$(which quarto)" >> $GITHUB_ENV
         
-      - name: Diagnostics: Check Quarto CLI path and version
+      - name: Diagnostics: Check Quarto CLI path and version again
         run: |
           which quarto
           quarto --version
