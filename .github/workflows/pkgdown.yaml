@@ -24,35 +24,30 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Install system dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y libopenblas-dev liblapack-dev libblas-dev
 
       - uses: quarto-dev/quarto-actions/setup@v2
-      
+
       - name: Add Quarto to PATH attempt 1
         run: echo "/opt/quarto/bin" >> $GITHUB_PATH
-     
-      - name: Diagnostics: Check Quarto CLI path and version
-        run: |
-            which quarto
-            quarto --version
-            Rscript -e 'quarto::quarto_path()'
-            Rscript -e 'quarto::quarto_render(".", quiet = FALSE)'
-
-          
-      - name: Set R environment variable for Quarto attempt 2
-        run: echo "QUARTO_PATH=$(which quarto)" >> $GITHUB_ENV
         
-      - name: Diagnostics: Check Quarto CLI path and version again
+      - name: check 1
         run: |
           which quarto
-          quarto --version
           Rscript -e 'quarto::quarto_path()'
-          Rscript -e 'quarto::quarto_render(".", quiet = FALSE)'        
-     
+
+      - name: Set R environment variable for Quarto attempt 2
+        run: echo "QUARTO_PATH=$(which quarto)" >> $GITHUB_ENV
+
+      - name: check 2
+        run: |
+          which quarto
+          Rscript -e 'quarto::quarto_path()'
+
       - uses: r-lib/actions/setup-pandoc@v2
 
       - uses: r-lib/actions/setup-r@v2
