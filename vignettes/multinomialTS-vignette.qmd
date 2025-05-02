@@ -29,19 +29,19 @@ This vignette will work with the data that have focal taxa and groups already wr
 #| label: libraries and data
 
 
-
-if (!requireNamespace("pak", quietly = TRUE)) {
-  install.packages("pak", repos = "https://cran.r-project.org")
-}
-
-packages <- c(
-  "rmarkdown", "languageserver", "ggplot2", "dplyr", "tidyr",
-  "stringr", "scales", "RcppArmadillo", "minqa", "matrixStats",
-  "numDeriv", "mvtnorm", "quarto"
-)
-pak::pak(packages)
-lapply(packages, library, character.only = TRUE)
+# Load required packages
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(scales)
+library(RcppArmadillo)
+library(minqa)
+library(matrixStats)
+library(numDeriv)
+library(mvtnorm)
 library(multinomialTS)
+
 # Read-in the wrangled data 
 # Read in our X variables
 data("story_char_wide", package = "multinomialTS")
@@ -142,8 +142,9 @@ tail(story_join, n = 10)
 This all looks good, and we can now bin the data to an appropriate temporal resolution for fitting the model. Chosing a bin-width may take some trial and error, I'm going with a bin-width of 50 years.
 
 ```{r}
-# This code chunks the data into bins and gives us a grouping variable "bins"
 #| eval: false
+
+# This code chunks the data into bins and gives us a grouping variable "bins"
 
 bin_width <- 50
 bins <- cut(story_join$age,
@@ -181,7 +182,7 @@ Let's see what the data look like binned at a 50 year resolution:
 head(story_binned, n = 10)
 ```
 
-This is looking good, we have reduced the time-intervals over which to run the model. The data are now `r nrow(story_binned)` rows with complete covariate data, containing `r nrow(story_binned[which(rowSums(story_binned[ ,4:7]) != 0), ])` state variable observations. The original number of pollen observations was `r nrow(story_pollen_wide)`, so we have not summed many observations within the same bins.
+This is looking good, we have reduced the time-intervals over which to run the model. The data are nowr nrow(story_binned rows with complete covariate data, containingr nrow(story_binned[which(rowSums(story_binned[ ,4:7]) != 0), ]) state variable observations. The original number of pollen observations was r nrow(story_pollen_wide), so we have not summed many observations within the same bins.
 
 `multinomialTS` requires two matrices, a site-by-species matrix $Y$, and a covariate matrix $X$, so we will leave `tibbles` behind and split the data. $X$ variables may be of different types (e.g., continuous, categorical...) but should be scaled relative to each other.
 
@@ -208,8 +209,8 @@ head(story_char_matrix_scaled)
 
 Ok, now we have:
 
-- Chosen a temporal resolution for the model of `r bin_width` year bins
-- Organised the data into a site-by-species matrix $Y$ at `r bin_width` year bins 
+- Chosen a temporal resolution for the model of r bin_width year bins
+- Organised the data into a site-by-species matrix $Y$ at r bin_width year bins 
 - Binned and scaled covariate matrix $X$
 
 With that, we can fit the model.
@@ -347,7 +348,7 @@ C.fixed.int.mnTS[C.fixed.int.mnTS != 0] <- NA
 
 #### Fitting `mnTS()`
 
-Remember, `mnTS()` _does_ handle gaps in the state-variables where there are data in the covariate matrix. In the following code, we use the complete (no gaps) $Y$ matrix `story_pollen_matrix[sample_idx, ]` with dimensions: `r dim(story_pollen_matrix[sample_idx, ])`. And the full $X$ matrix: `story_char_matrix_scaled` with dimensions: `r dim(story_char_matrix_scaled)`
+Remember, `mnTS()` _does_ handle gaps in the state-variables where there are data in the covariate matrix. In the following code, we use the complete (no gaps) $Y$ matrix `story_pollen_matrix[sample_idx, ]` with dimensions: r dim(story_pollen_matrix[sample_idx, ]). And the full $X$ matrix: `story_char_matrix_scaled` with dimensions: r dim(story_char_matrix_scaled)
 We will fit the model twice: 
 - without taxa interactions
 - and without taxa interactions. 

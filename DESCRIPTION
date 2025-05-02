@@ -16,5 +16,10 @@ URL: https://quinnasena.github.io/multinomialTS/
 Suggests: 
     knitr,
     rmarkdown,
-    quarto
+    quarto,
+    ggplot2,
+    dplyr,
+    tidyr,
+    stringr,
+    scales
 VignetteBuilder: quarto
