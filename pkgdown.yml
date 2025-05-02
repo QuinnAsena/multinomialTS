@@ -1,0 +1,9 @@
+pandoc: 3.1.11
+pkgdown: 2.1.2
+pkgdown_sha: ~
+articles:
+  multinomialTS-vignette: multinomialTS-vignette.html
+last_built: 2025-05-02T13:38Z
+urls:
+  reference: https://quinnasena.github.io/multinomialTS/reference
+  article: https://quinnasena.github.io/multinomialTS/articles
