@@ -32,7 +32,7 @@ jobs:
 
       - uses: quarto-dev/quarto-actions/setup@v2
       
-      - name: Add Quarto to PATH
+      - name: Add Quarto to PATH attempt 1
         run: echo "/opt/quarto/bin" >> $GITHUB_PATH
      
       - name: Diagnostics: Check Quarto CLI path and version
@@ -42,7 +42,7 @@ jobs:
           Rscript -e 'quarto::quarto_path()'
           Rscript -e 'quarto::quarto_render(".", quiet = FALSE)'
           
-      - name: Set R environment variable for Quarto
+      - name: Set R environment variable for Quarto attempt 2
         run: echo "QUARTO_PATH=$(which quarto)" >> $GITHUB_ENV
         
       - name: Diagnostics: Check Quarto CLI path and version

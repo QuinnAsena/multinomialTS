@@ -23,7 +23,7 @@ This vignette will take us through:
 
 # Fitting `mnTS()`
 
-For today, we will be working with the data that have focal taxa and groups already wrangled. This part is covered in the slides and the code is all in the extended walkthrough.
+This vignette will work with the data that have focal taxa and groups already wrangled. A second vignette will be added to cover the data wrangling, for now see ![this workshop](https://quinnasena.github.io/state-space-workhop-ESA/state-space-walkthrough.html)
 
 ```{r}
 #| label: libraries and data
@@ -52,7 +52,6 @@ data("story_pollen_wide", package = "multinomialTS")
 Here is what the state variable ($Y$) data look like:
 
 ```{r}
-#| include: false
 
 head(story_pollen_wide)
 ```
@@ -60,7 +59,6 @@ head(story_pollen_wide)
 And our covariate ($X$):
 
 ```{r}
-#| include: false
 
 head(story_char_wide)
 ```
