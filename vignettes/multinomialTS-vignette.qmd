@@ -1,7 +1,16 @@
 ---
 title: "multinomialTS Vignette"
-format: html
-engine: quarto
+author:
+  name: "Quinn Asena, Tony Ives, and Jack williams"
+date: today
+format:
+  html:
+    code-fold: true
+    toc: true
+    link-external-newwindow: true
+theme:
+  dark: darkly
+  light: flatly
 vignette: >
   %\VignetteIndexEntry{multinomialTS-vignette}
   %\VignetteEngine{quarto::html}
