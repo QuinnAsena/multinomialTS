@@ -54,8 +54,8 @@
 
       <h1>multinomialTS Vignette</h1>
 
-
-
+      <p class="author">Quinn Asena, Tony Ives, and Jack williams</p>
+      <p class="date">2025-05-07</p>
 
 
       <div class="d-none name"><code></code></div>
@@ -84,11 +84,11 @@
 </h2>
 <p>This vignette will work with the data that have focal taxa and groups already wrangled. A second vignette will be added to cover the data wrangling, for now see <embed src="https://quinnasena.github.io/state-space-workhop-ESA/state-space-walkthrough.html"></embed></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Load required packages</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span></code></pre></div>
-<div class="cell-output cell-output-stderr">
+</details><div class="cell-output cell-output-stderr">
 <pre><code>
 Attaching package: 'dplyr'</code></pre>
 </div>
@@ -102,14 +102,14 @@ Attaching package: 'dplyr'</code></pre>
 
     intersect, setdiff, setequal, union</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyr.tidyverse.org" class="external-link">tidyr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://stringr.tidyverse.org" class="external-link">stringr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://scales.r-lib.org" class="external-link">scales</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/RcppCore/RcppArmadillo" class="external-link">RcppArmadillo</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://optimizer.r-forge.r-project.org" class="external-link">minqa</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/HenrikBengtsson/matrixStats" class="external-link">matrixStats</a></span><span class="op">)</span></span></code></pre></div>
-<div class="cell-output cell-output-stderr">
+</details><div class="cell-output cell-output-stderr">
 <pre><code>
 Attaching package: 'matrixStats'</code></pre>
 </div>
@@ -118,7 +118,7 @@ Attaching package: 'matrixStats'</code></pre>
 
     count</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://optimizer.r-forge.r-project.org/" class="external-link">numDeriv</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://mvtnorm.R-forge.R-project.org" class="external-link">mvtnorm</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://quinnasena.github.io/multinomialTS/">multinomialTS</a></span><span class="op">)</span></span>
@@ -126,34 +126,36 @@ Attaching package: 'matrixStats'</code></pre>
 <span><span class="co"># Read-in the wrangled data </span></span>
 <span><span class="co"># Read in our X variables</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"story_char_wide"</span>, package <span class="op">=</span> <span class="st">"multinomialTS"</span><span class="op">)</span></span></code></pre></div>
-<div class="cell-output cell-output-stderr">
+</details><div class="cell-output cell-output-stderr">
 <pre><code>Warning in data("story_char_wide", package = "multinomialTS"): data set
 'story_char_wide' not found</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Read in the long data for plotting</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"story_pollen_wide"</span>, package <span class="op">=</span> <span class="st">"multinomialTS"</span><span class="op">)</span></span></code></pre></div>
-<div class="cell-output cell-output-stderr">
+</details><div class="cell-output cell-output-stderr">
 <pre><code>Warning in data("story_pollen_wide", package = "multinomialTS"): data set
 'story_pollen_wide' not found</code></pre>
 </div>
 </div>
 <p>Here is what the state variable (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>) data look like:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="downlit sourceCode r">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">story_pollen_wide</span><span class="op">)</span></span></code></pre></div>
+</details>
 </div>
 <p>And our covariate (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>):</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="downlit sourceCode r">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">story_char_wide</span><span class="op">)</span></span></code></pre></div>
+</details>
 </div>
 <p>For the moment, we are keeiping the age and depth columns in both tibbles. These columns are so that we have a common variable to match the two to tibbles, and will be removed a little lates.</p>
 <section class="level2"><h3 id="state-variables-y">State variables <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math><a class="anchor" aria-label="anchor" href="#state-variables-y"></a>
 </h3>
 <p>We will start off by chosing a resolution for the model predictions (<em>e.g.,</em> predicting ecological process at 50 or 100 year intervals).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="downlit sourceCode r">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Time-span of the data divided by the numer of observations</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">story_pollen_wide</span><span class="op">$</span><span class="va">age</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">story_pollen_wide</span><span class="op">)</span></span>
 <span></span>
@@ -168,6 +170,7 @@ Attaching package: 'matrixStats'</code></pre>
 <span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diff.html" class="external-link">diff</a></span><span class="op">(</span><span class="va">story_pollen_wide</span><span class="op">$</span><span class="va">age</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/sd.html" class="external-link">sd</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diff.html" class="external-link">diff</a></span><span class="op">(</span><span class="va">story_pollen_wide</span><span class="op">$</span><span class="va">age</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+</details>
 </div>
 <p>This all looks great! If we bin the data at around 50-75 years, we will still have most of our data in independent bins.</p>
 <p>Now that we know roughly what bin-width to use to maximise the number of observations in the state variables, we will apply the same bin-width to both the state variables and the covariate data.</p>
@@ -182,7 +185,7 @@ Attaching package: 'matrixStats'</code></pre>
 <p>Covariates need to be handled according to decisions that were made around the state variables, that is, if the state variables were binned at a century-level resolution then the covariates must match that resolution. We <em>can</em> have a finer temporal resolution of the covariates than we do of the state variables. In this dataset, our state variables have r nrow(story_pollen_wide) observations, and our covariate has r nrow(story_char_wide[story_char_wide<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mi>g</mi><mi>e</mi><mo>&lt;</mo><mo>=</mo><mi>m</mi><mi>a</mi><mi>x</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mi>t</mi><mi>o</mi><mi>r</mi><msub><mi>y</mi><mi>p</mi></msub><mi>o</mi><mi>l</mi><mi>l</mi><mi>e</mi><msub><mi>n</mi><mi>w</mi></msub><mi>i</mi><mi>d</mi><mi>e</mi></mrow><annotation encoding="application/x-tex">age &lt;= max(story_pollen_wide</annotation></semantics></math>age), ]) observations over the same time-span. Having more observations of environmental covariates is common in palaeo-data and works well with fitting the model.</p>
 <p>Since we need to apply the same binning procedure to both the state variables and the covariate, I like to join both datasets. Charcoal was sampled to a greater depth than the pollen data, so we are going to clip the covariate to the extent of the state variables and join the two datasets by their common variable, age.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="downlit sourceCode r">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Clip covariate data to the extent of the state variables</span></span>
 <span><span class="co"># Join the two by age so that we get a square matrix</span></span>
 <span><span class="va">story_join</span> <span class="op">&lt;-</span> <span class="va">story_char_wide</span> <span class="op">|&gt;</span></span>
@@ -192,20 +195,23 @@ Attaching package: 'matrixStats'</code></pre>
 <span><span class="co"># Always double check dimensions before/after joining!</span></span>
 <span><span class="co"># dim(story_join)</span></span>
 <span><span class="co"># tail(story_join)</span></span></code></pre></div>
+</details>
 </div>
 <p>Now we have all our data joined. Note that the covariate <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math> (<code>char_acc</code>) has observations every cm, whereas pollen was sampled at less frequent intervals (this is OK! :smiley:).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="downlit sourceCode r">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">story_join</span>, n <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></code></pre></div>
+</details>
 </div>
 <p>I always do lots of quick checks like <code><a href="https://rdrr.io/r/utils/head.html" class="external-link">head()</a></code>, <code><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail()</a></code>, <code><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim()</a></code> (and many more!) to make sure to catch any coding mistakes!</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="downlit sourceCode r">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">story_join</span>, n <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></code></pre></div>
+</details>
 </div>
 <p>This all looks good, and we can now bin the data to an appropriate temporal resolution for fitting the model. Chosing a bin-width may take some trial and error, I’m going with a bin-width of 50 years.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="downlit sourceCode r">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># This code chunks the data into bins and gives us a grouping variable "bins"</span></span>
 <span></span>
 <span><span class="va">bin_width</span> <span class="op">&lt;-</span> <span class="fl">50</span></span>
@@ -213,10 +219,11 @@ Attaching package: 'matrixStats'</code></pre>
 <span>            breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">story_join</span><span class="op">$</span><span class="va">age</span><span class="op">)</span>,</span>
 <span>            to <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">story_join</span><span class="op">$</span><span class="va">age</span> <span class="op">+</span> <span class="va">bin_width</span><span class="op">)</span>,</span>
 <span>            by <span class="op">=</span> <span class="va">bin_width</span><span class="op">)</span>, include.lowest <span class="op">=</span> <span class="cn">TRUE</span>, labels <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+</details>
 </div>
 <p>We now apply the bins to our data. For most types of covariates we want the <em>average</em> value of the covariate in each bin. But for the pollen count data, we want the <em>sum</em>. This is because of the underlying multinomial distribution in the model.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="downlit sourceCode r">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># The following code </span></span>
 <span><span class="va">story_binned</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_cols.html" class="external-link">bind_cols</a></span><span class="op">(</span>bins <span class="op">=</span> <span class="va">bins</span>, <span class="va">story_join</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">bins</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="co"># Group the data by the bins so that we calculate per time bin</span></span>
@@ -231,16 +238,18 @@ Attaching package: 'matrixStats'</code></pre>
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/desc.html" class="external-link">desc</a></span><span class="op">(</span><span class="va">age</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co"># Be aware that the gaps in the pollen data are now filled with 0's not NA</span></span></code></pre></div>
+</details>
 </div>
 <p>Let’s see what the data look like binned at a 50 year resolution:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="downlit sourceCode r">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">story_binned</span>, n <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></code></pre></div>
+</details>
 </div>
 <p>This is looking good, we have reduced the time-intervals over which to run the model. The data are nowr nrow(story_binned rows with complete covariate data, containingr nrow(story_binned[which(rowSums(story_binned[ ,4:7]) != 0), ]) state variable observations. The original number of pollen observations was r nrow(story_pollen_wide), so we have not summed many observations within the same bins.</p>
 <p><code>multinomialTS</code> requires two matrices, a site-by-species matrix <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>, and a covariate matrix <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>, so we will leave <code>tibbles</code> behind and split the data. <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math> variables may be of different types (e.g., continuous, categorical…) but should be scaled relative to each other.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="downlit sourceCode r">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">story_pollen_matrix</span> <span class="op">&lt;-</span> <span class="va">story_binned</span> <span class="op">|&gt;</span>  <span class="co"># Select taxa</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">other</span>, <span class="va">hardwood</span>, <span class="va">Ulmus</span>, <span class="va">`Fagus grandifolia`</span>, <span class="va">Quercus</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html" class="external-link">rename</a></span><span class="op">(</span><span class="st">"Fagus"</span> <span class="op">=</span> <span class="st">"Fagus grandifolia"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
@@ -255,6 +264,7 @@ Attaching package: 'matrixStats'</code></pre>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/scale.html" class="external-link">scale</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Scale covariates</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">story_char_matrix_scaled</span><span class="op">)</span></span></code></pre></div>
+</details>
 </div>
 </section><section class="level2"><h3 id="fitting-multinomialts">Fitting <code>multinomialTS</code>
 <a class="anchor" aria-label="anchor" href="#fitting-multinomialts"></a>
@@ -297,15 +307,16 @@ Attaching package: 'matrixStats'</code></pre>
 </li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb22"><pre class="downlit sourceCode r">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># set-up sample index</span></span>
 <span><span class="va">sample_idx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="va">story_pollen_matrix</span><span class="op">)</span> <span class="op">!=</span> <span class="fl">0</span><span class="op">)</span></span>
 <span><span class="co"># make sure it works</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">story_pollen_matrix</span><span class="op">[</span><span class="va">sample_idx</span>, <span class="op">]</span><span class="op">)</span></span></code></pre></div>
+</details>
 </div>
 <p>Set-up the remaining parameters:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb23"><pre class="downlit sourceCode r">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Set-up parameters</span></span>
 <span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">story_char_matrix_scaled</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1</span> <span class="co"># Number of independent variables plus intercept</span></span>
 <span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">story_pollen_matrix</span><span class="op">)</span> <span class="co"># number of taxa</span></span>
@@ -314,6 +325,7 @@ Attaching package: 'matrixStats'</code></pre>
 <span><span class="va">V.fixed.glmm</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
 <span><span class="va">B.fixed.glmm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>,<span class="va">p</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="op">(</span><span class="va">n</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="va">p</span><span class="op">)</span><span class="op">)</span>, <span class="va">p</span>, <span class="va">n</span><span class="op">)</span> <span class="co"># reference taxa [,1] are set to 0</span></span>
 <span><span class="va">B.start.glmm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>,<span class="va">p</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">.01</span>, <span class="op">(</span><span class="va">n</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="va">p</span><span class="op">)</span><span class="op">)</span>, <span class="va">p</span>, <span class="va">n</span><span class="op">)</span> <span class="co"># reference taxa [,1] are set to 0</span></span></code></pre></div>
+</details>
 </div>
 <p>These parameters are used as arguments to the <code><a href="../reference/mnGLMM.html">mnGLMM()</a></code> function. Check them out by printing them in your console. Each matrix needs to be the correct dimensions given the number of taxa and number of covariates. The position elements of each matrix reflect the species and/or the covariates, as we will see later in the output of the model.</p>
 </section><section class="level4"><h5 id="fitting-mnglmm">Fitting <code>mnGLMM()</code>
@@ -321,7 +333,7 @@ Attaching package: 'matrixStats'</code></pre>
 </h5>
 <p>Remember that <code><a href="../reference/mnGLMM.html">mnGLMM()</a></code> does not handle gaps in the data and only fits complete <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math> matrices. We have created a variable for out observation indices (<code>sample_idx</code>), so for <code><a href="../reference/mnGLMM.html">mnGLMM()</a></code> we will index the matrices by this variable: e.g., <code>story_pollen_matrix[sample_idx, ]</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb24"><pre class="downlit sourceCode r">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># fit glmm</span></span>
 <span><span class="va">start_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">glmm_mod</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mnGLMM.html">mnGLMM</a></span><span class="op">(</span>Y <span class="op">=</span> <span class="va">story_pollen_matrix</span><span class="op">[</span><span class="va">sample_idx</span>, <span class="op">]</span>,</span>
@@ -332,12 +344,14 @@ Attaching package: 'matrixStats'</code></pre>
 <span><span class="va">end_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">end_time</span> <span class="op">-</span> <span class="va">start_time</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS</a></span><span class="op">(</span><span class="va">glmm_mod</span>, <span class="st">"./outputs/glmm_mod.rds"</span><span class="op">)</span></span></code></pre></div>
+</details>
 </div>
 <p>The outputs of <code><a href="../reference/mnGLMM.html">mnGLMM()</a></code> can be examined with the <code>summary(glmm_mod)</code> and <code>coef(glmm_mod)</code> functions.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb25"><pre class="downlit sourceCode r">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">glmm_mod</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="st">"./outputs/glmm_mod.rds"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">glmm_mod</span><span class="op">)</span></span></code></pre></div>
+</details>
 </div>
 </section><section class="level4"><h5 id="setting-up-parameters-for-mnts">Setting-up parameters for <code>mnTS()</code>
 <a class="anchor" aria-label="anchor" href="#setting-up-parameters-for-mnts"></a>
@@ -381,7 +395,7 @@ Attaching package: 'matrixStats'</code></pre>
 </ul>
 <p>We are using the output from <code><a href="../reference/mnGLMM.html">mnGLMM()</a></code> as starting values for the matrices <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mn>0</mn></mrow><annotation encoding="application/x-tex">B0</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math>, and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>V</mi><annotation encoding="application/x-tex">V</annotation></semantics></math>. <code><a href="../reference/mnGLMM.html">mnGLMM()</a></code> does not provide estimates for <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>, so we handle <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math> a little differently and we input values close to zero for each parameter estimated and let <code><a href="../reference/mnTS.html">mnTS()</a></code> do the rest.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb26"><pre class="downlit sourceCode r">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># B.start etc</span></span>
 <span><span class="va">B0.start.mnTS</span> <span class="op">&lt;-</span> <span class="va">glmm_mod</span><span class="op">$</span><span class="va">B</span><span class="op">[</span><span class="fl">1</span>, , drop <span class="op">=</span> <span class="cn">F</span><span class="op">]</span></span>
 <span><span class="va">B.start.mnTS</span> <span class="op">&lt;-</span> <span class="va">glmm_mod</span><span class="op">$</span><span class="va">B</span><span class="op">[</span><span class="fl">2</span>, , drop <span class="op">=</span> <span class="cn">F</span><span class="op">]</span></span>
@@ -409,6 +423,7 @@ Attaching package: 'matrixStats'</code></pre>
 <span><span class="va">C.start.int.mnTS</span><span class="op">[</span><span class="fl">4</span>, <span class="fl">5</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">.001</span></span>
 <span><span class="va">C.fixed.int.mnTS</span> <span class="op">&lt;-</span> <span class="va">C.start.int.mnTS</span></span>
 <span><span class="va">C.fixed.int.mnTS</span><span class="op">[</span><span class="va">C.fixed.int.mnTS</span> <span class="op">!=</span> <span class="fl">0</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">NA</span></span></code></pre></div>
+</details>
 </div>
 </section><section class="level4"><h5 id="fitting-mnts-1">Fitting <code>mnTS()</code>
 <a class="anchor" aria-label="anchor" href="#fitting-mnts-1"></a>
@@ -421,7 +436,7 @@ Attaching package: 'matrixStats'</code></pre>
 </ul>
 <ul class="nav nav-tabs" id="NA" role="tablist"><li role="presentation" class="nav-item"><button data-bs-toggle="tab" data-bs-target="#NA" id="NA-tab" type="button" role="tab" aria-controls="NA" aria-selected="true" class="active nav-link">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb27"><pre class="downlit sourceCode r">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">start_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">mnTS_mod</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mnTS.html">mnTS</a></span><span class="op">(</span>Y <span class="op">=</span> <span class="va">story_pollen_matrix</span><span class="op">[</span><span class="va">sample_idx</span>, <span class="op">]</span>,</span>
 <span>                 X <span class="op">=</span> <span class="va">story_char_matrix_scaled</span>, Tsample <span class="op">=</span> <span class="va">sample_idx</span>,</span>
@@ -435,13 +450,14 @@ Attaching package: 'matrixStats'</code></pre>
 <span><span class="va">end_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">end_time</span> <span class="op">-</span> <span class="va">start_time</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS</a></span><span class="op">(</span><span class="va">mnTS_mod</span>, <span class="st">"./outputs/mnTS_mod.rds"</span><span class="op">)</span></span></code></pre></div>
+</details>
 </div>
 </button></li></ul>
 <div class="tab-content"><div class="active  tab-pane" id="NA" role="tabpanel" aria-labelledby="NA-tab">
 
 <div id="tabset-1-2">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb28"><pre class="downlit sourceCode r">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">start_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">mnTS_mod_int</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mnTS.html">mnTS</a></span><span class="op">(</span>Y <span class="op">=</span> <span class="va">story_pollen_matrix</span><span class="op">[</span><span class="va">sample_idx</span>, <span class="op">]</span>,</span>
 <span>                     X <span class="op">=</span> <span class="va">story_char_matrix_scaled</span>, Tsample <span class="op">=</span> <span class="va">sample_idx</span>,</span>
@@ -453,11 +469,13 @@ Attaching package: 'matrixStats'</code></pre>
 <span><span class="va">end_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span> </span>
 <span><span class="va">end_time</span> <span class="op">-</span> <span class="va">start_time</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS</a></span><span class="op">(</span><span class="va">mnTS_mod_int</span>, <span class="st">"./outputs/mnTS_mod_int.rds"</span><span class="op">)</span></span></code></pre></div>
+</details>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb29"><pre class="downlit sourceCode r">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mnTS_mod</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="st">"./outputs/mnTS_mod.rds"</span><span class="op">)</span></span>
 <span><span class="va">mnTS_mod_int</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="st">"./outputs/mnTS_mod_int.rds"</span><span class="op">)</span></span></code></pre></div>
+</details>
 </div>
 </div>
 </div></div>
@@ -466,8 +484,9 @@ Attaching package: 'matrixStats'</code></pre>
 </h4>
 <p>The <code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code> and <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> functions will show the model outputs. Let’s check out the coefficients of interaction model:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb30"><pre class="downlit sourceCode r">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">mnTS_mod_int</span><span class="op">)</span></span></code></pre></div>
+</details>
 </div>
 <p>We have found that bootstrapping provides better estimates of standard erros (and subsequent P-values). The <code><a href="../reference/boot.html">boot()</a></code> function will bootstrap the model, but may take a very long time. We won’t do this today, but we strongly recommend bootstrapping your final models.</p>
 </section><section class="level3"><h4 id="comparing-models">Comparing models<a class="anchor" aria-label="anchor" href="#comparing-models"></a>
@@ -475,9 +494,10 @@ Attaching package: 'matrixStats'</code></pre>
 <p>The <code>summary</code> of the model provides both the log likelihood and the AIC (akaike information criterion). These can be used for comparing models. Today we will use the AIC. AIC is penalised for the number of parameters estimated, and so can be better for comparing models where one has more parameters estimated (i.e., the interaction model is estimating more parameters than the model without interactions).</p>
 <p>The AIC (and log likelihood) values can be accessed directly with <code>mnTS_mod_int$AIC</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb31"><pre class="downlit sourceCode r">
+<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>without_interactions <span class="op">=</span> <span class="va">mnTS_mod</span><span class="op">$</span><span class="va">AIC</span>,</span>
 <span>           with_interactions <span class="op">=</span> <span class="va">mnTS_mod_int</span><span class="op">$</span><span class="va">AIC</span><span class="op">)</span></span></code></pre></div>
+</details>
 </div>
 </section></section></section><script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
@@ -497,6 +517,11 @@ Attaching package: 'matrixStats'</code></pre>
           if (link.dataset.originalHref !== undefined) {
             link.href = link.dataset.originalHref;
           }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
         }
       }
     function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
