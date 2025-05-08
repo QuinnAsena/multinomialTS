@@ -63,6 +63,16 @@ data("story_pollen_wide", package = "multinomialTS")
 Here is what the state variable ($Y$) data look like:
 
 ```{r}
+#| label: check-data
+#| echo: true
+list.files(system.file("data", package = "multinomialTS"))
+exists("story_pollen_wide")
+str(story_pollen_wide)
+
+```
+
+```{r}
+#| eval: false
 
 head(story_pollen_wide)
 ```
