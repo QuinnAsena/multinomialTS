@@ -13,12 +13,12 @@ jobs:
       matrix:
         include:
           - os: windows-latest
-            r-version: '4.4.4'
+            r-version: '4.4.3'
           - os: macos-latest
-            r-version: '4.4.4'
+            r-version: '4.4.3'
             architecture: x86_64
           - os: macos-latest
-            r-version: '4.4.4'
+            r-version: '4.4.3'
             architecture: arm64
 
     steps:
