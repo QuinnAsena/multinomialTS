@@ -1,11 +1,5 @@
 url: https://quinnasena.github.io/multinomialTS/
 template:
   bootstrap: 5
-  bootswatch: flatly
-
-articles:
-  - title: "Vignettes"
-    contents:
-      - multinomialTS-vignette
-    render: "quarto"
+  bootswatch: darkly
 
