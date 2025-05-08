@@ -73,13 +73,10 @@
 </h3>
 <p>This vignette will take us through:</p>
 <ul>
-<li>Choosing a binning resolution for <code><a href="../reference/mnTS.html">mnTS()</a></code> <a href="#sec-Y" class="quarto-xref">Section 2.1</a> and <a href="#sec-X" class="quarto-xref">Section 2.2</a>
-</li>
-<li>Finding initial conditions with <code><a href="../reference/mnGLMM.html">mnGLMM()</a></code> <a href="#sec-glmm" class="quarto-xref">Section 2.3.1</a>
-</li>
-<li>Fitting <code><a href="../reference/mnTS.html">mnTS()</a></code> with and without species interactions <a href="#sec-mnts" class="quarto-xref">Section 2.3.1.4</a>
-</li>
-<li>assess the resulting models</li>
+<li>Choosing a binning resolution for <code><a href="../reference/mnTS.html">mnTS()</a></code> (<a href="#sec-Y" class="quarto-xref">Section 2.1</a> and <a href="#sec-X" class="quarto-xref">Section 2.2</a>).</li>
+<li>Finding initial conditions with <code><a href="../reference/mnGLMM.html">mnGLMM()</a></code> (<a href="#sec-glmm" class="quarto-xref">Section 2.3.1</a>).</li>
+<li>Fitting <code><a href="../reference/mnTS.html">mnTS()</a></code> with and without species interactions (<a href="#sec-mnts" class="quarto-xref">Section 2.3.1.4</a>).</li>
+<li>Assess the resulting models (<a href="#sec-interp" class="quarto-xref">Section 2.4</a>).</li>
 </ul></section></section><section class="section level2"><h2 id="fitting-mnts">Fitting <code>mnTS()</code>
 <a class="anchor" aria-label="anchor" href="#fitting-mnts"></a>
 </h2>
@@ -184,7 +181,7 @@
 </div>
 </div>
 <p>This all looks great! If we bin the data at around 50-75 years, we will still have most of our data in independent bins.</p>
-<p>Now that we know roughly what bin-width to use to maximise the number of observations in the state variables, we will apply the same bin-width to both the state variables and the covariate data.</p>
+<p>Now that we know roughly what bin-width to use to maximize the number of observations in the state variables, we will apply the same bin-width to both the state variables and the covariate data.</p>
 </section><section class="level2"><h3 id="sec-X">Handling the covariates <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math><a class="anchor" aria-label="anchor" href="#sec-X"></a>
 </h3>
 <p>Covariates need to be handled according to decisions that were made around the state variables, that is, if the state variables were binned at a century-level resolution then the covariates must match that resolution. We <em>can</em> have a finer temporal resolution of the covariates than we do of the state variables. In this dataset, our state variables have 95 observations, and our covariate has 646 observations over the same time-span. Having more observations of environmental covariates is common in palaeo-data and works well with fitting the model.</p>
@@ -412,7 +409,7 @@
 <span><span class="va">end_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">end_time</span> <span class="op">-</span> <span class="va">start_time</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Time difference of 14.93343 secs</code></pre>
+<pre><code>Time difference of 14.68134 secs</code></pre>
 </div>
 </div>
 <p>The outputs of <code><a href="../reference/mnGLMM.html">mnGLMM()</a></code> can be examined with the <code>summary(glmm_mod)</code> function.</p>
@@ -557,7 +554,7 @@ Quercus      0 0.00000000 0.0000000 0.0000000 0.07575829</code></pre>
 <span><span class="va">end_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">end_time</span> <span class="op">-</span> <span class="va">start_time</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Time difference of 1.211248 mins</code></pre>
+<pre><code>Time difference of 1.210787 mins</code></pre>
 </div>
 </div>
 </button></li></ul>
@@ -577,14 +574,14 @@ Quercus      0 0.00000000 0.0000000 0.0000000 0.07575829</code></pre>
 <span><span class="va">end_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span> </span>
 <span><span class="va">end_time</span> <span class="op">-</span> <span class="va">start_time</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Time difference of 3.51355 mins</code></pre>
+<pre><code>Time difference of 3.505396 mins</code></pre>
 </div>
 </div>
 </div>
 </div></div>
 </div>
-</section></section><section class="level3"><h4 id="interpreting-outputs">Interpreting outputs<a class="anchor" aria-label="anchor" href="#interpreting-outputs"></a>
-</h4>
+</section></section></section><section class="level2"><h3 id="sec-interp">Interpreting outputs<a class="anchor" aria-label="anchor" href="#sec-interp"></a>
+</h3>
 <p>The <code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code> and <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> functions will show the model outputs. Let’s check out the coefficients of interaction model:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb41"><pre class="downlit sourceCode r">
@@ -688,7 +685,7 @@ char_acc.Quercus     -0.18580969 0.019967371  -9.305666  1.331547e-20</code></pr
 </div>
 </div>
 <p>We have found that bootstrapping provides better estimates of standard erros (and subsequent P-values). The <code><a href="../reference/boot.html">boot()</a></code> function will bootstrap the model, but may take a very long time. We won’t do this today, but we strongly recommend bootstrapping your final models.</p>
-</section><section class="level3"><h4 id="comparing-models">Comparing models<a class="anchor" aria-label="anchor" href="#comparing-models"></a>
+<section class="level3"><h4 id="comparing-models">Comparing models<a class="anchor" aria-label="anchor" href="#comparing-models"></a>
 </h4>
 <p>The <code>summary</code> of the model provides both the log likelihood and the AIC (akaike information criterion). These can be used for comparing models. Today we will use the AIC. AIC is penalised for the number of parameters estimated, and so can be better for comparing models where one has more parameters estimated (i.e., the interaction model is estimating more parameters than the model without interactions).</p>
 <p>The AIC (and log likelihood) values can be accessed directly with <code>mnTS_mod_int$AIC</code>.</p>
