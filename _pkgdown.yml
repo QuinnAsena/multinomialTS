@@ -4,5 +4,8 @@ template:
   bootswatch: flatly
 
 articles:
-  render: "quarto"
+  - title: "Vignettes"
+    contents:
+      - multinomialTS-vignette
+    render: "quarto"
 
