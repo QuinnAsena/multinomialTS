@@ -73,18 +73,19 @@
 </h3>
 <p>This vignette will take us through:</p>
 <ul>
-<li>Choosing a binning resolution for <code><a href="../reference/mnTS.html">mnTS()</a></code>
+<li>Choosing a binning resolution for <code><a href="../reference/mnTS.html">mnTS()</a></code> <a href="#sec-Y" class="quarto-xref">Section 2.1</a> and <a href="#sec-X" class="quarto-xref">Section 2.2</a>
 </li>
-<li>Finding initial conditions with <code><a href="../reference/mnGLMM.html">mnGLMM()</a></code>
+<li>Finding initial conditions with <code><a href="../reference/mnGLMM.html">mnGLMM()</a></code> <a href="#sec-glmm" class="quarto-xref">Section 2.3.1</a>
 </li>
-<li>Fitting <code><a href="../reference/mnTS.html">mnTS()</a></code> with and without species interactions</li>
+<li>Fitting <code><a href="../reference/mnTS.html">mnTS()</a></code> with and without species interactions <a href="#sec-mnts" class="quarto-xref">Section 2.3.1.4</a>
+</li>
 <li>assess the resulting models</li>
 </ul></section></section><section class="section level2"><h2 id="fitting-mnts">Fitting <code>mnTS()</code>
 <a class="anchor" aria-label="anchor" href="#fitting-mnts"></a>
 </h2>
-<p>This vignette will work with the data that have focal taxa and groups already wrangled. A second vignette will be added to cover the data wrangling, for now see <embed src="https://quinnasena.github.io/state-space-workhop-ESA/state-space-walkthrough.html"></embed></p>
+<p>This vignette will work with the data that have focal taxa and groups already wrangled. A second vignette will be added to cover the data wrangling, for now see <a href="https://quinnasena.github.io/state-space-workhop-ESA/state-space-walkthrough.html" class="external-link">this workshop</a></p>
 <div class="cell">
-<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Load required packages</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
@@ -103,181 +104,93 @@
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"story_char_wide"</span>, package <span class="op">=</span> <span class="st">"multinomialTS"</span><span class="op">)</span></span>
 <span><span class="co"># Read in the long data for plotting</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"story_pollen_wide"</span>, package <span class="op">=</span> <span class="st">"multinomialTS"</span><span class="op">)</span></span></code></pre></div>
-</details>
 </div>
 <p>Here is what the state variable (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>) data look like:</p>
 <div class="cell">
-<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"data"</span>, package <span class="op">=</span> <span class="st">"multinomialTS"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-</details><div class="cell-output cell-output-stdout">
-<pre><code>[1] "Rdata.rdb" "Rdata.rds" "Rdata.rdx"</code></pre>
-</div>
-<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/exists.html" class="external-link">exists</a></span><span class="op">(</span><span class="st">"story_pollen_wide"</span><span class="op">)</span></span></code></pre></div>
-</details><div class="cell-output cell-output-stdout">
-<pre><code>[1] TRUE</code></pre>
-</div>
-<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">story_pollen_wide</span><span class="op">)</span></span></code></pre></div>
-</details><div class="cell-output cell-output-stdout">
-<pre><code>gropd_df [95 × 7] (S3: grouped_df/tbl_df/tbl/data.frame)
- $ age              : num [1:95] -66.16 2.85 45.8 94.13 191.1 ...
- $ depth            : num [1:95] 0.5 32.5 64.5 96.5 128.5 ...
- $ other            : int [1:95] 106 169 189 209 161 88 42 40 46 33 ...
- $ hardwood         : int [1:95] 60 26 27 17 34 52 75 69 67 79 ...
- $ Fagus grandifolia: int [1:95] 8 8 8 2 13 34 51 37 50 30 ...
- $ Quercus          : int [1:95] 96 59 58 42 55 91 102 130 108 125 ...
- $ Ulmus            : int [1:95] 9 10 7 17 20 19 14 20 22 27 ...
- - attr(*, "groups")= tibble [95 × 3] (S3: tbl_df/tbl/data.frame)
-  ..$ age  : num [1:95] -66.16 2.85 45.8 94.13 191.1 ...
-  ..$ depth: num [1:95] 0.5 32.5 64.5 96.5 128.5 ...
-  ..$ .rows: list&lt;int&gt; [1:95]
-  .. ..$ : int 1
-  .. ..$ : int 2
-  .. ..$ : int 3
-  .. ..$ : int 4
-  .. ..$ : int 5
-  .. ..$ : int 6
-  .. ..$ : int 7
-  .. ..$ : int 8
-  .. ..$ : int 9
-  .. ..$ : int 10
-  .. ..$ : int 11
-  .. ..$ : int 12
-  .. ..$ : int 13
-  .. ..$ : int 14
-  .. ..$ : int 15
-  .. ..$ : int 16
-  .. ..$ : int 17
-  .. ..$ : int 18
-  .. ..$ : int 19
-  .. ..$ : int 20
-  .. ..$ : int 21
-  .. ..$ : int 22
-  .. ..$ : int 23
-  .. ..$ : int 24
-  .. ..$ : int 25
-  .. ..$ : int 26
-  .. ..$ : int 27
-  .. ..$ : int 28
-  .. ..$ : int 29
-  .. ..$ : int 30
-  .. ..$ : int 31
-  .. ..$ : int 32
-  .. ..$ : int 33
-  .. ..$ : int 34
-  .. ..$ : int 35
-  .. ..$ : int 36
-  .. ..$ : int 37
-  .. ..$ : int 38
-  .. ..$ : int 39
-  .. ..$ : int 40
-  .. ..$ : int 41
-  .. ..$ : int 42
-  .. ..$ : int 43
-  .. ..$ : int 44
-  .. ..$ : int 45
-  .. ..$ : int 46
-  .. ..$ : int 47
-  .. ..$ : int 48
-  .. ..$ : int 49
-  .. ..$ : int 50
-  .. ..$ : int 51
-  .. ..$ : int 52
-  .. ..$ : int 53
-  .. ..$ : int 54
-  .. ..$ : int 55
-  .. ..$ : int 56
-  .. ..$ : int 57
-  .. ..$ : int 58
-  .. ..$ : int 59
-  .. ..$ : int 60
-  .. ..$ : int 61
-  .. ..$ : int 62
-  .. ..$ : int 63
-  .. ..$ : int 64
-  .. ..$ : int 65
-  .. ..$ : int 66
-  .. ..$ : int 67
-  .. ..$ : int 68
-  .. ..$ : int 69
-  .. ..$ : int 70
-  .. ..$ : int 71
-  .. ..$ : int 72
-  .. ..$ : int 73
-  .. ..$ : int 74
-  .. ..$ : int 75
-  .. ..$ : int 76
-  .. ..$ : int 77
-  .. ..$ : int 78
-  .. ..$ : int 79
-  .. ..$ : int 80
-  .. ..$ : int 81
-  .. ..$ : int 82
-  .. ..$ : int 83
-  .. ..$ : int 84
-  .. ..$ : int 85
-  .. ..$ : int 86
-  .. ..$ : int 87
-  .. ..$ : int 88
-  .. ..$ : int 89
-  .. ..$ : int 90
-  .. ..$ : int 91
-  .. ..$ : int 92
-  .. ..$ : int 93
-  .. ..$ : int 94
-  .. ..$ : int 95
-  .. ..@ ptype: int(0)
-  ..- attr(*, ".drop")= logi TRUE</code></pre>
-</div>
-</div>
-<div class="cell">
-<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">story_pollen_wide</span><span class="op">)</span></span></code></pre></div>
-</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 7
+# Groups:   age, depth [6]
+     age depth other hardwood `Fagus grandifolia` Quercus Ulmus
+   &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt;    &lt;int&gt;               &lt;int&gt;   &lt;int&gt; &lt;int&gt;
+1 -66.2    0.5   106       60                   8      96     9
+2   2.85  32.5   169       26                   8      59    10
+3  45.8   64.5   189       27                   8      58     7
+4  94.1   96.5   209       17                   2      42    17
+5 191.   128.    161       34                  13      55    20
+6 203.   132.     88       52                  34      91    19</code></pre>
+</div>
 </div>
 <p>And our covariate (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>):</p>
 <div class="cell">
-<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">story_char_wide</span><span class="op">)</span></span></code></pre></div>
-</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 3
+    age depth char_acc
+  &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;
+1 -66.2   0.5      0
+2 -63.4   1.5     15.8
+3 -61.4   2.5     40.3
+4 -59.8   3.5     21.8
+5 -58.5   4.5     37.3
+6 -57.2   5.5     29.8</code></pre>
 </div>
-<p>For the moment, we are keeiping the age and depth columns in both tibbles. These columns are so that we have a common variable to match the two to tibbles, and will be removed a little lates.</p>
-<section class="level2"><h3 id="state-variables-y">State variables <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math><a class="anchor" aria-label="anchor" href="#state-variables-y"></a>
+</div>
+<p>For the moment, we are keeping the age and depth columns in both tibbles. These columns are so that we have a common variable to match the two to tibbles, and will be removed a little later.</p>
+<section class="level2"><h3 id="sec-Y">State variables <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math><a class="anchor" aria-label="anchor" href="#sec-Y"></a>
 </h3>
-<p>We will start off by chosing a resolution for the model predictions (<em>e.g.,</em> predicting ecological process at 50 or 100 year intervals).</p>
+<p>We will start off by choosing a resolution for the model predictions (<em>e.g.,</em> predicting ecological process at 50 or 100 year intervals).</p>
 <div class="cell">
-<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Time-span of the data divided by the numer of observations</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">story_pollen_wide</span><span class="op">$</span><span class="va">age</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">story_pollen_wide</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Age differences between successive observations</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/diff.html" class="external-link">diff</a></span><span class="op">(</span><span class="va">story_pollen_wide</span><span class="op">$</span><span class="va">age</span><span class="op">)</span></span>
-<span></span>
-<span></span>
-<span><span class="co"># The range of the age differences</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diff.html" class="external-link">diff</a></span><span class="op">(</span><span class="va">story_pollen_wide</span><span class="op">$</span><span class="va">age</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># the average of the age differences</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diff.html" class="external-link">diff</a></span><span class="op">(</span><span class="va">story_pollen_wide</span><span class="op">$</span><span class="va">age</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/stats/sd.html" class="external-link">sd</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diff.html" class="external-link">diff</a></span><span class="op">(</span><span class="va">story_pollen_wide</span><span class="op">$</span><span class="va">age</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-</details>
+<div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Time-span of the data divided by the number of observations</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">story_pollen_wide</span><span class="op">$</span><span class="va">age</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">story_pollen_wide</span><span class="op">)</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 83.48578</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Age differences between successive observations</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/diff.html" class="external-link">diff</a></span><span class="op">(</span><span class="va">story_pollen_wide</span><span class="op">$</span><span class="va">age</span><span class="op">)</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1]  69.017  42.946  48.331  96.968  11.459  14.340  54.308  55.284 138.681
+[10]  66.118  48.695 143.230 103.015 186.753  58.537  54.550  52.888  50.954
+[19] 104.623 100.248 100.144  51.406  53.372  52.350  53.950  51.957  53.782
+[28]  59.512  72.266 168.719 111.125  47.302  47.531  47.949  55.391  90.190
+[37]  66.359  68.199  97.921  60.144  54.207 109.400 165.792 141.147  93.284
+[46]  90.969  85.959  87.634  86.346  79.080  85.733  84.658  85.647  85.731
+[55]  86.000  88.257  84.158  86.849  90.252 144.587  79.708  89.321  43.635
+[64]  43.511  42.991  42.250  44.523  47.083  54.088 115.201  99.857  73.484
+[73] 128.326 116.359 119.324 123.707 132.304 219.725 184.122  71.101  68.843
+[82]  66.205  65.555  71.999  71.922  86.020 153.328 103.854  76.139  71.061
+[91]  71.132 129.632 127.729 137.070</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># The range of the age differences</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diff.html" class="external-link">diff</a></span><span class="op">(</span><span class="va">story_pollen_wide</span><span class="op">$</span><span class="va">age</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1]  11.459 219.725</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># the average of the age differences</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diff.html" class="external-link">diff</a></span><span class="op">(</span><span class="va">story_pollen_wide</span><span class="op">$</span><span class="va">age</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 85.0778</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/sd.html" class="external-link">sd</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diff.html" class="external-link">diff</a></span><span class="op">(</span><span class="va">story_pollen_wide</span><span class="op">$</span><span class="va">age</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 38.36777</code></pre>
+</div>
 </div>
 <p>This all looks great! If we bin the data at around 50-75 years, we will still have most of our data in independent bins.</p>
 <p>Now that we know roughly what bin-width to use to maximise the number of observations in the state variables, we will apply the same bin-width to both the state variables and the covariate data.</p>
-<div>
-<blockquote>
-<p><strong>Ask me questions!</strong></p>
-<p>What questions do you have so far?</p>
-</blockquote>
-</div>
-</section><section class="level2"><h3 id="handling-the-covariates-x">Handling the covariates <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math><a class="anchor" aria-label="anchor" href="#handling-the-covariates-x"></a>
+</section><section class="level2"><h3 id="sec-X">Handling the covariates <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math><a class="anchor" aria-label="anchor" href="#sec-X"></a>
 </h3>
-<p>Covariates need to be handled according to decisions that were made around the state variables, that is, if the state variables were binned at a century-level resolution then the covariates must match that resolution. We <em>can</em> have a finer temporal resolution of the covariates than we do of the state variables. In this dataset, our state variables have r nrow(story_pollen_wide) observations, and our covariate has r nrow(story_char_wide[story_char_wide<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mi>g</mi><mi>e</mi><mo>&lt;</mo><mo>=</mo><mi>m</mi><mi>a</mi><mi>x</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mi>t</mi><mi>o</mi><mi>r</mi><msub><mi>y</mi><mi>p</mi></msub><mi>o</mi><mi>l</mi><mi>l</mi><mi>e</mi><msub><mi>n</mi><mi>w</mi></msub><mi>i</mi><mi>d</mi><mi>e</mi></mrow><annotation encoding="application/x-tex">age &lt;= max(story_pollen_wide</annotation></semantics></math>age), ]) observations over the same time-span. Having more observations of environmental covariates is common in palaeo-data and works well with fitting the model.</p>
+<p>Covariates need to be handled according to decisions that were made around the state variables, that is, if the state variables were binned at a century-level resolution then the covariates must match that resolution. We <em>can</em> have a finer temporal resolution of the covariates than we do of the state variables. In this dataset, our state variables have 95 observations, and our covariate has 646 observations over the same time-span. Having more observations of environmental covariates is common in palaeo-data and works well with fitting the model.</p>
 <p>Since we need to apply the same binning procedure to both the state variables and the covariate, I like to join both datasets. Charcoal was sampled to a greater depth than the pollen data, so we are going to clip the covariate to the extent of the state variables and join the two datasets by their common variable, age.</p>
 <div class="cell">
-<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Clip covariate data to the extent of the state variables</span></span>
 <span><span class="co"># Join the two by age so that we get a square matrix</span></span>
 <span><span class="va">story_join</span> <span class="op">&lt;-</span> <span class="va">story_char_wide</span> <span class="op">|&gt;</span></span>
@@ -287,23 +200,50 @@
 <span><span class="co"># Always double check dimensions before/after joining!</span></span>
 <span><span class="co"># dim(story_join)</span></span>
 <span><span class="co"># tail(story_join)</span></span></code></pre></div>
-</details>
 </div>
 <p>Now we have all our data joined. Note that the covariate <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math> (<code>char_acc</code>) has observations every cm, whereas pollen was sampled at less frequent intervals (this is OK! :smiley:).</p>
 <div class="cell">
-<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">story_join</span>, n <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></code></pre></div>
-</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 8
+     age depth char_acc other hardwood `Fagus grandifolia` Quercus Ulmus
+   &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;int&gt;               &lt;int&gt;   &lt;int&gt; &lt;int&gt;
+ 1 -66.2   0.5     0      106       60                   8      96     9
+ 2 -63.4   1.5    15.8     NA       NA                  NA      NA    NA
+ 3 -61.4   2.5    40.3     NA       NA                  NA      NA    NA
+ 4 -59.8   3.5    21.8     NA       NA                  NA      NA    NA
+ 5 -58.5   4.5    37.3     NA       NA                  NA      NA    NA
+ 6 -57.2   5.5    29.8     NA       NA                  NA      NA    NA
+ 7 -56.0   6.5    34.4     NA       NA                  NA      NA    NA
+ 8 -54.8   7.5    21.2     NA       NA                  NA      NA    NA
+ 9 -53.7   8.5    20.5     NA       NA                  NA      NA    NA
+10 -52.6   9.5     8.26    NA       NA                  NA      NA    NA</code></pre>
+</div>
 </div>
 <p>I always do lots of quick checks like <code><a href="https://rdrr.io/r/utils/head.html" class="external-link">head()</a></code>, <code><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail()</a></code>, <code><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim()</a></code> (and many more!) to make sure to catch any coding mistakes!</p>
 <div class="cell">
-<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">story_join</span>, n <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></code></pre></div>
-</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 8
+     age depth char_acc other hardwood `Fagus grandifolia` Quercus Ulmus
+   &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;int&gt;               &lt;int&gt;   &lt;int&gt; &lt;int&gt;
+ 1 7777.  648.     2.50    NA       NA                  NA      NA    NA
+ 2 7794.  648.     8.19    19       49                   2     142    45
+ 3 7812.  650.    19.1     NA       NA                  NA      NA    NA
+ 4 7829.  650.     6.19    NA       NA                  NA      NA    NA
+ 5 7845.  652.     2.78    NA       NA                  NA      NA    NA
+ 6 7863.  652.     4.20    NA       NA                  NA      NA    NA
+ 7 7880.  654.     5.02    NA       NA                  NA      NA    NA
+ 8 7898.  654.     3.17    NA       NA                  NA      NA    NA
+ 9 7914.  656.     4.51    NA       NA                  NA      NA    NA
+10 7931.  656.     2.60    43       39                   3     172    37</code></pre>
 </div>
-<p>This all looks good, and we can now bin the data to an appropriate temporal resolution for fitting the model. Chosing a bin-width may take some trial and error, I’m going with a bin-width of 50 years.</p>
+</div>
+<p>This all looks good, and we can now bin the data to an appropriate temporal resolution for fitting the model. Choosing a bin-width may take some trial and error, I’m going with a bin-width of 50 years.</p>
 <div class="cell">
-<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># This code chunks the data into bins and gives us a grouping variable "bins"</span></span>
 <span></span>
 <span><span class="va">bin_width</span> <span class="op">&lt;-</span> <span class="fl">50</span></span>
@@ -311,11 +251,10 @@
 <span>            breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">story_join</span><span class="op">$</span><span class="va">age</span><span class="op">)</span>,</span>
 <span>            to <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">story_join</span><span class="op">$</span><span class="va">age</span> <span class="op">+</span> <span class="va">bin_width</span><span class="op">)</span>,</span>
 <span>            by <span class="op">=</span> <span class="va">bin_width</span><span class="op">)</span>, include.lowest <span class="op">=</span> <span class="cn">TRUE</span>, labels <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
-</details>
 </div>
 <p>We now apply the bins to our data. For most types of covariates we want the <em>average</em> value of the covariate in each bin. But for the pollen count data, we want the <em>sum</em>. This is because of the underlying multinomial distribution in the model.</p>
 <div class="cell">
-<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># The following code </span></span>
 <span><span class="va">story_binned</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_cols.html" class="external-link">bind_cols</a></span><span class="op">(</span>bins <span class="op">=</span> <span class="va">bins</span>, <span class="va">story_join</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">bins</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="co"># Group the data by the bins so that we calculate per time bin</span></span>
@@ -330,49 +269,79 @@
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/desc.html" class="external-link">desc</a></span><span class="op">(</span><span class="va">age</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co"># Be aware that the gaps in the pollen data are now filled with 0's not NA</span></span></code></pre></div>
-</details>
 </div>
 <p>Let’s see what the data look like binned at a 50 year resolution:</p>
 <div class="cell">
-<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">story_binned</span>, n <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></code></pre></div>
-</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 8
+    bins   age char_acc other hardwood `Fagus grandifolia` Ulmus Quercus
+   &lt;int&gt; &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt;    &lt;int&gt;               &lt;int&gt; &lt;int&gt;   &lt;int&gt;
+ 1   160 7914.     3.43    43       39                   3    37     172
+ 2   159 7863.     4.00     0        0                   0     0       0
+ 3   158 7812.    11.1     19       49                   2    45     142
+ 4   157 7761.     4.06     0        0                   0     0       0
+ 5   156 7713.     5.29     0        0                   0     0       0
+ 6   155 7666.     8.24    34       65                   1    68     129
+ 7   154 7609.     8.50     0        0                   0     0       0
+ 8   153 7553.     9.27    39       43                   2    60     145
+ 9   152 7502.     5.05     0        0                   0     0       0
+10   151 7457.     5.46    30       69                   7    57     125</code></pre>
 </div>
-<p>This is looking good, we have reduced the time-intervals over which to run the model. The data are nowr nrow(story_binned rows with complete covariate data, containingr nrow(story_binned[which(rowSums(story_binned[ ,4:7]) != 0), ]) state variable observations. The original number of pollen observations was r nrow(story_pollen_wide), so we have not summed many observations within the same bins.</p>
+</div>
+<p>This is looking good, we have reduced the time-intervals over which to run the model. The data are now 160 rows with complete covariate data, containing 93 state variable observations. The original number of pollen observations was 95, so we have not summed many observations within the same bins.</p>
 <p><code>multinomialTS</code> requires two matrices, a site-by-species matrix <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>, and a covariate matrix <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>, so we will leave <code>tibbles</code> behind and split the data. <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math> variables may be of different types (e.g., continuous, categorical…) but should be scaled relative to each other.</p>
 <div class="cell">
-<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">story_pollen_matrix</span> <span class="op">&lt;-</span> <span class="va">story_binned</span> <span class="op">|&gt;</span>  <span class="co"># Select taxa</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">other</span>, <span class="va">hardwood</span>, <span class="va">Ulmus</span>, <span class="va">`Fagus grandifolia`</span>, <span class="va">Quercus</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html" class="external-link">rename</a></span><span class="op">(</span><span class="st">"Fagus"</span> <span class="op">=</span> <span class="st">"Fagus grandifolia"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co"># Replacing 0 with NA is not strictly necessary the way we use the data today</span></span>
-<span><span class="co"># But it is a good safety to avoid 0-count data where it zhould be no observation</span></span>
+<span><span class="co"># But it is a good safety to avoid 0-count data where it should be no observation</span></span>
 <span><span class="va">story_pollen_matrix</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="va">story_pollen_matrix</span><span class="op">)</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span>, <span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">NA</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">story_pollen_matrix</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">story_char_matrix_scaled</span> <span class="op">&lt;-</span> <span class="va">story_binned</span> <span class="op">|&gt;</span> <span class="co"># select covariates</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">story_pollen_matrix</span><span class="op">)</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     other hardwood Ulmus Fagus Quercus
+[1,]    43       39    37     3     172
+[2,]    NA       NA    NA    NA      NA
+[3,]    19       49    45     2     142
+[4,]    NA       NA    NA    NA      NA
+[5,]    NA       NA    NA    NA      NA
+[6,]    34       65    68     1     129</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb27"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">story_char_matrix_scaled</span> <span class="op">&lt;-</span> <span class="va">story_binned</span> <span class="op">|&gt;</span> <span class="co"># select covariates</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">char_acc</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/scale.html" class="external-link">scale</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Scale covariates</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">story_char_matrix_scaled</span><span class="op">)</span></span></code></pre></div>
-</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>       char_acc
+[1,] -0.9826414
+[2,] -0.8978991
+[3,]  0.1548837
+[4,] -0.8894600
+[5,] -0.7078643
+[6,] -0.2731469</code></pre>
 </div>
-</section><section class="level2"><h3 id="fitting-multinomialts">Fitting <code>multinomialTS</code>
-<a class="anchor" aria-label="anchor" href="#fitting-multinomialts"></a>
+</div>
+</section><section class="level2"><h3 id="sec-fitting">Fitting <code>multinomialTS</code>
+<a class="anchor" aria-label="anchor" href="#sec-fitting"></a>
 </h3>
 <p>Ok, now we have:</p>
 <ul>
-<li>Chosen a temporal resolution for the model of r bin_width year bins</li>
-<li>Organised the data into a site-by-species matrix <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math> at r bin_width year bins</li>
+<li>Chosen a temporal resolution for the model of 50-year bins</li>
+<li>Organised the data into a site-by-species matrix <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math> at 50-year bins</li>
 <li>Binned and scaled covariate matrix <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
 </li>
 </ul>
 <p>With that, we can fit the model.</p>
-<section class="level3"><h4 id="finding-initial-conditions-using-mnglmm">Finding initial conditions using <code>mnGLMM()</code>
-<a class="anchor" aria-label="anchor" href="#finding-initial-conditions-using-mnglmm"></a>
+<section class="level3"><h4 id="sec-glmm">Finding initial conditions using <code>mnGLMM()</code>
+<a class="anchor" aria-label="anchor" href="#sec-glmm"></a>
 </h4>
-<p>The <code><a href="../reference/mnTS.html">mnTS()</a></code> function will provide estimates for biotic interactions (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math> matrix), taxa-driver relationships (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math> matrix), and cross-correlated error (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>V</mi><annotation encoding="application/x-tex">V</annotation></semantics></math> matrix). But the model needs initial starting values for these parameters to begin with. We get initial starting conditions from the data by running the <code><a href="../reference/mnGLMM.html">mnGLMM()</a></code> funcion. <code><a href="../reference/mnGLMM.html">mnGLMM()</a></code> returns estimates for the <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>V</mi><annotation encoding="application/x-tex">V</annotation></semantics></math> matrices (not the <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math> matrix) and assumes that there are no time gaps in the data.</p>
+<p>The <code><a href="../reference/mnTS.html">mnTS()</a></code> function will provide estimates for biotic interactions (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math> matrix), taxa-driver relationships (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math> matrix), and cross-correlated error (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>V</mi><annotation encoding="application/x-tex">V</annotation></semantics></math> matrix). But the model needs initial starting values for these parameters to begin with. We get initial starting conditions from the data by running the <code><a href="../reference/mnGLMM.html">mnGLMM()</a></code> function. <code><a href="../reference/mnGLMM.html">mnGLMM()</a></code> returns estimates for the <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>V</mi><annotation encoding="application/x-tex">V</annotation></semantics></math> matrices (not the <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math> matrix) and assumes that there are no time gaps in the data.</p>
 <div>
 <blockquote>
 <p><strong>Tip</strong></p>
@@ -399,16 +368,24 @@
 </li>
 </ul>
 <div class="cell">
-<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># set-up sample index</span></span>
 <span><span class="va">sample_idx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="va">story_pollen_matrix</span><span class="op">)</span> <span class="op">!=</span> <span class="fl">0</span><span class="op">)</span></span>
 <span><span class="co"># make sure it works</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">story_pollen_matrix</span><span class="op">[</span><span class="va">sample_idx</span>, <span class="op">]</span><span class="op">)</span></span></code></pre></div>
-</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>     other hardwood Ulmus Fagus Quercus
+[1,]    43       39    37     3     172
+[2,]    19       49    45     2     142
+[3,]    34       65    68     1     129
+[4,]    39       43    60     2     145
+[5,]    30       69    57     7     125
+[6,]    30       80    49    13     116</code></pre>
+</div>
 </div>
 <p>Set-up the remaining parameters:</p>
 <div class="cell">
-<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Set-up parameters</span></span>
 <span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">story_char_matrix_scaled</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1</span> <span class="co"># Number of independent variables plus intercept</span></span>
 <span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">story_pollen_matrix</span><span class="op">)</span> <span class="co"># number of taxa</span></span>
@@ -417,7 +394,6 @@
 <span><span class="va">V.fixed.glmm</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
 <span><span class="va">B.fixed.glmm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>,<span class="va">p</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="op">(</span><span class="va">n</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="va">p</span><span class="op">)</span><span class="op">)</span>, <span class="va">p</span>, <span class="va">n</span><span class="op">)</span> <span class="co"># reference taxa [,1] are set to 0</span></span>
 <span><span class="va">B.start.glmm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>,<span class="va">p</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">.01</span>, <span class="op">(</span><span class="va">n</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="va">p</span><span class="op">)</span><span class="op">)</span>, <span class="va">p</span>, <span class="va">n</span><span class="op">)</span> <span class="co"># reference taxa [,1] are set to 0</span></span></code></pre></div>
-</details>
 </div>
 <p>These parameters are used as arguments to the <code><a href="../reference/mnGLMM.html">mnGLMM()</a></code> function. Check them out by printing them in your console. Each matrix needs to be the correct dimensions given the number of taxa and number of covariates. The position elements of each matrix reflect the species and/or the covariates, as we will see later in the output of the model.</p>
 </section><section class="level4"><h5 id="fitting-mnglmm">Fitting <code>mnGLMM()</code>
@@ -425,7 +401,7 @@
 </h5>
 <p>Remember that <code><a href="../reference/mnGLMM.html">mnGLMM()</a></code> does not handle gaps in the data and only fits complete <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math> matrices. We have created a variable for out observation indices (<code>sample_idx</code>), so for <code><a href="../reference/mnGLMM.html">mnGLMM()</a></code> we will index the matrices by this variable: e.g., <code>story_pollen_matrix[sample_idx, ]</code>.</p>
 <div class="cell">
-<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># fit glmm</span></span>
 <span><span class="va">start_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">glmm_mod</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mnGLMM.html">mnGLMM</a></span><span class="op">(</span>Y <span class="op">=</span> <span class="va">story_pollen_matrix</span><span class="op">[</span><span class="va">sample_idx</span>, <span class="op">]</span>,</span>
@@ -434,16 +410,52 @@
 <span>                   B.fixed <span class="op">=</span> <span class="va">B.fixed.glmm</span>,</span>
 <span>                   V.fixed <span class="op">=</span> <span class="va">V.fixed.glmm</span><span class="op">)</span></span>
 <span><span class="va">end_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">end_time</span> <span class="op">-</span> <span class="va">start_time</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS</a></span><span class="op">(</span><span class="va">glmm_mod</span>, <span class="st">"./outputs/glmm_mod.rds"</span><span class="op">)</span></span></code></pre></div>
-</details>
+<span><span class="va">end_time</span> <span class="op">-</span> <span class="va">start_time</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Time difference of 14.93343 secs</code></pre>
 </div>
-<p>The outputs of <code><a href="../reference/mnGLMM.html">mnGLMM()</a></code> can be examined with the <code>summary(glmm_mod)</code> and <code>coef(glmm_mod)</code> functions.</p>
+</div>
+<p>The outputs of <code><a href="../reference/mnGLMM.html">mnGLMM()</a></code> can be examined with the <code>summary(glmm_mod)</code> function.</p>
 <div class="cell">
-<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">glmm_mod</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="st">"./outputs/glmm_mod.rds"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">glmm_mod</span><span class="op">)</span></span></code></pre></div>
-</details>
+<div class="sourceCode cell-code" id="cb34"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">glmm_mod</span><span class="op">)</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call: mnGLMM with Tmax =  93  n =  5
+
+logLik = 506.1927,  AIC = -984.3855 [df = 14]
+
+dispersion parameter =  1
+
+Fitted Coefficients with approximate se
+                           Coef.         se          t            P
+(intercept).hardwood  0.32520544 0.08449697  3.8487232 1.187351e-04
+char_acc.hardwood    -0.15611315 0.08828450 -1.7682962 7.701141e-02
+(intercept).Ulmus    -0.31413043 0.11063692 -2.8392911 4.521389e-03
+char_acc.Ulmus       -0.27877420 0.10904240 -2.5565671 1.057107e-02
+(intercept).Fagus    -0.26463309 0.11061622 -2.3923534 1.674071e-02
+char_acc.Fagus       -0.44517877 0.11465596 -3.8827356 1.032879e-04
+(intercept).Quercus   0.99820549 0.08800678 11.3423702 8.092255e-30
+char_acc.Quercus     -0.06223211 0.09098390 -0.6839903 4.939813e-01
+
+
+Overall model
+
+B =
+            other   hardwood      Ulmus      Fagus     Quercus
+(intercept)     0  0.3252054 -0.3141304 -0.2646331  0.99820549
+char_acc        0 -0.1561132 -0.2787742 -0.4451788 -0.06223211
+
+sigma =  1.055384
+
+V =
+         other   hardwood     Ulmus     Fagus    Quercus
+other        1 0.00000000 0.0000000 0.0000000 0.00000000
+hardwood     0 0.00443052 0.0000000 0.0000000 0.00000000
+Ulmus        0 0.00000000 0.3021339 0.0000000 0.00000000
+Fagus        0 0.00000000 0.0000000 0.3045231 0.00000000
+Quercus      0 0.00000000 0.0000000 0.0000000 0.07575829</code></pre>
+</div>
 </div>
 </section><section class="level4"><h5 id="setting-up-parameters-for-mnts">Setting-up parameters for <code>mnTS()</code>
 <a class="anchor" aria-label="anchor" href="#setting-up-parameters-for-mnts"></a>
@@ -487,17 +499,17 @@
 </ul>
 <p>We are using the output from <code><a href="../reference/mnGLMM.html">mnGLMM()</a></code> as starting values for the matrices <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mn>0</mn></mrow><annotation encoding="application/x-tex">B0</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math>, and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>V</mi><annotation encoding="application/x-tex">V</annotation></semantics></math>. <code><a href="../reference/mnGLMM.html">mnGLMM()</a></code> does not provide estimates for <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>, so we handle <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math> a little differently and we input values close to zero for each parameter estimated and let <code><a href="../reference/mnTS.html">mnTS()</a></code> do the rest.</p>
 <div class="cell">
-<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># B.start etc</span></span>
 <span><span class="va">B0.start.mnTS</span> <span class="op">&lt;-</span> <span class="va">glmm_mod</span><span class="op">$</span><span class="va">B</span><span class="op">[</span><span class="fl">1</span>, , drop <span class="op">=</span> <span class="cn">F</span><span class="op">]</span></span>
 <span><span class="va">B.start.mnTS</span> <span class="op">&lt;-</span> <span class="va">glmm_mod</span><span class="op">$</span><span class="va">B</span><span class="op">[</span><span class="fl">2</span>, , drop <span class="op">=</span> <span class="cn">F</span><span class="op">]</span></span>
 <span></span>
 <span><span class="va">sigma.start.mnTS</span> <span class="op">&lt;-</span> <span class="va">glmm_mod</span><span class="op">$</span><span class="va">sigma</span></span>
 <span></span>
-<span><span class="va">V.fixed.mnTS</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="va">n</span>, <span class="va">n</span><span class="op">)</span> <span class="co"># Covariance matrix of environmental variation in process eq</span></span>
-<span><span class="va">V.fixed.mnTS</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">=</span> <span class="fl">1</span></span>
+<span><span class="va">V.fixed.mnTS</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="va">n</span>, <span class="va">n</span><span class="op">)</span> <span class="co"># Covariance matrix of environmental variation in process eq</span></span>
+<span><span class="va">V.fixed.mnTS</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
 <span></span>
-<span><span class="va">V.start.mnTS</span> <span class="op">=</span> <span class="va">V.fixed.mnTS</span></span>
+<span><span class="va">V.start.mnTS</span> <span class="op">&lt;-</span> <span class="va">V.fixed.mnTS</span></span>
 <span><span class="va">V.start.mnTS</span> <span class="op">&lt;-</span> <span class="va">glmm_mod</span><span class="op">$</span><span class="va">V</span></span>
 <span></span>
 <span><span class="va">B.fixed.mnTS</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="va">p</span><span class="op">-</span><span class="fl">1</span>, <span class="va">n</span><span class="op">)</span></span>
@@ -505,22 +517,25 @@
 <span><span class="va">B0.fixed.mnTS</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="va">n</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">1</span>, ncol <span class="op">=</span> <span class="va">n</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Set-up C without interactions</span></span>
-<span><span class="va">C.start.mnTS</span> <span class="op">=</span> <span class="fl">.5</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span>
+<span><span class="va">C.start.mnTS</span>  <span class="op">&lt;-</span> <span class="fl">.5</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span>
 <span><span class="va">C.fixed.mnTS</span> <span class="op">&lt;-</span> <span class="va">C.start.mnTS</span></span>
 <span><span class="va">C.fixed.mnTS</span><span class="op">[</span><span class="va">C.fixed.mnTS</span> <span class="op">!=</span> <span class="fl">0</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">NA</span></span>
 <span></span>
 <span><span class="co"># Set-up C with interactions between Fagus and Quercus</span></span>
-<span><span class="va">C.start.int.mnTS</span> <span class="op">=</span> <span class="fl">.5</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span>
+<span><span class="va">C.start.int.mnTS</span>  <span class="op">&lt;-</span> <span class="fl">.5</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span>
 <span><span class="va">C.start.int.mnTS</span><span class="op">[</span><span class="fl">5</span>, <span class="fl">4</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">.001</span></span>
 <span><span class="va">C.start.int.mnTS</span><span class="op">[</span><span class="fl">4</span>, <span class="fl">5</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">.001</span></span>
 <span><span class="va">C.fixed.int.mnTS</span> <span class="op">&lt;-</span> <span class="va">C.start.int.mnTS</span></span>
 <span><span class="va">C.fixed.int.mnTS</span><span class="op">[</span><span class="va">C.fixed.int.mnTS</span> <span class="op">!=</span> <span class="fl">0</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">NA</span></span></code></pre></div>
-</details>
 </div>
-</section><section class="level4"><h5 id="fitting-mnts-1">Fitting <code>mnTS()</code>
-<a class="anchor" aria-label="anchor" href="#fitting-mnts-1"></a>
+</section><section class="level4"><h5 id="sec-mnts">Fitting <code>mnTS()</code>
+<a class="anchor" aria-label="anchor" href="#sec-mnts"></a>
 </h5>
-<p>Remember, <code><a href="../reference/mnTS.html">mnTS()</a></code> <em>does</em> handle gaps in the state-variables where there are data in the covariate matrix. In the following code, we use the complete (no gaps) <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math> matrix <code>story_pollen_matrix[sample_idx, ]</code> with dimensions: r dim(story_pollen_matrix[sample_idx, ]). And the full <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math> matrix: <code>story_char_matrix_scaled</code> with dimensions: r dim(story_char_matrix_scaled) We will fit the model twice: - without taxa interactions - and without taxa interactions.</p>
+<p>Remember, <code><a href="../reference/mnTS.html">mnTS()</a></code> <em>does</em> handle gaps in the state-variables where there are data in the covariate matrix. In the following code, we use the complete (no gaps) <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math> matrix <code>story_pollen_matrix[sample_idx, ]</code> with dimensions: 93, 5. And the full <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math> matrix: <code>story_char_matrix_scaled</code> with dimensions: 160, 1 We will fit the model twice:</p>
+<ul>
+<li>without taxa interactions</li>
+<li>and without taxa interactions.</li>
+</ul>
 <div class="panel-tabset">
 <ul id="tabset-1" class="panel-tabset-tabby">
 <li><a data-tabby-default="" href="#tabset-1-1">Without interactions</a></li>
@@ -528,7 +543,7 @@
 </ul>
 <ul class="nav nav-tabs" id="NA" role="tablist"><li role="presentation" class="nav-item"><button data-bs-toggle="tab" data-bs-target="#NA" id="NA-tab" type="button" role="tab" aria-controls="NA" aria-selected="true" class="active nav-link">
 <div class="cell">
-<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">start_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">mnTS_mod</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mnTS.html">mnTS</a></span><span class="op">(</span>Y <span class="op">=</span> <span class="va">story_pollen_matrix</span><span class="op">[</span><span class="va">sample_idx</span>, <span class="op">]</span>,</span>
 <span>                 X <span class="op">=</span> <span class="va">story_char_matrix_scaled</span>, Tsample <span class="op">=</span> <span class="va">sample_idx</span>,</span>
@@ -540,16 +555,17 @@
 <span><span class="co"># maxit.optim is the max number of iterations the optimiser will complete before stopping.</span></span>
 <span><span class="co"># increase maxit.optim if the model needs a lot of time to fit.</span></span>
 <span><span class="va">end_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">end_time</span> <span class="op">-</span> <span class="va">start_time</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS</a></span><span class="op">(</span><span class="va">mnTS_mod</span>, <span class="st">"./outputs/mnTS_mod.rds"</span><span class="op">)</span></span></code></pre></div>
-</details>
+<span><span class="va">end_time</span> <span class="op">-</span> <span class="va">start_time</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Time difference of 1.211248 mins</code></pre>
+</div>
 </div>
 </button></li></ul>
 <div class="tab-content"><div class="active  tab-pane" id="NA" role="tabpanel" aria-labelledby="NA-tab">
 
 <div id="tabset-1-2">
 <div class="cell">
-<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">start_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">mnTS_mod_int</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mnTS.html">mnTS</a></span><span class="op">(</span>Y <span class="op">=</span> <span class="va">story_pollen_matrix</span><span class="op">[</span><span class="va">sample_idx</span>, <span class="op">]</span>,</span>
 <span>                     X <span class="op">=</span> <span class="va">story_char_matrix_scaled</span>, Tsample <span class="op">=</span> <span class="va">sample_idx</span>,</span>
@@ -559,15 +575,10 @@
 <span>                     V.start <span class="op">=</span> <span class="va">mnTS_mod</span><span class="op">$</span><span class="va">V</span>, V.fixed <span class="op">=</span> <span class="va">V.fixed.mnTS</span>,</span>
 <span>                     dispersion.fixed <span class="op">=</span> <span class="fl">1</span>, maxit.optim <span class="op">=</span> <span class="fl">1e+6</span><span class="op">)</span></span>
 <span><span class="va">end_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span> </span>
-<span><span class="va">end_time</span> <span class="op">-</span> <span class="va">start_time</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS</a></span><span class="op">(</span><span class="va">mnTS_mod_int</span>, <span class="st">"./outputs/mnTS_mod_int.rds"</span><span class="op">)</span></span></code></pre></div>
-</details>
+<span><span class="va">end_time</span> <span class="op">-</span> <span class="va">start_time</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Time difference of 3.51355 mins</code></pre>
 </div>
-<div class="cell">
-<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb25"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">mnTS_mod</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="st">"./outputs/mnTS_mod.rds"</span><span class="op">)</span></span>
-<span><span class="va">mnTS_mod_int</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="st">"./outputs/mnTS_mod_int.rds"</span><span class="op">)</span></span></code></pre></div>
-</details>
 </div>
 </div>
 </div></div>
@@ -576,9 +587,105 @@
 </h4>
 <p>The <code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code> and <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> functions will show the model outputs. Let’s check out the coefficients of interaction model:</p>
 <div class="cell">
-<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb41"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">mnTS_mod_int</span><span class="op">)</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call: mnTS with Tmax =  93  n =  5
+
+logLik = 750.0241,  AIC = -1438.048 [df = 31]
+
+dispersion parameter =  1
+
+Fitted Coefficients with approximate se
+                           Coef.          se          t             P
+hardwood              0.64627755 0.128823953   5.016750  5.255293e-07
+Ulmus                -0.29933182 0.113566390  -2.635743  8.395329e-03
+Fagus                -0.91867049 0.255370791  -3.597398  3.214159e-04
+Quercus               1.38347522 0.089608656  15.439080  8.936578e-54
+sp.other.other        0.89177470 0.011064525  80.597648  0.000000e+00
+sp.hardwood.hardwood  0.96083347 0.013894772  69.150720  0.000000e+00
+sp.Ulmus.Ulmus        0.94591268 0.017282507  54.732377  0.000000e+00
+sp.Fagus.Fagus        0.83383821 0.036552053  22.812350 3.457807e-115
+sp.Quercus.Fagus      0.06930431         NaN        NaN           NaN
+sp.Fagus.Quercus     -0.08431459         NaN        NaN           NaN
+sp.Quercus.Quercus    0.99072926 0.007589615 130.537489  0.000000e+00
+char_acc.hardwood    -0.15774081 0.021983518  -7.175413  7.208936e-13
+char_acc.Ulmus       -0.15937356 0.037985313  -4.195663  2.720749e-05
+char_acc.Fagus       -0.21576678         NaN        NaN           NaN
+char_acc.Quercus     -0.18580969 0.019967371  -9.305666  1.331547e-20
+
+
+Fitted Coefficients with conditional approximate se
+                           Coef.          se          t            P
+hardwood              0.64627755 0.146885289   4.399879 1.083111e-05
+Ulmus                -0.29933182 0.176984151  -1.691292 9.078111e-02
+Fagus                -0.91867049 0.265149460  -3.464727 5.307700e-04
+Quercus               1.38347522 0.068468911  20.205889 8.689079e-91
+sp.other.other        0.89177470 0.010890072  81.888780 0.000000e+00
+sp.hardwood.hardwood  0.96083347 0.010722160  89.611929 0.000000e+00
+sp.Ulmus.Ulmus        0.94591268 0.009032307 104.725480 0.000000e+00
+sp.Fagus.Fagus        0.83383821 0.021011423  39.684996 0.000000e+00
+sp.Quercus.Fagus      0.06930431 0.007267487   9.536213 1.481432e-21
+sp.Fagus.Quercus     -0.08431459 0.034418562  -2.449684 1.429818e-02
+sp.Quercus.Quercus    0.99072926 0.014078411  70.372233 0.000000e+00
+sigma                 0.66036129 0.037411671  17.651211 9.959806e-70
+char_acc.hardwood    -0.15774081 0.024046618  -6.559792 5.388286e-11
+char_acc.Ulmus       -0.15937356 0.031947105  -4.988670 6.079642e-07
+char_acc.Fagus       -0.21576678 0.060354060  -3.575017 3.502053e-04
+char_acc.Quercus     -0.18580969 0.018905045  -9.828577 8.480861e-23
+
+
+Overall model
+
+B0 =
+            other  hardwood      Ulmus      Fagus  Quercus
+(intercept)     0 0.6462775 -0.2993318 -0.9186705 1.383475
+
+
+B =
+         other   hardwood      Ulmus      Fagus    Quercus
+char_acc     0 -0.1577408 -0.1593736 -0.2157668 -0.1858097
+
+
+C =
+             other  hardwood     Ulmus      Fagus     Quercus
+other    0.8917747 0.0000000 0.0000000 0.00000000  0.00000000
+hardwood 0.0000000 0.9608335 0.0000000 0.00000000  0.00000000
+Ulmus    0.0000000 0.0000000 0.9459127 0.00000000  0.00000000
+Fagus    0.0000000 0.0000000 0.0000000 0.83383821 -0.08431459
+Quercus  0.0000000 0.0000000 0.0000000 0.06930431  0.99072926
+
+sigma =  0.6603613
+
+V =
+             other   hardwood      Ulmus     Fagus    Quercus
+other    1.0000000 0.25286788 0.24451372 0.4181247 0.13922069
+hardwood 0.2528679 0.07460389 0.06003974 0.1084949 0.03416640
+Ulmus    0.2445137 0.06003974 0.09392674 0.1082596 0.03023850
+Fagus    0.4181247 0.10849494 0.10825965 0.3166117 0.02520510
+Quercus  0.1392207 0.03416640 0.03023850 0.0252051 0.02726373</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">mnTS_mod_int</span><span class="op">)</span></span></code></pre></div>
-</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>                           Coef.          se          t             P
+hardwood              0.64627755 0.128823953   5.016750  5.255293e-07
+Ulmus                -0.29933182 0.113566390  -2.635743  8.395329e-03
+Fagus                -0.91867049 0.255370791  -3.597398  3.214159e-04
+Quercus               1.38347522 0.089608656  15.439080  8.936578e-54
+sp.other.other        0.89177470 0.011064525  80.597648  0.000000e+00
+sp.hardwood.hardwood  0.96083347 0.013894772  69.150720  0.000000e+00
+sp.Ulmus.Ulmus        0.94591268 0.017282507  54.732377  0.000000e+00
+sp.Fagus.Fagus        0.83383821 0.036552053  22.812350 3.457807e-115
+sp.Quercus.Fagus      0.06930431         NaN        NaN           NaN
+sp.Fagus.Quercus     -0.08431459         NaN        NaN           NaN
+sp.Quercus.Quercus    0.99072926 0.007589615 130.537489  0.000000e+00
+char_acc.hardwood    -0.15774081 0.021983518  -7.175413  7.208936e-13
+char_acc.Ulmus       -0.15937356 0.037985313  -4.195663  2.720749e-05
+char_acc.Fagus       -0.21576678         NaN        NaN           NaN
+char_acc.Quercus     -0.18580969 0.019967371  -9.305666  1.331547e-20</code></pre>
+</div>
 </div>
 <p>We have found that bootstrapping provides better estimates of standard erros (and subsequent P-values). The <code><a href="../reference/boot.html">boot()</a></code> function will bootstrap the model, but may take a very long time. We won’t do this today, but we strongly recommend bootstrapping your final models.</p>
 </section><section class="level3"><h4 id="comparing-models">Comparing models<a class="anchor" aria-label="anchor" href="#comparing-models"></a>
@@ -586,10 +693,13 @@
 <p>The <code>summary</code> of the model provides both the log likelihood and the AIC (akaike information criterion). These can be used for comparing models. Today we will use the AIC. AIC is penalised for the number of parameters estimated, and so can be better for comparing models where one has more parameters estimated (i.e., the interaction model is estimating more parameters than the model without interactions).</p>
 <p>The AIC (and log likelihood) values can be accessed directly with <code>mnTS_mod_int$AIC</code>.</p>
 <div class="cell">
-<details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>without_interactions <span class="op">=</span> <span class="va">mnTS_mod</span><span class="op">$</span><span class="va">AIC</span>,</span>
 <span>           with_interactions <span class="op">=</span> <span class="va">mnTS_mod_int</span><span class="op">$</span><span class="va">AIC</span><span class="op">)</span></span></code></pre></div>
-</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>  without_interactions with_interactions
+1            -1391.369         -1438.048</code></pre>
+</div>
 </div>
 </section></section></section><script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
