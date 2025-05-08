@@ -36,6 +36,8 @@ This vignette will work with the data that have focal taxa and groups already wr
 
 ```{r}
 #| label: libraries and data
+#| message: false
+#| warning: false
 
 
 # Load required packages
@@ -61,8 +63,6 @@ data("story_pollen_wide", package = "multinomialTS")
 Here is what the state variable ($Y$) data look like:
 
 ```{r}
-#| eval: false
-
 
 head(story_pollen_wide)
 ```
