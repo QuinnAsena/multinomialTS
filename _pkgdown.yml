@@ -1,4 +1,8 @@
 url: https://quinnasena.github.io/multinomialTS/
 template:
   bootstrap: 5
+  bootswatch: flatly
+
+articles:
+  render: "quarto"
 
