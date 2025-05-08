@@ -1,3 +1,14 @@
 # multinomialTS
 
-This is the initial working version of `multinomialTS`. A full working tutorial for using the model, including installation instructions, can be found here: https://github.com/QuinnAsena/state-space-workhop-ESA.
+This is the initial working version of `multinomialTS`. See [the vignette](https://quinnasena.github.io/multinomialTS/articles/multinomialTS-vignette.html) on how to use the model.
+
+## Installation
+
+
+
+### Windows
+
+
+
+
+### macOS

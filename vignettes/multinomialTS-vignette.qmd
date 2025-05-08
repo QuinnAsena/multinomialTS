@@ -39,7 +39,6 @@ This vignette will work with the data that have focal taxa and groups already wr
 #| message: false
 #| warning: false
 
-
 # Load required packages
 library(ggplot2)
 library(dplyr)
@@ -75,6 +74,30 @@ head(story_char_wide)
 ```
 
 For the moment, we are keeping the age and depth columns in both tibbles. These columns are so that we have a common variable to match the two to tibbles, and will be removed a little later.
+
+Always checkout some plots! See that big spike in "other", this is the rise of ambrosia in recent decades. Worth clipping that from the data, major trends in the out-group indicates that something important is being aggregated in the reference (we don't want that). I have left it in this example dataset for demonstration purposes.
+
+
+```{r}
+#| code-fold: true
+
+story_pollen_wide |>
+  pivot_longer(-c(age, depth)) |>
+  mutate(name = factor(name,levels = c(
+    "other", "hardwood", "Ulmus", "Fagus grandifolia", "Quercus"))) |>
+  ggplot(aes(x = age, y = value)) +
+    geom_area(colour = "grey90") +
+    geom_col() +
+    scale_x_reverse(breaks = scales::breaks_pretty(n = 6)) +
+    coord_flip() +
+    labs(y = "Pollen counts", x = "Time (ybp)") +
+    facet_wrap(~name,
+               nrow = 1) +
+    theme_minimal() +
+    theme(
+      text = element_text(size = 10),
+    )
+```
 
 ## State variables $Y$ {#sec-Y}
 
@@ -141,6 +164,7 @@ tail(story_join, n = 10)
 ```
 
 This all looks good, and we can now bin the data to an appropriate temporal resolution for fitting the model. Choosing a bin-width may take some trial and error, I'm going with a bin-width of 50 years.
+
 
 ```{r}
 
@@ -333,24 +357,23 @@ C.start.mnTS  <- .5 * diag(n)
 C.fixed.mnTS <- C.start.mnTS
 C.fixed.mnTS[C.fixed.mnTS != 0] <- NA
 
-# Set-up C with interactions between Fagus and Quercus
-C.start.int.mnTS  <- .5 * diag(n)
-C.start.int.mnTS[5, 4] <- .001
-C.start.int.mnTS[4, 5] <- .001
-C.fixed.int.mnTS <- C.start.int.mnTS
-C.fixed.int.mnTS[C.fixed.int.mnTS != 0] <- NA
+
 ```
 
-#### Fitting `mnTS()` {#sec-mnts}
+## Fitting `mnTS()` {#sec-mnts}
 
 Remember, `mnTS()` _does_ handle gaps in the state-variables where there are data in the covariate matrix. In the following code, we use the complete (no gaps) $Y$ matrix `story_pollen_matrix[sample_idx, ]` with dimensions: `r dim(story_pollen_matrix[sample_idx, ])`. And the full $X$ matrix: `story_char_matrix_scaled` with dimensions: `r dim(story_char_matrix_scaled)` We will fit the model twice:
 
-- without taxa interactions
-- and without taxa interactions. 
+- Without taxa interactions.
+- And without taxa interactions.
 
-::: {.panel-tabset}
 
-## Without interactions
+::: {.callout-tip}
+
+Note the use of sample_idx in `story_pollen_matrix[sample_idx, ]` and `Tsample = sample_idx`. This is important as it tells the model where there are observations of $Y$ in relation to observations in $X$.
+
+:::
+
 
 ```{r}
 
@@ -369,9 +392,22 @@ end_time - start_time
 ```
 
 
-## With interactions
+In this following code we set-up $C$ to define which interactions to estimate. $C$ can take many forms, here we set-up a two-way interaction between key species. 
+
+::: {.callout-tip}
+
+Note that for the starting values of parameters I am using the output of the no-interaction `mnts()` model above. This is perfectly OK because we are only providing reasonable models for the model to work with. If the starting values are closer to the 'true' values then the model will likely optimize faster.
+
+:::
 
 ```{r}
+
+# Set-up C with interactions between Fagus and Quercus
+C.start.int.mnTS  <- .5 * diag(n)
+C.start.int.mnTS[5, 4] <- .001
+C.start.int.mnTS[4, 5] <- .001
+C.fixed.int.mnTS <- C.start.int.mnTS
+C.fixed.int.mnTS[C.fixed.int.mnTS != 0] <- NA
 
 start_time <- Sys.time()
 mnTS_mod_int <- mnTS(Y = story_pollen_matrix[sample_idx, ],
@@ -385,7 +421,6 @@ end_time <- Sys.time()
 end_time - start_time
 ```
 
-:::
 
 
 
@@ -399,7 +434,7 @@ summary(mnTS_mod_int)
 coef(mnTS_mod_int)
 ```
 
-We have found that bootstrapping provides better estimates of standard erros (and subsequent P-values). The `boot()` function will bootstrap the model, but may take a very long time. We won't do this today, but we strongly recommend bootstrapping your final models.
+We have found that bootstrapping provides better estimates of standard errors (and subsequent P-values). The `boot()` function will bootstrap the model, but may take a very long time. We won't do this today, but we strongly recommend bootstrapping your final models.
 
 ### Comparing models
 
