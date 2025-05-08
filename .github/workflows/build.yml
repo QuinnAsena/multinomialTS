@@ -13,12 +13,12 @@ jobs:
       matrix:
         include:
           - os: windows-latest
-            r-version: '4.4.1'
+            r-version: '4.4.4'
           - os: macos-latest
-            r-version: '4.4.1'
+            r-version: '4.4.4'
             architecture: x86_64
           - os: macos-latest
-            r-version: '4.4.1'
+            r-version: '4.4.4'
             architecture: arm64
 
     steps:
@@ -63,7 +63,7 @@ jobs:
 
       - name: Upload Release Asset (macOS ARM64)
         if: matrix.os == 'macos-latest' && matrix.architecture == 'arm64'
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: multinomialTS-macOS-arm64
           path: /Users/runner/work/multinomialTS/multinomialTS-arm64.tgz
@@ -75,7 +75,7 @@ jobs:
 
       - name: Upload Release Asset (macOS x86_64)
         if: matrix.os == 'macos-latest' && matrix.architecture == 'x86_64'
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: multinomialTS-macOS-x86_64
           path: /Users/runner/work/multinomialTS/multinomialTS_*.tgz
@@ -87,7 +87,7 @@ jobs:
 
       - name: Upload Release Asset (Windows)
         if: matrix.os == 'windows-latest'
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: multinomialTS-Windows
           path: D:/a/multinomialTS/multinomialTS_*.zip
@@ -98,7 +98,7 @@ jobs:
 
     steps:
       - name: Download all artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           path: /home/runner/work/multinomialTS/
       - name: Show artifacts
@@ -110,7 +110,7 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v1.0.0
+          tag_name: ${{ github.ref_name }}
           files: |
             /home/runner/work/multinomialTS/multinomialTS-macOS-arm64/*.tgz
             /home/runner/work/multinomialTS/multinomialTS-macOS-x86_64/*.tgz
