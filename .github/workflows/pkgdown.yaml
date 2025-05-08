@@ -45,20 +45,19 @@ jobs:
 
 #      - name: Add Quarto to PATH attempt 1
 #        run: echo "/opt/quarto/bin" >> $GITHUB_PATH
-        
-      - name: check 1
-        run: |
-          which quarto
-          Rscript -e 'quarto::quarto_path()'
-
-      - name: Set R environment variable for Quarto attempt 2
-        run: echo "QUARTO_PATH=$(which quarto)" >> $GITHUB_ENV
-
+#        
+#      - name: check 1
+#        run: |
+#          which quarto
+#          Rscript -e 'quarto::quarto_path()'
+#
+#      - name: Set R environment variable for Quarto attempt 2
+#        run: echo "QUARTO_PATH=$(which quarto)" >> $GITHUB_ENV
+#
       - name: check 2
         run: |
           which quarto
-          Rscript -e 'quarto::quarto_path()'
-          
+          Rscript -e 'quarto::quarto_path()'          
 
       - name: Build site
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)

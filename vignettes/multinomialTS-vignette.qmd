@@ -25,10 +25,10 @@ One of the primary goals of this model is to be able to test multiple hypotheses
 
 This vignette will take us through:
 
-- Choosing a binning resolution for `mnTS()` @sec-Y and @sec-X
-- Finding initial conditions with `mnGLMM()` @sec-glmm
-- Fitting `mnTS()` with and without species interactions @sec-mnts
-- assess the resulting models
+- Choosing a binning resolution for `mnTS()` (@sec-Y and @sec-X).
+- Finding initial conditions with `mnGLMM()` (@sec-glmm).
+- Fitting `mnTS()` with and without species interactions (@sec-mnts).
+- Assess the resulting models (@sec-interp).
 
 # Fitting `mnTS()`
 
@@ -101,7 +101,7 @@ sd(diff(story_pollen_wide$age))
 
 This all looks great! If we bin the data at around 50-75 years, we will still have most of our data in independent bins.
 
-Now that we know roughly what bin-width to use to maximise the number of observations in the state variables, we will apply the same bin-width to both the state variables and the covariate data.
+Now that we know roughly what bin-width to use to maximize the number of observations in the state variables, we will apply the same bin-width to both the state variables and the covariate data.
 
 
 ## Handling the covariates $X$ {#sec-X}
@@ -389,7 +389,7 @@ end_time - start_time
 
 
 
-### Interpreting outputs
+## Interpreting outputs {#sec-interp}
 
 The `coef()` and `summary()` functions will show the model outputs. Let's check out the coefficients of interaction model:
 
