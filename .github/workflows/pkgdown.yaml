@@ -43,8 +43,8 @@ jobs:
           extra-packages: any::pkgdown, any::quarto, local::.
           needs: website
 
-      - name: Add Quarto to PATH attempt 1
-        run: echo "/opt/quarto/bin" >> $GITHUB_PATH
+#      - name: Add Quarto to PATH attempt 1
+#        run: echo "/opt/quarto/bin" >> $GITHUB_PATH
         
       - name: check 1
         run: |
@@ -59,9 +59,6 @@ jobs:
           which quarto
           Rscript -e 'quarto::quarto_path()'
           
-      - name: Check installed data
-        run: |
-          Rscript -e 'print(list.files(system.file("data", package = "multinomialTS")))'
 
       - name: Build site
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
