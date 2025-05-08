@@ -48,7 +48,6 @@ rsconnect/
 
 # test directories
 /test_scripts/
-/data/
 docs
 inst/doc
 /doc/
