@@ -21,16 +21,19 @@ vignette: >
 
 One of the primary goals of this model is to be able to test multiple hypotheses about the data and lend statistical support to the different hypotheses. For example which environmental drivers are having the strongest effects on which taxa? Or, are interactions among taxa or abiotic variables driving change in the system? This state-space approach allows us to estimate coefficients for taxa interactions and driver-taxa relationships, that we don't get from methods such as ordination or cluster analysis. We recommend this method as complimentary to other methods, as both have their advantages.
 
+
 ## This vignette
 
 This vignette will take us through:
 
-- Choosing a binning resolution for `mnTS()` (@sec-Y and @sec-X).
-- Finding initial conditions with `mnGLMM()` (@sec-glmm).
-- Fitting `mnTS()` with and without species interactions (@sec-mnts).
-- Assess the resulting models (@sec-interp).
+- Choosing a prediction resolution for `mnTS()` (@sec-data).
+- The fitting process (@sec-fitting).
+  - Finding initial conditions with `mnGLMM()` (@sec-glmm).
+  - Fitting `mnTS()` with and without species interactions (@sec-mnts).
+- Assessing the resulting models (@sec-interp).
 
-# Fitting `mnTS()`
+
+# Data processing {#sec-data}
 
 This vignette will work with the data that have focal taxa and groups already wrangled. A second vignette will be added to cover the data wrangling, for now see [this workshop](https://quinnasena.github.io/state-space-workhop-ESA/state-space-walkthrough.html)
 
@@ -229,9 +232,9 @@ head(story_char_matrix_scaled)
 
 ```
 
-## Fitting `multinomialTS` {#sec-fitting}
+# Fitting `multinomialTS` {#sec-fitting}
 
-Ok, now we have:
+OK, now we have:
 
 - Chosen a temporal resolution for the model of `r bin_width`-year bins
 - Organised the data into a site-by-species matrix $Y$ at `r bin_width`-year bins 
@@ -239,7 +242,7 @@ Ok, now we have:
 
 With that, we can fit the model.
 
-### Finding initial conditions using `mnGLMM()` {#sec-glmm}
+## Finding initial conditions using `mnGLMM()` {#sec-glmm}
 
 The `mnTS()` function will provide estimates for biotic interactions ($C$ matrix), taxa-driver relationships ($B$ matrix), and cross-correlated error ($V$ matrix). But the model needs initial starting values for these parameters to begin with. We get initial starting conditions from the data by running the `mnGLMM()` function. `mnGLMM()` returns estimates for the $B$ and $V$ matrices (not the $C$ matrix) and assumes that there are no time gaps in the data.
 
@@ -251,7 +254,7 @@ The arguments of the parameters to be _estimated_ are all suffixed with `.fixed`
 
 :::
 
-#### Setting-up parameters for `mnGMLL()`
+### Setting-up parameters for `mnGMLL()`
 
 Now, lets set up the parameters for `mnGLMM()`. We need:
 
@@ -286,7 +289,7 @@ B.start.glmm <- matrix(c(rep(0,p),rep(.01, (n - 1) * p)), p, n) # reference taxa
 These parameters are used as arguments to the `mnGLMM()` function. Check them out by printing them in your console. Each matrix needs to be the correct dimensions given the number of taxa and number of covariates. The position elements of each matrix reflect the species and/or the covariates, as we will see later in the output of the model.
 
 
-#### Fitting `mnGLMM()`
+### Fitting `mnGLMM()`
 
 Remember that `mnGLMM()` does not handle gaps in the data and only fits complete $X$ and $Y$ matrices. We have created a variable for out observation indices (`sample_idx`), so for `mnGLMM()` we will index the matrices by this variable: e.g., `story_pollen_matrix[sample_idx, ]`.
 
@@ -312,7 +315,7 @@ summary(glmm_mod)
 
 ```
 
-#### Setting-up parameters for `mnTS()`
+## Setting-up parameters for `mnTS()`
 
 Now, lets set up the parameters for `mnTS()`. `mTS()` needs:
 
