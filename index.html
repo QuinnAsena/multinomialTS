@@ -6,6 +6,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>State-Space Modelling of Multinomially Distributed Data • multinomialTS</title>
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" sizes="any" href="favicon.ico">
+<link rel="manifest" href="site.webmanifest">
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
@@ -13,6 +18,7 @@
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="State-Space Modelling of Multinomially Distributed Data">
 <meta name="description" content="This is a package for state-space modelling of multinomially distributed data e.g., community count data or palaeoecological time series.">
 <meta property="og:description" content="This is a package for state-space modelling of multinomially distributed data e.g., community count data or palaeoecological time series.">
+<meta property="og:image" content="https://quinnasena.github.io/multinomialTS/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -51,8 +57,10 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="multinomialts">multinomialTS<a class="anchor" aria-label="anchor" href="#multinomialts"></a>
-</h1></div>
+<div class="page-header">
+<img src="logo.png" class="logo" alt=""><h1 id="multinomialts">multinomialTS<a class="anchor" aria-label="anchor" href="#multinomialts"></a>
+</h1>
+</div>
 <p>This is the initial working version of <code>multinomialTS</code>. See <a href="https://quinnasena.github.io/multinomialTS/articles/multinomialTS-vignette.html">the vignette</a> on how to use the model.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
@@ -60,10 +68,33 @@
 <div class="section level3">
 <h3 id="windows">Windows<a class="anchor" aria-label="anchor" href="#windows"></a>
 </h3>
+<p>The best way to install at the moment is to compile from source:</p>
+<ul>
+<li>If you have Rtools44 or (Rtools45 for R 4.5) and devtools installed, you can build the latest version of the package directly from github using: <code>devtools::install_github("https://github.com/QuinnAsena/multinomialTS")</code>
+</li>
+</ul>
+<p>Alternatively, if you are having issues with the build tools, install the binaries:</p>
+<ul>
+<li><code>install.packages("https://github.com/QuinnAsena/multinomialTS/releases/download/v1.0.1-alpha/multinomialTS_1.0.1-alpha.zip", repos = NULL, type = "win.binary")</code></li>
+</ul>
 </div>
 <div class="section level3">
 <h3 id="macos">macOS<a class="anchor" aria-label="anchor" href="#macos"></a>
 </h3>
+<p>The best way to install at the moment is to compile from source:</p>
+<ul>
+<li><p>If you have xcode-select and devtools installed, you can build the latest version of the package directly from github using: <code>devtools::install_github("https://github.com/QuinnAsena/multinomialTS")</code></p></li>
+<li><p>On apple it is nice and easy to download xcode-select by opening a terminal and copying this code: xcode-select –install. Then try and run: <code>devtools::install_github("https://github.com/QuinnAsena/multinomialTS")</code></p></li>
+</ul>
+<p>Alternatively, if you are having issues with the build tools, install the binaries:</p>
+<p>For new M-series macs, use:</p>
+<ul>
+<li><code>install.packages("https://github.com/QuinnAsena/multinomialTS/releases/download/v1.0.1-alpha/multinomialTS-arm64.tgz", repos = NULL)</code></li>
+</ul>
+<p>For Intel macs, use:</p>
+<ul>
+<li><code>install.packages("https://github.com/QuinnAsena/multinomialTS/releases/download/v1.0.1-alpha/multinomialTS_1.0.0.tgz", repos = NULL)</code></li>
+</ul>
 </div>
 </div>
 </div>

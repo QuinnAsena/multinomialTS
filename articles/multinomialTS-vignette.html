@@ -6,6 +6,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>multinomialTS Vignette • multinomialTS</title>
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" sizes="any" href="../favicon.ico">
+<link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
@@ -13,6 +18,7 @@
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="multinomialTS-vignette_files/libs/quarto-html/popper.min.js"></script><script src="multinomialTS-vignette_files/libs/quarto-html/tippy.umd.min.js"></script><link href="multinomialTS-vignette_files/libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="multinomialTS-vignette_files/libs/quarto-html/light-border.css" rel="stylesheet">
 <!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="multinomialTS Vignette">
+<meta property="og:image" content="https://quinnasena.github.io/multinomialTS/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -51,11 +57,10 @@
 </nav><div class="container template-quarto">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-
-      <h1>multinomialTS Vignette</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>multinomialTS Vignette</h1>
 
       <p class="author">Quinn Asena, Tony Ives, and Jack williams</p>
-      <p class="date">2025-05-08</p>
+      <p class="date">2025-05-10</p>
 
 
       <div class="d-none name"><code></code></div>
@@ -73,12 +78,15 @@
 </h3>
 <p>This vignette will take us through:</p>
 <ul>
-<li>Choosing a binning resolution for <code><a href="../reference/mnTS.html">mnTS()</a></code> (<a href="#sec-Y" class="quarto-xref">Section 2.1</a> and <a href="#sec-X" class="quarto-xref">Section 2.2</a>).</li>
-<li>Finding initial conditions with <code><a href="../reference/mnGLMM.html">mnGLMM()</a></code> (<a href="#sec-glmm" class="quarto-xref">Section 2.3.1</a>).</li>
-<li>Fitting <code><a href="../reference/mnTS.html">mnTS()</a></code> with and without species interactions (<a href="#sec-mnts" class="quarto-xref">Section 2.4</a>).</li>
-<li>Assess the resulting models (<a href="#sec-interp" class="quarto-xref">Section 2.5</a>).</li>
-</ul></section></section><section class="section level2"><h2 id="fitting-mnts">Fitting <code>mnTS()</code>
-<a class="anchor" aria-label="anchor" href="#fitting-mnts"></a>
+<li>Choosing a prediction resolution for <code><a href="../reference/mnTS.html">mnTS()</a></code> (<a href="#sec-data" class="quarto-xref">Section 2</a>).</li>
+<li>The fitting process (<a href="#sec-fitting" class="quarto-xref">Section 3</a>).
+<ul>
+<li>Finding initial conditions with <code><a href="../reference/mnGLMM.html">mnGLMM()</a></code> (<a href="#sec-glmm" class="quarto-xref">Section 3.1</a>).</li>
+<li>Fitting <code><a href="../reference/mnTS.html">mnTS()</a></code> with and without species interactions (<a href="#sec-mnts" class="quarto-xref">Section 3.3</a>).</li>
+</ul>
+</li>
+<li>Assessing the resulting models (<a href="#sec-interp" class="quarto-xref">Section 3.4</a>).</li>
+</ul></section></section><section class="section level2"><h2 id="sec-data">Data processing<a class="anchor" aria-label="anchor" href="#sec-data"></a>
 </h2>
 <p>This vignette will work with the data that have focal taxa and groups already wrangled. A second vignette will be added to cover the data wrangling, for now see <a href="https://quinnasena.github.io/state-space-workhop-ESA/state-space-walkthrough.html" class="external-link">this workshop</a></p>
 <div class="cell">
@@ -350,10 +358,10 @@
 [6,] -0.2731469</code></pre>
 </div>
 </div>
-</section><section class="level2"><h3 id="sec-fitting">Fitting <code>multinomialTS</code>
+</section></section><section class="section level2"><h2 id="sec-fitting">Fitting <code>multinomialTS</code>
 <a class="anchor" aria-label="anchor" href="#sec-fitting"></a>
-</h3>
-<p>Ok, now we have:</p>
+</h2>
+<p>OK, now we have:</p>
 <ul>
 <li>Chosen a temporal resolution for the model of 50-year bins</li>
 <li>Organised the data into a site-by-species matrix <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math> at 50-year bins</li>
@@ -361,9 +369,9 @@
 </li>
 </ul>
 <p>With that, we can fit the model.</p>
-<section class="level3"><h4 id="sec-glmm">Finding initial conditions using <code>mnGLMM()</code>
+<section class="level2"><h3 id="sec-glmm">Finding initial conditions using <code>mnGLMM()</code>
 <a class="anchor" aria-label="anchor" href="#sec-glmm"></a>
-</h4>
+</h3>
 <p>The <code><a href="../reference/mnTS.html">mnTS()</a></code> function will provide estimates for biotic interactions (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math> matrix), taxa-driver relationships (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math> matrix), and cross-correlated error (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>V</mi><annotation encoding="application/x-tex">V</annotation></semantics></math> matrix). But the model needs initial starting values for these parameters to begin with. We get initial starting conditions from the data by running the <code><a href="../reference/mnGLMM.html">mnGLMM()</a></code> function. <code><a href="../reference/mnGLMM.html">mnGLMM()</a></code> returns estimates for the <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>V</mi><annotation encoding="application/x-tex">V</annotation></semantics></math> matrices (not the <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math> matrix) and assumes that there are no time gaps in the data.</p>
 <div>
 <blockquote>
@@ -372,9 +380,9 @@
 <p>The arguments of the parameters to be <em>estimated</em> are all suffixed with <code>.fixed</code> (e.g., <code>B.fixed</code> will be parameters that are estimated from <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math> matrix).</p>
 </blockquote>
 </div>
-<section class="level4"><h5 id="setting-up-parameters-for-mngmll">Setting-up parameters for <code>mnGMLL()</code>
+<section class="level3"><h4 id="setting-up-parameters-for-mngmll">Setting-up parameters for <code>mnGMLL()</code>
 <a class="anchor" aria-label="anchor" href="#setting-up-parameters-for-mngmll"></a>
-</h5>
+</h4>
 <p>Now, lets set up the parameters for <code><a href="../reference/mnGLMM.html">mnGLMM()</a></code>. We need:</p>
 <ul>
 <li>A vector that indicates the row indices where there are state variable observations: <code>sample_idx</code>
@@ -419,9 +427,9 @@
 <span><span class="va">B.start.glmm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>,<span class="va">p</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">.01</span>, <span class="op">(</span><span class="va">n</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="va">p</span><span class="op">)</span><span class="op">)</span>, <span class="va">p</span>, <span class="va">n</span><span class="op">)</span> <span class="co"># reference taxa [,1] are set to 0</span></span></code></pre></div>
 </div>
 <p>These parameters are used as arguments to the <code><a href="../reference/mnGLMM.html">mnGLMM()</a></code> function. Check them out by printing them in your console. Each matrix needs to be the correct dimensions given the number of taxa and number of covariates. The position elements of each matrix reflect the species and/or the covariates, as we will see later in the output of the model.</p>
-</section><section class="level4"><h5 id="fitting-mnglmm">Fitting <code>mnGLMM()</code>
+</section><section class="level3"><h4 id="fitting-mnglmm">Fitting <code>mnGLMM()</code>
 <a class="anchor" aria-label="anchor" href="#fitting-mnglmm"></a>
-</h5>
+</h4>
 <p>Remember that <code><a href="../reference/mnGLMM.html">mnGLMM()</a></code> does not handle gaps in the data and only fits complete <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math> matrices. We have created a variable for out observation indices (<code>sample_idx</code>), so for <code><a href="../reference/mnGLMM.html">mnGLMM()</a></code> we will index the matrices by this variable: e.g., <code>story_pollen_matrix[sample_idx, ]</code>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb33"><pre class="downlit sourceCode r">
@@ -435,7 +443,7 @@
 <span><span class="va">end_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">end_time</span> <span class="op">-</span> <span class="va">start_time</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Time difference of 14.56672 secs</code></pre>
+<pre><code>Time difference of 14.52843 secs</code></pre>
 </div>
 </div>
 <p>The outputs of <code><a href="../reference/mnGLMM.html">mnGLMM()</a></code> can be examined with the <code>summary(glmm_mod)</code> function.</p>
@@ -480,9 +488,9 @@ Fagus        0 0.00000000 0.0000000 0.3045231 0.00000000
 Quercus      0 0.00000000 0.0000000 0.0000000 0.07575829</code></pre>
 </div>
 </div>
-</section><section class="level4"><h5 id="setting-up-parameters-for-mnts">Setting-up parameters for <code>mnTS()</code>
+</section></section><section class="level2"><h3 id="setting-up-parameters-for-mnts">Setting-up parameters for <code>mnTS()</code>
 <a class="anchor" aria-label="anchor" href="#setting-up-parameters-for-mnts"></a>
-</h5>
+</h3>
 <p>Now, lets set up the parameters for <code><a href="../reference/mnTS.html">mnTS()</a></code>. <code>mTS()</code> needs:</p>
 <ul>
 <li>row indices as before: <code>sample_idx</code>
@@ -544,7 +552,7 @@ Quercus      0 0.00000000 0.0000000 0.0000000 0.07575829</code></pre>
 <span><span class="va">C.fixed.mnTS</span> <span class="op">&lt;-</span> <span class="va">C.start.mnTS</span></span>
 <span><span class="va">C.fixed.mnTS</span><span class="op">[</span><span class="va">C.fixed.mnTS</span> <span class="op">!=</span> <span class="fl">0</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">NA</span></span></code></pre></div>
 </div>
-</section></section></section><section class="level2"><h3 id="sec-mnts">Fitting <code>mnTS()</code>
+</section><section class="level2"><h3 id="sec-mnts">Fitting <code>mnTS()</code>
 <a class="anchor" aria-label="anchor" href="#sec-mnts"></a>
 </h3>
 <p>Remember, <code><a href="../reference/mnTS.html">mnTS()</a></code> <em>does</em> handle gaps in the state-variables where there are data in the covariate matrix. In the following code, we use the complete (no gaps) <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math> matrix <code>story_pollen_matrix[sample_idx, ]</code> with dimensions: 93, 5. And the full <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math> matrix: <code>story_char_matrix_scaled</code> with dimensions: 160, 1 We will fit the model twice:</p>
@@ -573,7 +581,7 @@ Quercus      0 0.00000000 0.0000000 0.0000000 0.07575829</code></pre>
 <span><span class="va">end_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">end_time</span> <span class="op">-</span> <span class="va">start_time</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Time difference of 1.203912 mins</code></pre>
+<pre><code>Time difference of 1.204754 mins</code></pre>
 </div>
 </div>
 <p>In this following code we set-up <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math> to define which interactions to estimate. <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math> can take many forms, here we set-up a two-way interaction between key species.</p>
@@ -603,7 +611,7 @@ Quercus      0 0.00000000 0.0000000 0.0000000 0.07575829</code></pre>
 <span><span class="va">end_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span> </span>
 <span><span class="va">end_time</span> <span class="op">-</span> <span class="va">start_time</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Time difference of 3.481955 mins</code></pre>
+<pre><code>Time difference of 3.494994 mins</code></pre>
 </div>
 </div>
 </section><section class="level2"><h3 id="sec-interp">Interpreting outputs<a class="anchor" aria-label="anchor" href="#sec-interp"></a>
