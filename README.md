@@ -24,7 +24,7 @@ The best way to install at the moment is to compile from source:
 
 - If you have xcode-select and devtools installed, you can build the latest version of the package directly from github using: `devtools::install_github("https://github.com/QuinnAsena/multinomialTS")`
 
-- On apple it is nice and easy to download xcode-select by opening a terminal and copying this code: xcode-select --install. Then try and run: `devtools::install_github("https://github.com/QuinnAsena/multinomialTS")`
+- On apple it is nice and easy to download xcode-select by opening a terminal and copying this code: `xcode-select --install`. Then try and run: `devtools::install_github("https://github.com/QuinnAsena/multinomialTS")`
 
 
 Alternatively, if you are having issues with the build tools, install the binaries:
