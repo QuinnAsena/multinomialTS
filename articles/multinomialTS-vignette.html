@@ -445,7 +445,7 @@
 <span><span class="va">end_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">end_time</span> <span class="op">-</span> <span class="va">start_time</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Time difference of 14.3575 secs</code></pre>
+<pre><code>Time difference of 12.16286 secs</code></pre>
 </div>
 </div>
 <p>The outputs of <code><a href="../reference/mnGLMM.html">mnGLMM()</a></code> can be examined with the <code>summary(glmm_mod)</code> function.</p>
@@ -462,32 +462,32 @@ dispersion parameter =  1
 
 Fitted Coefficients with approximate se
                            Coef.         se          t            P
-(intercept).hardwood  0.32520544 0.08449697  3.8487232 1.187351e-04
-char_acc.hardwood    -0.15611315 0.08828450 -1.7682962 7.701141e-02
-(intercept).Ulmus    -0.31413043 0.11063692 -2.8392911 4.521389e-03
-char_acc.Ulmus       -0.27877420 0.10904240 -2.5565671 1.057107e-02
-(intercept).Fagus    -0.26463309 0.11061622 -2.3923534 1.674071e-02
-char_acc.Fagus       -0.44517877 0.11465596 -3.8827356 1.032879e-04
-(intercept).Quercus   0.99820549 0.08800678 11.3423702 8.092255e-30
-char_acc.Quercus     -0.06223211 0.09098390 -0.6839903 4.939813e-01
+(intercept).hardwood  0.32520750 0.08449716  3.8487389 1.187275e-04
+char_acc.hardwood    -0.15611319 0.08828448 -1.7682971 7.701124e-02
+(intercept).Ulmus    -0.31412746 0.11063702 -2.8392617 4.521805e-03
+char_acc.Ulmus       -0.27877439 0.10904240 -2.5565689 1.057101e-02
+(intercept).Fagus    -0.26463088 0.11061642 -2.3923292 1.674182e-02
+char_acc.Fagus       -0.44517937 0.11465590 -3.8827428 1.032848e-04
+(intercept).Quercus   0.99820757 0.08800696 11.3423709 8.092196e-30
+char_acc.Quercus     -0.06223225 0.09098385 -0.6839923 4.939800e-01
 
 
 Overall model
 
 B =
             other   hardwood      Ulmus      Fagus     Quercus
-(intercept)     0  0.3252054 -0.3141304 -0.2646331  0.99820549
-char_acc        0 -0.1561132 -0.2787742 -0.4451788 -0.06223211
+(intercept)     0  0.3252075 -0.3141275 -0.2646309  0.99820757
+char_acc        0 -0.1561132 -0.2787744 -0.4451794 -0.06223225
 
-sigma =  1.055384
+sigma =  1.055386
 
 V =
-         other   hardwood     Ulmus     Fagus    Quercus
-other        1 0.00000000 0.0000000 0.0000000 0.00000000
-hardwood     0 0.00443052 0.0000000 0.0000000 0.00000000
-Ulmus        0 0.00000000 0.3021339 0.0000000 0.00000000
-Fagus        0 0.00000000 0.0000000 0.3045231 0.00000000
-Quercus      0 0.00000000 0.0000000 0.0000000 0.07575829</code></pre>
+         other    hardwood     Ulmus     Fagus    Quercus
+other        1 0.000000000 0.0000000 0.0000000 0.00000000
+hardwood     0 0.004430489 0.0000000 0.0000000 0.00000000
+Ulmus        0 0.000000000 0.3021321 0.0000000 0.00000000
+Fagus        0 0.000000000 0.0000000 0.3045221 0.00000000
+Quercus      0 0.000000000 0.0000000 0.0000000 0.07575794</code></pre>
 </div>
 </div>
 </section></section><section class="level2"><h3 id="setting-up-parameters-for-mnts">Setting-up parameters for <code>mnTS()</code>
@@ -581,7 +581,7 @@ Quercus      0 0.00000000 0.0000000 0.0000000 0.07575829</code></pre>
 <span><span class="va">end_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">end_time</span> <span class="op">-</span> <span class="va">start_time</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Time difference of 1.18992 mins</code></pre>
+<pre><code>Time difference of 1.133495 mins</code></pre>
 </div>
 </div>
 <p>In this following code we set-up <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math> to define which interactions to estimate. <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math> can take many forms, here we set-up a two-way interaction between key species.</p>
@@ -611,7 +611,7 @@ Quercus      0 0.00000000 0.0000000 0.0000000 0.07575829</code></pre>
 <span><span class="va">end_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span> </span>
 <span><span class="va">end_time</span> <span class="op">-</span> <span class="va">start_time</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Time difference of 3.454672 mins</code></pre>
+<pre><code>Time difference of 2.500131 mins</code></pre>
 </div>
 </div>
 </section><section class="level2"><h3 id="sec-interp">Interpreting outputs<a class="anchor" aria-label="anchor" href="#sec-interp"></a>
@@ -624,98 +624,98 @@ Quercus      0 0.00000000 0.0000000 0.0000000 0.07575829</code></pre>
 <pre><code>
 Call: mnTS with Tmax =  93  n =  5
 
-logLik = 750.0241,  AIC = -1438.048 [df = 31]
+logLik = 748.2719,  AIC = -1434.544 [df = 31]
 
 dispersion parameter =  1
 
 Fitted Coefficients with approximate se
-                           Coef.          se          t             P
-hardwood              0.64627755 0.128823953   5.016750  5.255293e-07
-Ulmus                -0.29933182 0.113566390  -2.635743  8.395329e-03
-Fagus                -0.91867049 0.255370791  -3.597398  3.214159e-04
-Quercus               1.38347522 0.089608656  15.439080  8.936578e-54
-sp.other.other        0.89177470 0.011064525  80.597648  0.000000e+00
-sp.hardwood.hardwood  0.96083347 0.013894772  69.150720  0.000000e+00
-sp.Ulmus.Ulmus        0.94591268 0.017282507  54.732377  0.000000e+00
-sp.Fagus.Fagus        0.83383821 0.036552053  22.812350 3.457807e-115
-sp.Quercus.Fagus      0.06930431         NaN        NaN           NaN
-sp.Fagus.Quercus     -0.08431459         NaN        NaN           NaN
-sp.Quercus.Quercus    0.99072926 0.007589615 130.537489  0.000000e+00
-char_acc.hardwood    -0.15774081 0.021983518  -7.175413  7.208936e-13
-char_acc.Ulmus       -0.15937356 0.037985313  -4.195663  2.720749e-05
-char_acc.Fagus       -0.21576678         NaN        NaN           NaN
-char_acc.Quercus     -0.18580969 0.019967371  -9.305666  1.331547e-20
+                           Coef.         se          t            P
+hardwood              0.63691477 0.28810394   2.210712 2.705580e-02
+Ulmus                -0.49502398 0.27873925  -1.775939 7.574293e-02
+Fagus                -0.81690318 0.24523132  -3.331154 8.648688e-04
+Quercus               1.38565091 0.17335303   7.993232 1.314470e-15
+sp.other.other        0.88878200        NaN        NaN          NaN
+sp.hardwood.hardwood  0.96032565 0.01470465  65.307616 0.000000e+00
+sp.Ulmus.Ulmus        0.94710493 0.01924021  49.225294 0.000000e+00
+sp.Fagus.Fagus        0.79372468 0.04327787  18.340197 3.953599e-75
+sp.Quercus.Fagus      0.06851431 0.01454481   4.710568 2.470277e-06
+sp.Fagus.Quercus     -0.09612673 0.03894519  -2.468257 1.357728e-02
+sp.Quercus.Quercus    0.99381127 0.01669040  59.543888 0.000000e+00
+char_acc.hardwood    -0.15481275 0.01476487 -10.485208 1.010230e-25
+char_acc.Ulmus       -0.13832058 0.02806632  -4.928348 8.292761e-07
+char_acc.Fagus       -0.22365851 0.04104789  -5.448721 5.073337e-08
+char_acc.Quercus     -0.17367961 0.01701937 -10.204822 1.886670e-24
 
 
 Fitted Coefficients with conditional approximate se
-                           Coef.          se          t            P
-hardwood              0.64627755 0.146885289   4.399879 1.083111e-05
-Ulmus                -0.29933182 0.176984151  -1.691292 9.078111e-02
-Fagus                -0.91867049 0.265149460  -3.464727 5.307700e-04
-Quercus               1.38347522 0.068468911  20.205889 8.689079e-91
-sp.other.other        0.89177470 0.010890072  81.888780 0.000000e+00
-sp.hardwood.hardwood  0.96083347 0.010722160  89.611929 0.000000e+00
-sp.Ulmus.Ulmus        0.94591268 0.009032307 104.725480 0.000000e+00
-sp.Fagus.Fagus        0.83383821 0.021011423  39.684996 0.000000e+00
-sp.Quercus.Fagus      0.06930431 0.007267487   9.536213 1.481432e-21
-sp.Fagus.Quercus     -0.08431459 0.034418562  -2.449684 1.429818e-02
-sp.Quercus.Quercus    0.99072926 0.014078411  70.372233 0.000000e+00
-sigma                 0.66036129 0.037411671  17.651211 9.959806e-70
-char_acc.hardwood    -0.15774081 0.024046618  -6.559792 5.388286e-11
-char_acc.Ulmus       -0.15937356 0.031947105  -4.988670 6.079642e-07
-char_acc.Fagus       -0.21576678 0.060354060  -3.575017 3.502053e-04
-char_acc.Quercus     -0.18580969 0.018905045  -9.828577 8.480861e-23
+                           Coef.          se          t             P
+hardwood              0.63691477 0.148090126   4.300859  1.701372e-05
+Ulmus                -0.49502398 0.178186105  -2.778129  5.467291e-03
+Fagus                -0.81690318 0.228180847  -3.580069  3.435035e-04
+Quercus               1.38565091 0.081507259  17.000337  8.164861e-65
+sp.other.other        0.88878200 0.011619105  76.493155  0.000000e+00
+sp.hardwood.hardwood  0.96032565 0.010312964  93.118302  0.000000e+00
+sp.Ulmus.Ulmus        0.94710493 0.007667189 123.527008  0.000000e+00
+sp.Fagus.Fagus        0.79372468 0.023752728  33.416148 7.989611e-245
+sp.Quercus.Fagus      0.06851431 0.009734226   7.038496  1.943266e-12
+sp.Fagus.Quercus     -0.09612673 0.037710593  -2.549065  1.080123e-02
+sp.Quercus.Quercus    0.99381127 0.014203395  69.969982  0.000000e+00
+sigma                 0.63773041 0.036784639  17.336867  2.478836e-67
+char_acc.hardwood    -0.15481275 0.026838051  -5.768405  8.002515e-09
+char_acc.Ulmus       -0.13832058 0.040488437  -3.416298  6.347864e-04
+char_acc.Fagus       -0.22365851 0.054608442  -4.095676  4.209375e-05
+char_acc.Quercus     -0.17367961 0.023160201  -7.499055  6.427973e-14
 
 
 Overall model
 
 B0 =
-            other  hardwood      Ulmus      Fagus  Quercus
-(intercept)     0 0.6462775 -0.2993318 -0.9186705 1.383475
+            other  hardwood     Ulmus      Fagus  Quercus
+(intercept)     0 0.6369148 -0.495024 -0.8169032 1.385651
 
 
 B =
          other   hardwood      Ulmus      Fagus    Quercus
-char_acc     0 -0.1577408 -0.1593736 -0.2157668 -0.1858097
+char_acc     0 -0.1548128 -0.1383206 -0.2236585 -0.1736796
 
 
 C =
-             other  hardwood     Ulmus      Fagus     Quercus
-other    0.8917747 0.0000000 0.0000000 0.00000000  0.00000000
-hardwood 0.0000000 0.9608335 0.0000000 0.00000000  0.00000000
-Ulmus    0.0000000 0.0000000 0.9459127 0.00000000  0.00000000
-Fagus    0.0000000 0.0000000 0.0000000 0.83383821 -0.08431459
-Quercus  0.0000000 0.0000000 0.0000000 0.06930431  0.99072926
+            other  hardwood     Ulmus      Fagus     Quercus
+other    0.888782 0.0000000 0.0000000 0.00000000  0.00000000
+hardwood 0.000000 0.9603256 0.0000000 0.00000000  0.00000000
+Ulmus    0.000000 0.0000000 0.9471049 0.00000000  0.00000000
+Fagus    0.000000 0.0000000 0.0000000 0.79372468 -0.09612673
+Quercus  0.000000 0.0000000 0.0000000 0.06851431  0.99381127
 
-sigma =  0.6603613
+sigma =  0.6377304
 
 V =
-             other   hardwood      Ulmus     Fagus    Quercus
-other    1.0000000 0.25286788 0.24451372 0.4181247 0.13922069
-hardwood 0.2528679 0.07460389 0.06003974 0.1084949 0.03416640
-Ulmus    0.2445137 0.06003974 0.09392674 0.1082596 0.03023850
-Fagus    0.4181247 0.10849494 0.10825965 0.3166117 0.02520510
-Quercus  0.1392207 0.03416640 0.03023850 0.0252051 0.02726373</code></pre>
+             other   hardwood      Ulmus      Fagus    Quercus
+other    1.0000000 0.26278313 0.23745269 0.48658980 0.14726872
+hardwood 0.2627831 0.08141971 0.05414713 0.13821541 0.03818023
+Ulmus    0.2374527 0.05414713 0.09440689 0.12441927 0.02506967
+Fagus    0.4865898 0.13821541 0.12441927 0.36913186 0.05369901
+Quercus  0.1472687 0.03818023 0.02506967 0.05369901 0.02632085</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb44"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">mnTS_mod_int</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>                           Coef.          se          t             P
-hardwood              0.64627755 0.128823953   5.016750  5.255293e-07
-Ulmus                -0.29933182 0.113566390  -2.635743  8.395329e-03
-Fagus                -0.91867049 0.255370791  -3.597398  3.214159e-04
-Quercus               1.38347522 0.089608656  15.439080  8.936578e-54
-sp.other.other        0.89177470 0.011064525  80.597648  0.000000e+00
-sp.hardwood.hardwood  0.96083347 0.013894772  69.150720  0.000000e+00
-sp.Ulmus.Ulmus        0.94591268 0.017282507  54.732377  0.000000e+00
-sp.Fagus.Fagus        0.83383821 0.036552053  22.812350 3.457807e-115
-sp.Quercus.Fagus      0.06930431         NaN        NaN           NaN
-sp.Fagus.Quercus     -0.08431459         NaN        NaN           NaN
-sp.Quercus.Quercus    0.99072926 0.007589615 130.537489  0.000000e+00
-char_acc.hardwood    -0.15774081 0.021983518  -7.175413  7.208936e-13
-char_acc.Ulmus       -0.15937356 0.037985313  -4.195663  2.720749e-05
-char_acc.Fagus       -0.21576678         NaN        NaN           NaN
-char_acc.Quercus     -0.18580969 0.019967371  -9.305666  1.331547e-20</code></pre>
+<pre><code>                           Coef.         se          t            P
+hardwood              0.63691477 0.28810394   2.210712 2.705580e-02
+Ulmus                -0.49502398 0.27873925  -1.775939 7.574293e-02
+Fagus                -0.81690318 0.24523132  -3.331154 8.648688e-04
+Quercus               1.38565091 0.17335303   7.993232 1.314470e-15
+sp.other.other        0.88878200        NaN        NaN          NaN
+sp.hardwood.hardwood  0.96032565 0.01470465  65.307616 0.000000e+00
+sp.Ulmus.Ulmus        0.94710493 0.01924021  49.225294 0.000000e+00
+sp.Fagus.Fagus        0.79372468 0.04327787  18.340197 3.953599e-75
+sp.Quercus.Fagus      0.06851431 0.01454481   4.710568 2.470277e-06
+sp.Fagus.Quercus     -0.09612673 0.03894519  -2.468257 1.357728e-02
+sp.Quercus.Quercus    0.99381127 0.01669040  59.543888 0.000000e+00
+char_acc.hardwood    -0.15481275 0.01476487 -10.485208 1.010230e-25
+char_acc.Ulmus       -0.13832058 0.02806632  -4.928348 8.292761e-07
+char_acc.Fagus       -0.22365851 0.04104789  -5.448721 5.073337e-08
+char_acc.Quercus     -0.17367961 0.01701937 -10.204822 1.886670e-24</code></pre>
 </div>
 </div>
 </section><section class="level2"><h3 id="bootstrapping">Bootstrapping<a class="anchor" aria-label="anchor" href="#bootstrapping"></a>
