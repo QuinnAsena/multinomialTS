@@ -263,6 +263,13 @@ mnTS <- function(Y, X = NULL, Tsample = 1:nrow(Y),
 	if (is.null(rownames(V.fixed)))
 		rownames(V.fixed) <- colnames(Y)
 
+	# Check sigma
+	# Sigma is squared in the calculations. This catch requested by a reviewer
+	# should stop users trying to use negative inputs
+	if (sigma.start < 0) {
+	  stop("Sigma is less than 0")
+	}
+
 	# handle V
 	L.start <- chol(V.start)
 	if (any(is.na(V.fixed[upper.tri(V.fixed, diag = FALSE)]))) {

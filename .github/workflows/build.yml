@@ -42,21 +42,21 @@ jobs:
       - name: Clean previous builds
         run: Rscript -e 'devtools::clean_dll()'
 
-      - name: Build package with verbose output (macOS ARM64)
+      - name: Build package (macOS ARM64)
         if: matrix.os == 'macos-latest' && matrix.architecture == 'arm64'
         run: |
           export ARCHFLAGS="-arch arm64"
-          Rscript -e 'devtools::build(binary = TRUE, path = "../multinomialTS-arm64.tgz", args = c("--no-multiarch", "--preclean", "--clean", "--verbose"))'
+          Rscript -e 'devtools::build(binary = TRUE, path = "../", args = c("--no-multiarch","--preclean","--clean","--verbose"))'
 
-      - name: Build package with verbose output (macOS x86_64)
+      - name: Build package (macOS x86_64)
         if: matrix.os == 'macos-latest' && matrix.architecture == 'x86_64'
         run: |
           export ARCHFLAGS="-arch x86_64"
-          Rscript -e 'devtools::build(binary = TRUE, args = c("--no-multiarch", "--preclean", "--clean", "--verbose"))'
+          Rscript -e 'devtools::build(binary = TRUE, path = "../", args = c("--no-multiarch","--preclean","--clean","--verbose"))'
 
-      - name: Build package with verbose output (Windows)
+      - name: Build package (Windows)
         if: matrix.os == 'windows-latest'
-        run: Rscript -e 'devtools::build(binary = TRUE, args = c("--no-multiarch", "--preclean", "--clean", "--verbose"))'
+        run: Rscript -e 'devtools::build(binary = TRUE, path = "D:/a/multinomialTS/", args = c("--no-multiarch","--preclean","--clean","--verbose"))'
 
       - name: List all files after build
         run: ls -R
@@ -66,12 +66,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: multinomialTS-macOS-arm64
-          path: /Users/runner/work/multinomialTS/multinomialTS-arm64.tgz
-        env:
-          R_LIBS_USER: /Users/runner/work/_temp/Library
-          TZ: UTC
-          _R_CHECK_SYSTEM_CLOCK_: FALSE
-          NOT_CRAN: true
+          path: /Users/runner/work/multinomialTS/multinomialTS_*.tgz
 
       - name: Upload Release Asset (macOS x86_64)
         if: matrix.os == 'macos-latest' && matrix.architecture == 'x86_64'
@@ -79,11 +74,6 @@ jobs:
         with:
           name: multinomialTS-macOS-x86_64
           path: /Users/runner/work/multinomialTS/multinomialTS_*.tgz
-        env:
-          R_LIBS_USER: /Users/runner/work/_temp/Library
-          TZ: UTC
-          _R_CHECK_SYSTEM_CLOCK_: FALSE
-          NOT_CRAN: true
 
       - name: Upload Release Asset (Windows)
         if: matrix.os == 'windows-latest'
@@ -91,6 +81,7 @@ jobs:
         with:
           name: multinomialTS-Windows
           path: D:/a/multinomialTS/multinomialTS_*.zip
+
 
   release:
     runs-on: ubuntu-latest

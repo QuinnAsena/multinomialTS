@@ -58,3 +58,15 @@
 #' data(story_pollen_wide)
 #' names(story_pollen_wide)
 "story_pollen_wide"
+
+
+
+#' Story 100 bootstraps
+#'
+#' 100 bootstraps of the story data as modelled in the vignette
+#'
+#' @format A list containing the bootstrapped outputs.
+#'
+#' @examples
+#' data(story_100_bootstraps)
+"story_100_bootstraps"

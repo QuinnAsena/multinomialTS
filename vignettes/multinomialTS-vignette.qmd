@@ -58,8 +58,10 @@ library(multinomialTS)
 # Read-in the wrangled data 
 # Read in our X variables
 data("story_char_wide", package = "multinomialTS")
-# Read in the long data for plotting
+# Read-in the long data for plotting
 data("story_pollen_wide", package = "multinomialTS")
+# Read-in bootstrapped model
+data("story_100_bootstraps", package = "multinomialTS")
 ```
 
 Here is what the state variable ($Y$) data look like:
@@ -142,7 +144,7 @@ Since we need to apply the same binning procedure to both the state variables an
 # Clip covariate data to the extent of the state variables
 # Join the two by age so that we get a square matrix
 story_join <- story_char_wide |>
-  filter(age <= max(story_pollen_wide$age)) |>
+  dplyr::filter(age <= max(story_pollen_wide$age)) |>
   left_join(story_pollen_wide)
 
 # Always double check dimensions before/after joining!
@@ -210,7 +212,7 @@ head(story_binned, n = 10)
 
 ```
 
-This is looking good, we have reduced the time-intervals over which to run the model. The data are now `r nrow(story_binned)` rows with complete covariate data, containing `r nrow(story_binned[which(rowSums(story_binned[ ,4:7]) != 0), ])` state variable observations. The original number of pollen observations was `r nrow(story_pollen_wide)`, so we have not summed many observations within the same bins.
+This is looking good, we have reduced the time-intervals over which to iterate the model. The data are now `r nrow(story_binned)` rows with complete covariate data, containing `r nrow(story_binned[which(rowSums(story_binned[ ,4:7]) != 0), ])` state variable observations. The original number of pollen observations was `r nrow(story_pollen_wide)`, so we have not summed many observations within the same bins.
 
 `multinomialTS` requires two matrices, a site-by-species matrix $Y$, and a covariate matrix $X$, so we will leave `tibbles` behind and split the data. $X$ variables may be of different types (e.g., continuous, categorical...) but should be scaled relative to each other.
 
@@ -343,8 +345,6 @@ We are using the output from `mnGLMM()` as starting values for the matrices $B0$
 B0.start.mnTS <- glmm_mod$B[1, , drop = F]
 B.start.mnTS <- glmm_mod$B[2, , drop = F]
 
-sigma.start.mnTS <- glmm_mod$sigma
-
 V.fixed.mnTS <- matrix(NA, n, n) # Covariance matrix of environmental variation in process eq
 V.fixed.mnTS[1] <- 1
 
@@ -437,17 +437,96 @@ summary(mnTS_mod_int)
 coef(mnTS_mod_int)
 ```
 
-We have found that bootstrapping provides better estimates of standard errors (and subsequent P-values). The `boot()` function will bootstrap the model, but may take a very long time. We won't do this today, but we strongly recommend bootstrapping your final models.
 
-### Comparing models
+## Bootstrapping
 
-The `summary` of the model provides both the log likelihood and the AIC (akaike information criterion). These can be used for comparing models. Today we will use the AIC. AIC is penalised for the number of parameters estimated, and so can be better for comparing models where one has more parameters estimated (i.e., the interaction model is estimating more parameters than the model without interactions).
+We have found that bootstrapping provides better estimates of standard errors (and subsequent P-values). The `boot()` function will bootstrap the model, caution as this may take a long time. To bootstrap a mnTS model you can call:
 
-The AIC (and log likelihood) values can be accessed directly with `mnTS_mod_int$AIC`.
 ```{r}
+#| eval: false
 
-data.frame(without_interactions = mnTS_mod$AIC,
-           with_interactions = mnTS_mod_int$AIC)
+# Not run as this takes a long time!
+mnTS_int_boot <- boot(mnTS_mod_int, reps = 1000)
+
 ```
 
+We strongly recommend bootstrapping your final models. Bootstrapping a model can take quite some time (depending on the data), so don't be surprised if it runs for a while! The object returned from bootstrapping is a `list` with three elements:
+
+1. `coef.table.boot`: a table with summarised bootstrapped coefficients, including the mean and standard deviation, across all bootstraps.
+2. `all_mods_pars`: the individual coefficients for all models, where each row is one model iteration of the bootstrapping, and each column is a coefficient or other model output. This is useful if you wish to calculate other metrics such as the median and quartiles of the bootstraps.
+3. `all_mods`: a large list containing all the fitted models in their original form.
+
+
+### Plotting bootstrapped coefficients
+
+To show how to access and plot the bootstrapped coefficients we will use a pre-run example of 100 bootstraps using the `coef.table.boot` object. Only 100 bootstraps would usually be too few for best results, but we need a small working example for the purposes of demonstration.
+
+Bootstrapping simulates species from the process equation. The simulated species are named y1 ... yn. in future versions I will update the bootstrapping function to have the option of maintaining the species names from the input matrix. But for now, we rename them:
+
+```{r}
+
+# take the calculated coefficient table from the bootstrap output
+plot_boot <- story_100_bootstraps |>
+  dplyr::as_tibble(rownames = "name") |>
+  dplyr::filter(grepl("sp.*|char.*", name)) |> # Take species and covariate coefficients
+  mutate(name = 
+           str_replace_all(
+             name,
+             pattern = "y1|y2|y3|y4|y5|y6",
+             replacement = function(x) case_when(
+             x == "y1" ~ "Other",
+             x == "y2" ~ "hardwood",
+             x == "y3" ~ "Ulmus",
+             x == "y4" ~ "Fagus",
+             x == "y5" ~ "Quercus",
+             TRUE ~ x)))
+
+```
+
+I'm going to separate the plots into covariate coefficients and species coefficients. Let's take the covariates first:
+
+```{r}
+plot_cov <- plot_boot |> 
+  dplyr::filter(grepl("char.*", name))
+  
+  
+ggplot(plot_cov, aes(x = name, y = boot_mean)) +
+  geom_point(size = 2) +
+  geom_hline(yintercept = 0, linetype = "dashed", alpha = 0.2) +
+  geom_errorbar(aes(ymin = lower68, ymax = upper68),
+                    width = .4, alpha = 0.5) +
+  labs(x = "Taxa", y = "MultinomialTS coefficient estimate") +
+  theme_bw() 
+
+```
+
+Now let's grab the species coefficients:
+
+
+```{r}
+plot_spp <- plot_boot |> 
+  dplyr::filter(grepl("sp.*", name)) |>  mutate(name = factor(name,
+    levels = c(
+      "sp.Other.Other",
+      "sp.hardwood.hardwood",
+      "sp.Ulmus.Ulmus",
+      "sp.Fagus.Fagus",
+      "sp.Quercus.Quercus",
+      "sp.Quercus.Fagus",
+      "sp.Fagus.Quercus"
+    )
+  ))
+
+ggplot(plot_spp, aes(x = name, y = boot_mean)) +
+  geom_point(size = 2) +
+  geom_hline(yintercept = 0, linetype = "dashed", alpha = 0.2) +
+  geom_errorbar(aes(ymin = lower68, ymax = upper68),
+                    width = .4, alpha = 0.5) +
+  labs(x = "Taxa", y = "MultinomialTS coefficient estimate") +
+  theme_bw()
+
+```
+
+
+Since this is not a ggplot tutorial, we won't go through stylising the plots. You probably have your own preferred design anyway! I have done this in `dplyr` and `ggplot2`, as they are currently very commonly used. However, other options such as `data.table` or `plotly`, or straight-up `base` R can also be used!
 
