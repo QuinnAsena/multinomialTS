@@ -6,6 +6,9 @@ on:
       - 'v*.*.*'
   workflow_dispatch: # Enables manual runs for GHA debugging
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -48,15 +51,48 @@ jobs:
           export ARCHFLAGS="-arch arm64"
           Rscript -e 'devtools::build(binary = TRUE, path = "../", args = c("--no-multiarch","--preclean","--clean","--verbose"))'
 
+      # >>> ADDED: rename the macOS arm64 artifact to include arch & version
+      - name: Rename macOS arm64 artifact
+        if: matrix.os == 'macos-latest' && matrix.architecture == 'arm64'
+        run: |
+          set -e
+          VER=$(Rscript -e 'cat(read.dcf("DESCRIPTION")[1,"Version"])')
+          ART=$(ls -1 ../multinomialTS_*.tgz | tail -n 1)
+          echo "Found artifact: $ART"
+          mv "$ART" "../multinomialTS_${VER}-macOS-arm64.tgz"
+          echo "Renamed to: ../multinomialTS_${VER}-macOS-arm64.tgz"
+
       - name: Build package (macOS x86_64)
         if: matrix.os == 'macos-latest' && matrix.architecture == 'x86_64'
         run: |
           export ARCHFLAGS="-arch x86_64"
           Rscript -e 'devtools::build(binary = TRUE, path = "../", args = c("--no-multiarch","--preclean","--clean","--verbose"))'
 
+      # >>> ADDED: rename the macOS x86_64 artifact to include arch & version
+      - name: Rename macOS x86_64 artifact
+        if: matrix.os == 'macos-latest' && matrix.architecture == 'x86_64'
+        run: |
+          set -e
+          VER=$(Rscript -e 'cat(read.dcf("DESCRIPTION")[1,"Version"])')
+          ART=$(ls -1 ../multinomialTS_*.tgz | tail -n 1)
+          echo "Found artifact: $ART"
+          mv "$ART" "../multinomialTS_${VER}-macOS-x86_64.tgz"
+          echo "Renamed to: ../multinomialTS_${VER}-macOS-x86_64.tgz"
+
       - name: Build package (Windows)
         if: matrix.os == 'windows-latest'
         run: Rscript -e 'devtools::build(binary = TRUE, path = "D:/a/multinomialTS/", args = c("--no-multiarch","--preclean","--clean","--verbose"))'
+
+      # >>> ADDED: rename the Windows artifact to include arch & version (PowerShell)
+      - name: Rename Windows artifact
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          $VER = & Rscript -e 'cat(read.dcf("DESCRIPTION")[1,"Version"])'
+          $ART = Get-ChildItem -Path 'D:\a\multinomialTS\multinomialTS_*.zip' | Sort-Object LastWriteTime | Select-Object -Last 1
+          Write-Host "Found artifact: $($ART.FullName)"
+          Rename-Item -Path $ART.FullName -NewName ("multinomialTS_{0}-windows.zip" -f $VER)
+          Write-Host "Renamed to: D:\a\multinomialTS\multinomialTS_${VER}-windows.zip"
 
       - name: List all files after build
         run: ls -R
@@ -66,21 +102,21 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: multinomialTS-macOS-arm64
-          path: /Users/runner/work/multinomialTS/multinomialTS_*.tgz
+          path: /Users/runner/work/multinomialTS/multinomialTS_*macOS-arm64.tgz
 
       - name: Upload Release Asset (macOS x86_64)
         if: matrix.os == 'macos-latest' && matrix.architecture == 'x86_64'
         uses: actions/upload-artifact@v4
         with:
           name: multinomialTS-macOS-x86_64
-          path: /Users/runner/work/multinomialTS/multinomialTS_*.tgz
+          path: /Users/runner/work/multinomialTS/multinomialTS_*macOS-x86_64.tgz
 
       - name: Upload Release Asset (Windows)
         if: matrix.os == 'windows-latest'
         uses: actions/upload-artifact@v4
         with:
           name: multinomialTS-Windows
-          path: D:/a/multinomialTS/multinomialTS_*.zip
+          path: D:/a/multinomialTS/multinomialTS_*windows.zip
 
 
   release:

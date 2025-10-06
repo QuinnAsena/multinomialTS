@@ -1,7 +1,7 @@
 Package: multinomialTS
 Type: Package
 Title: State-Space Modelling of Multinomially Distributed Data
-Version: 1.0.0
+Version: 1.0.1
 Author: Anthony Ives and Quinn Asena
 Maintainer: Quinn Asena <qasena@wisc.edu>
 Description: This is a package for state-space modelling of multinomially
