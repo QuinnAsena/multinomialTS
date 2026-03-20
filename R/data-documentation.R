@@ -93,3 +93,14 @@
 #' @examples
 #' data(sunfish_ll)
 "sunfish_ll"
+
+#' Sunfish Pond bootstrapped sensitivity
+#'
+#' Bootstrapped sensitivity to binning width
+#'
+#' @format a list where each element is the output of
+#' a bootstrapped model.
+#'
+#' @examples
+#' data(bootstrap_sensitivity)
+"bootstrap_sensitivity"
