@@ -100,7 +100,7 @@ story_pollen_wide |>
                nrow = 1) +
     theme_minimal() +
     theme(
-      text = element_text(size = 10),
+      text = element_text(size = 10)
     )
 ```
 

@@ -1,0 +1,185 @@
+---
+title: "Sunfish pond example"
+author:
+  name: "Quinn Asena, Tony Ives, and Jack Williams"
+date: today
+format:
+  html:
+    code-fold: false
+    toc: true
+    link-external-newwindow: true
+theme:
+  dark: darkly
+  light: flatly
+vignette: >
+  %\VignetteIndexEntry{data-wrangling}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Introduction
+
+The ["multinomialTS Vienette"](multinomialTS-vignette.html) takes you through the fitting process, and bootstrapping, of _multinomialTS_. This vignette will show you how to fit the model at multiple binning resolutions using Sunfish Pond as an example dataset.
+
+The data include a ~13,800-year long fossil pollen record, and a lake level reconstruction used as a proxy for hydroclimatic variability and plant water availability.
+
+
+This vignette will take us through:
+
+- Testing multiple prediction resolutions
+
+
+
+# Data processing {#sec-data}
+
+Before fitting a `multinomialTS` model, the raw data need to be shaped into two matrices:
+
+- **$Y$**: a site-by-species (time-by-taxon) matrix of counts for the focal taxa, with a reference taxon in the first column.
+- **$X$**: a matrix of environmental covariates, aligned to the same temporal resolution as $Y$.
+
+Because the lake level reconstructio is built from short cores, and the pollen is from a separate lake core, they do not share a chronology. We won't be tackling any issues of alligning chronologies here! For the sake of this demonstration, we will be binning the data so that observations fall within the nearest time bin.
+
+```{r}
+#| label: libraries
+#| message: false
+#| warning: false
+
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(scales)
+library(multinomialTS)
+library(patchwork)
+
+# Load up the data
+data(sunfish_pollen_wide)
+data(sunfish_ll)
+```
+
+First let's see what the data look like:
+
+```{r}
+
+sunfish_pollen_long <- sunfish_pollen_wide |>
+  rename(P.strobus = "P.strobu") |>
+  pivot_longer(-age) |>
+  mutate(name = factor(name, levels = c(
+    "other", "P.strobus", "Tsuga", "Fagus", "Quercus", "Betula"))) |>
+  arrange(age)
+
+pol_plot <- ggplot(sunfish_pollen_long, aes(x = age, y = value)) +
+    geom_area(colour = "grey90") +
+    geom_segment(data = sunfish_pollen_long,
+      aes(x = age, xend = age,
+      y = 0, yend = value), colour = "grey30", linewidth = 0.6) +
+    scale_x_reverse(breaks = scales::breaks_pretty(n = 6)) +
+    coord_flip() +
+    labs(y = "Pollen counts", x = "Time (ybp)") +
+    facet_wrap(~name,
+               nrow = 1) +
+    theme_minimal() +
+    theme(
+      text = element_text(size = 10)
+    )
+
+ll_plot <- sunfish_ll |>
+  mutate(panel = "Lake elevation") |>  # fake facet variable
+  ggplot(aes(x = age, y = lake_lvl,
+             ymin = LowerBound, ymax = UpperBound)) +
+  geom_line(linewidth = 0.3) +
+  geom_ribbon(alpha = 0.3) +
+  coord_flip() +
+  scale_x_reverse() +
+  labs(x = NULL, y = "cm relative to modern") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45),
+    text = element_text(size = 10),
+    strip.text = element_text(size = 9),
+    axis.text.y = element_blank()
+  ) +
+  facet_wrap(~panel)
+  
+pol_plot + ll_plot + plot_layout(widths = c(0.85, 0.15))
+
+```
+
+
+# Prediction resoltion sensitivity
+
+Now we are going to fit the data using multiple bin widths:
+
+```{r}
+#| label: sensitivity
+#| message: false
+#| warning: false
+
+# Create some bins
+bin_width <- seq(50, 150, 25)
+
+bin_sensitivity_data <- lapply(bin_width, \(bw) {
+
+  sunfish_bins <-
+    cut(
+      sunfish_pollen_wide$age,
+      breaks = seq(
+        from = min(sunfish_pollen_wide$age),
+        to = max(sunfish_pollen_wide$age + bw),
+        by = bw
+      ), include.lowest = T, labels = F)
+
+  sunfish_spp_binned <- bind_cols(bins = sunfish_bins, sunfish_pollen_wide) |>
+    group_by(bins) |> # Group the data by the bins so that we calculate per time bin
+    summarise(across(c("other", "P.strobu", "Tsuga", "Fagus", "Quercus", "Betula"), \(x) sum(x ,na.rm = TRUE)),
+              age = mean(age, na.rm = TRUE)) |>
+    arrange(desc(age))
+
+  ll_bins <-
+    cut(
+      sunfish_ll$age,
+      breaks = seq(
+        from = min(sunfish_pollen_wide$age),
+        to = max(sunfish_pollen_wide$age + bw),
+        by = bw
+      ), include.lowest = T, labels = F)
+
+  ll_mean <- cbind(bins = ll_bins, sunfish_ll) |>
+    drop_na(bins) |>
+    select(bins, lake_lvl) |>
+    group_by(bins) |>
+    summarise(mean_ll = mean(lake_lvl)) |>
+    arrange(desc(bins))
+
+  # join up the data by bin
+  sunfish_all <- sunfish_spp_binned |>
+    full_join(ll_mean) |>
+    arrange(desc(bins))
+
+  # Final time window does not have a lake-level observation
+  which(is.na(sunfish_all$mean_ll))
+
+  # using simple linear interpolation to fill final bin
+  sunfish_all_interp <- sunfish_all |>
+    mutate(across(c(mean_ll), forecast::na.interp))
+
+  Y <- sunfish_all_interp |>
+    select(other, P.strobu, Tsuga, Fagus, Quercus, Betula) |>
+    as.matrix()
+
+  # set up X
+  X <- sunfish_all_interp |>
+    select(mean_ll) |>
+    as.matrix() |>
+    scale() # necessary when using multiple X variabes
+
+  return(list(Y = Y,
+              X = X))
+
+})
+
+names(bin_sensitivity_data) <- paste0("bw_", bin_width)
+```
+
+
+The reason we might want to experiment with different bining resolutions is to find out if different 

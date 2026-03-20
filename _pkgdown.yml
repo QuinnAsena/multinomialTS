@@ -3,3 +3,9 @@ template:
   bootstrap: 5
   bootswatch: darkly
 
+articles:
+- title: Vignettes
+  contents:
+  - multinomialTS-vignette
+  - sunfish_pond_example
+
