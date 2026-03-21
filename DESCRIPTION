@@ -27,6 +27,7 @@ Suggests:
     forcats,
     future.apply,
     furrr,
+    ggtext,
     forecast,
     testthat (>= 3.0.0)
 VignetteBuilder: quarto
