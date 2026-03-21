@@ -476,7 +476,7 @@ We can do a timing test on 5 bootstraps:
 
 ```{r}
 #| warning: false
-#| message: false
+#| output: false
 
 start_boot <- Sys.time()
 mnTS_int_boot <- boot(mnTS_mod_int, reps = 5)
@@ -484,7 +484,7 @@ end_boot <- Sys.time()
 
 ```
 
-On the system that created this vignette: fitting the initial interaction model for Story Lake took `r round(end_time - start_time)`; 5 replicate bootstraps took  `r round(end_boot - start_boot)`. The timing will depend greatly on the data being fit and the system you are running. To speed things up, it can be useful to process the bootstraps in parallel, check out the [Sunfish Pond example](sunfish_pond_example.html) for some code on running in parallel and recalculating the coefficients and standard errors.
+On the system that created this vignette: fitting the initial interaction model for Story Lake took `r round(as.numeric(difftime(end_time, start_time, units = "mins")), 2)` minutes; 5 replicate bootstraps took `r round(as.numeric(difftime(end_boot, start_boot, units = "mins")), 2)` minutes. The timing will depend greatly on the data being fit and the system you are running. To speed things up, it can be useful to process the bootstraps in parallel, check out the [Sunfish Pond example](sunfish_pond_example.html) for some code on running in parallel and recalculating the coefficients and standard errors.
 
 
 ### Plotting bootstrapped coefficients
