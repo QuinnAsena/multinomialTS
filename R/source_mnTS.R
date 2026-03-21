@@ -323,8 +323,6 @@ mnTS <- function(Y, X = NULL, Tsample = 1:nrow(Y),
 
 	if (!is.element(method, c("Nelder-Mead", "bobyqa", "BFGS")))
 		stop("Acceptable methods are Nelder-Mead {optim},  BFGS {optim}, and bobyqa {minqa}.")
-	# if (method == "bobyqa")
-	# 	require(minqa)
 
 	if (is.null(optim.control)) {
 		if (method == "bobyqa") {
@@ -403,39 +401,39 @@ mnTS <- function(Y, X = NULL, Tsample = 1:nrow(Y),
 		rownames(inv.information.matrix) <- names(par.with.se)
 		colnames(inv.information.matrix) <- names(par.with.se)
 
-		# compute information matrix excluding V, sigma and dispersion
-		par.with.se.cond <- fitted_par
-		par.fixed.for.se.cond <- par.fixed
-		if (!is.na(fitted_par["dispersion"])) {
-			#pick.pars.with.se.cond <- !is.element(names(fitted_par), c("sigma", L.names, "dispersion"))
-			pick.pars.with.se.cond <- !is.element(names(fitted_par), c(L.names, "dispersion"))
-		} else {
-		  #pick.pars.with.se.cond <- !is.element(names(fitted_par), c("sigma", L.names))
-		  pick.pars.with.se.cond <- !is.element(names(fitted_par), c(L.names))
-		}
-		par.with.se.cond <- fitted_par[pick.pars.with.se.cond]
-		par.fixed.for.se.cond <- par.fixed
-		par.fixed.for.se.cond[names(fitted_par[!pick.pars.with.se.cond])] <- fitted_par[!pick.pars.with.se.cond]
-		#	par.fixed.for.se["dispersion"] <- fitted_par["dispersion"]
+		# # compute information matrix excluding V, sigma and dispersion
+		# par.with.se.cond <- fitted_par
+		# par.fixed.for.se.cond <- par.fixed
+		# if (!is.na(fitted_par["dispersion"])) {
+		# 	#pick.pars.with.se.cond <- !is.element(names(fitted_par), c("sigma", L.names, "dispersion"))
+		# 	pick.pars.with.se.cond <- !is.element(names(fitted_par), c(L.names, "dispersion"))
+		# } else {
+		#   #pick.pars.with.se.cond <- !is.element(names(fitted_par), c("sigma", L.names))
+		#   pick.pars.with.se.cond <- !is.element(names(fitted_par), c(L.names))
+		# }
+		# par.with.se.cond <- fitted_par[pick.pars.with.se.cond]
+		# par.fixed.for.se.cond <- par.fixed
+		# par.fixed.for.se.cond[names(fitted_par[!pick.pars.with.se.cond])] <- fitted_par[!pick.pars.with.se.cond]
+		# #	par.fixed.for.se["dispersion"] <- fitted_par["dispersion"]
 
-		H.cond <- hessian(func = mnTS.ml.wrapper, x = par.with.se.cond, par.fixed = par.fixed.for.se.cond, Y = Y, X = X, Tsample = Tsample,
-		                  method.args = hessian.method.args)
+		# H.cond <- hessian(func = mnTS.ml.wrapper, x = par.with.se.cond, par.fixed = par.fixed.for.se.cond, Y = Y, X = X, Tsample = Tsample,
+		#                   method.args = hessian.method.args)
 
-		if (any(is.nan(H.cond)) || rcond(H.cond) < 1e-12) {
-		  inv.information.matrix.cond <- matrix(NA, nrow(H.cond), ncol(H.cond))
-		} else {
-		  inv.information.matrix.cond <- solve(H.cond)
-		}
-		se.cond <- diag(inv.information.matrix.cond)^0.5
-		names(se.cond) <- names(par.with.se.cond)
-		rownames(inv.information.matrix.cond) <- names(par.with.se.cond)
-		colnames(inv.information.matrix.cond) <- names(par.with.se.cond)
+		# if (any(is.nan(H.cond)) || rcond(H.cond) < 1e-12) {
+		#   inv.information.matrix.cond <- matrix(NA, nrow(H.cond), ncol(H.cond))
+		# } else {
+		#   inv.information.matrix.cond <- solve(H.cond)
+		# }
+		# se.cond <- diag(inv.information.matrix.cond)^0.5
+		# names(se.cond) <- names(par.with.se.cond)
+		# rownames(inv.information.matrix.cond) <- names(par.with.se.cond)
+		# colnames(inv.information.matrix.cond) <- names(par.with.se.cond)
 
 		} else {
 		  information.matrix <- NULL
-		  information.matrix.cond <- NULL
+		#   information.matrix.cond <- NULL
 		  inv.information.matrix <- NULL
-		  inv.information.matrix.cond <- NULL
+		#   inv.information.matrix.cond <- NULL
 		}
 
 	fitted_par["dispersion"] <- exp(fitted_par["dispersion"])
@@ -451,12 +449,15 @@ mnTS <- function(Y, X = NULL, Tsample = 1:nrow(Y),
 		sigma = fitted$sigma, dispersion = fitted$dispersion,
 		V = fitted$V, B = t(fitted$B), logLik = fitted$logLik,
 		AIC = AIC, npar = npar, inv.information.matrix = inv.information.matrix,
-		inv.information.matrix.cond = inv.information.matrix.cond,
-		par.with.se = par.with.se, se = se, par.with.se.cond = par.with.se.cond, se.cond = se.cond,
+		par.with.se = par.with.se, se = se, information.matrix = H,
 		y = fitted$y, mu = fitted$mu, par = fitted_par, par.fixed = par.fixed,
 		opt.convergence = opt.convergence, se.y.fitted = fitted$se.y.fitted,
-		se.mu.upper.fitted = fitted$se.mu.upper.fitted, se.mu.lower.fitted = fitted$se.mu.lower.fitted,
-		information.matrix.cond = H.cond, information.matrix = H)
+		se.mu.upper.fitted = fitted$se.mu.upper.fitted, se.mu.lower.fitted = fitted$se.mu.lower.fitted
+		
+		# par.with.se.cond = par.with.se.cond, se.cond = se.cond,
+		# inv.information.matrix.cond = inv.information.matrix.cond,
+		# information.matrix.cond = H.cond
+		)
 	class(results) <- "mnTS"
 	return(results)
 }
@@ -500,18 +501,18 @@ summary.mnTS <- function(mod, ...) {
 	    print(coef.table)
 	    cat("\ninformation matrix not invertible so se's not calculated")
 	  }
-	  if (!all(is.na(mod$inv.information.matrix.cond))) {
-	    cat("\n\nFitted Coefficients with conditional approximate se\n")
-	    t.scores.cond <- mod$par.with.se.cond/mod$se.cond
-	    coef.table.cond <- as.matrix(cbind(mod$par.with.se.cond, mod$se.cond, t.scores.cond, 2 * pnorm(q = abs(t.scores.cond), lower.tail = F)))
-	    colnames(coef.table.cond) <- c("Coef.", "se", "t", "P")
-	    print(coef.table.cond)
-	  } else {
-	    coef.table.cond <- as.matrix(mod$par.with.se.cond)
-	    colnames(coef.table.cond) <- "Coef."
-	    print(coef.table.cond)
-	    cat("\nconditional information matrix not invertible so se's not calculated")
-	  }
+	#   if (!all(is.na(mod$inv.information.matrix.cond))) {
+	#     cat("\n\nFitted Coefficients with conditional approximate se\n")
+	#     t.scores.cond <- mod$par.with.se.cond/mod$se.cond
+	#     coef.table.cond <- as.matrix(cbind(mod$par.with.se.cond, mod$se.cond, t.scores.cond, 2 * pnorm(q = abs(t.scores.cond), lower.tail = F)))
+	#     colnames(coef.table.cond) <- c("Coef.", "se", "t", "P")
+	#     print(coef.table.cond)
+	#   } else {
+	#     coef.table.cond <- as.matrix(mod$par.with.se.cond)
+	#     colnames(coef.table.cond) <- "Coef."
+	#     print(coef.table.cond)
+	#     cat("\nconditional information matrix not invertible so se's not calculated")
+	#   }
 	}
 
 	cat("\n\nOverall model")
@@ -729,10 +730,6 @@ boot.mnTS <- function(mod, reps, dispersion.fixed = 1, maxit.optim = 1e+05, ...)
   }
   # Filter out any models that had an error
   fit_mods <- fit_mods[lapply(fit_mods, class) == "mnTS"]
-  # Filter out and models that failed to converge
-  # fit_mods_filtered <- Filter(function(x) x$opt.convergence == 0, fit_mods)
-  # n_converged <- length(fit_mods_filtered)
-  # n_total <- length(fit_mods)
 
   v.pars <- names(mod$par)[grep(names(mod$par), pattern = "v.")]
   par.names.noshow.se <- c("dispersion","sigma", v.pars)
