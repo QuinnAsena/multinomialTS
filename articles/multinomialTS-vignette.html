@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">multinomialTS</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -452,7 +452,7 @@
 <div class="sourceCode cell-code" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">end_time</span> <span class="op">-</span> <span class="va">start_time</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Time difference of 14.67755 secs</code></pre>
+<pre><code>Time difference of 12.72835 secs</code></pre>
 </div>
 </div>
 <p>The outputs of <code><a href="../reference/mnGLMM.html">mnGLMM()</a></code> can be examined with the <code>summary(glmm_mod)</code> function.</p>
@@ -469,32 +469,32 @@ dispersion parameter =  1
 
 Fitted Coefficients with approximate se
                            Coef.         se          t            P
-(intercept).hardwood  0.32520544 0.08449697  3.8487232 1.187351e-04
-char_acc.hardwood    -0.15611315 0.08828450 -1.7682962 7.701141e-02
-(intercept).Ulmus    -0.31413043 0.11063692 -2.8392911 4.521389e-03
-char_acc.Ulmus       -0.27877420 0.10904240 -2.5565671 1.057107e-02
-(intercept).Fagus    -0.26463309 0.11061622 -2.3923534 1.674071e-02
-char_acc.Fagus       -0.44517877 0.11465596 -3.8827356 1.032879e-04
-(intercept).Quercus   0.99820549 0.08800678 11.3423702 8.092255e-30
-char_acc.Quercus     -0.06223211 0.09098390 -0.6839903 4.939813e-01
+(intercept).hardwood  0.32520750 0.08449716  3.8487389 1.187275e-04
+char_acc.hardwood    -0.15611319 0.08828448 -1.7682971 7.701124e-02
+(intercept).Ulmus    -0.31412746 0.11063702 -2.8392617 4.521805e-03
+char_acc.Ulmus       -0.27877439 0.10904240 -2.5565689 1.057101e-02
+(intercept).Fagus    -0.26463088 0.11061642 -2.3923292 1.674182e-02
+char_acc.Fagus       -0.44517937 0.11465590 -3.8827428 1.032848e-04
+(intercept).Quercus   0.99820757 0.08800696 11.3423709 8.092196e-30
+char_acc.Quercus     -0.06223225 0.09098385 -0.6839923 4.939800e-01
 
 
 Overall model
 
 B =
             other   hardwood      Ulmus      Fagus     Quercus
-(intercept)     0  0.3252054 -0.3141304 -0.2646331  0.99820549
-char_acc        0 -0.1561132 -0.2787742 -0.4451788 -0.06223211
+(intercept)     0  0.3252075 -0.3141275 -0.2646309  0.99820757
+char_acc        0 -0.1561132 -0.2787744 -0.4451794 -0.06223225
 
-sigma =  1.055384
+sigma =  1.055386
 
 V =
-         other   hardwood     Ulmus     Fagus    Quercus
-other        1 0.00000000 0.0000000 0.0000000 0.00000000
-hardwood     0 0.00443052 0.0000000 0.0000000 0.00000000
-Ulmus        0 0.00000000 0.3021339 0.0000000 0.00000000
-Fagus        0 0.00000000 0.0000000 0.3045231 0.00000000
-Quercus      0 0.00000000 0.0000000 0.0000000 0.07575829</code></pre>
+         other    hardwood     Ulmus     Fagus    Quercus
+other        1 0.000000000 0.0000000 0.0000000 0.00000000
+hardwood     0 0.004430489 0.0000000 0.0000000 0.00000000
+Ulmus        0 0.000000000 0.3021321 0.0000000 0.00000000
+Fagus        0 0.000000000 0.0000000 0.3045221 0.00000000
+Quercus      0 0.000000000 0.0000000 0.0000000 0.07575794</code></pre>
 </div>
 </div>
 </section></section><section class="level2"><h3 id="setting-up-parameters-for-mnts">Setting-up parameters for <code>mnTS()</code>
@@ -590,7 +590,7 @@ Quercus      0 0.00000000 0.0000000 0.0000000 0.07575829</code></pre>
 <span><span class="va">end_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">end_time</span> <span class="op">-</span> <span class="va">start_time</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Time difference of 1.176684 mins</code></pre>
+<pre><code>Time difference of 1.09476 mins</code></pre>
 </div>
 </div>
 <p>In this following code we set-up <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math> to define which interactions to estimate. Here we set-up a two-way interaction between key species. <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math> is not restricted to being symmetrical matix, i.e., you can choose to have a one-way interaction effect.</p>
@@ -621,7 +621,7 @@ Quercus      0 0.00000000 0.0000000 0.0000000 0.07575829</code></pre>
 <span><span class="va">end_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span> </span>
 <span><span class="va">end_time</span> <span class="op">-</span> <span class="va">start_time</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Time difference of 3.436076 mins</code></pre>
+<pre><code>Time difference of 2.376355 mins</code></pre>
 </div>
 </div>
 </section><section class="level2"><h3 id="sec-interp">Interpreting outputs<a class="anchor" aria-label="anchor" href="#sec-interp"></a>
@@ -634,78 +634,78 @@ Quercus      0 0.00000000 0.0000000 0.0000000 0.07575829</code></pre>
 <pre><code>
 Call: mnTS with Tmax =  93  n =  5
 
-logLik = 750.0241,  AIC = -1438.048 [df = 31]
+logLik = 748.2719,  AIC = -1434.544 [df = 31]
 
 dispersion parameter =  1
 
 Fitted Coefficients with approximate se
-                           Coef.          se          t             P
-hardwood              0.64627755 0.128823953   5.016750  5.255293e-07
-Ulmus                -0.29933182 0.113566390  -2.635743  8.395329e-03
-Fagus                -0.91867049 0.255370791  -3.597398  3.214159e-04
-Quercus               1.38347522 0.089608656  15.439080  8.936578e-54
-sp.other.other        0.89177470 0.011064525  80.597648  0.000000e+00
-sp.hardwood.hardwood  0.96083347 0.013894772  69.150720  0.000000e+00
-sp.Ulmus.Ulmus        0.94591268 0.017282507  54.732377  0.000000e+00
-sp.Fagus.Fagus        0.83383821 0.036552053  22.812350 3.457807e-115
-sp.Quercus.Fagus      0.06930431         NaN        NaN           NaN
-sp.Fagus.Quercus     -0.08431459         NaN        NaN           NaN
-sp.Quercus.Quercus    0.99072926 0.007589615 130.537489  0.000000e+00
-char_acc.hardwood    -0.15774081 0.021983518  -7.175413  7.208936e-13
-char_acc.Ulmus       -0.15937356 0.037985313  -4.195663  2.720749e-05
-char_acc.Fagus       -0.21576678         NaN        NaN           NaN
-char_acc.Quercus     -0.18580969 0.019967371  -9.305666  1.331547e-20
+                           Coef.         se          t            P
+hardwood              0.63691477 0.28810394   2.210712 2.705580e-02
+Ulmus                -0.49502398 0.27873925  -1.775939 7.574293e-02
+Fagus                -0.81690318 0.24523132  -3.331154 8.648688e-04
+Quercus               1.38565091 0.17335303   7.993232 1.314470e-15
+sp.other.other        0.88878200        NaN        NaN          NaN
+sp.hardwood.hardwood  0.96032565 0.01470465  65.307616 0.000000e+00
+sp.Ulmus.Ulmus        0.94710493 0.01924021  49.225294 0.000000e+00
+sp.Fagus.Fagus        0.79372468 0.04327787  18.340197 3.953599e-75
+sp.Quercus.Fagus      0.06851431 0.01454481   4.710568 2.470277e-06
+sp.Fagus.Quercus     -0.09612673 0.03894519  -2.468257 1.357728e-02
+sp.Quercus.Quercus    0.99381127 0.01669040  59.543888 0.000000e+00
+char_acc.hardwood    -0.15481275 0.01476487 -10.485208 1.010230e-25
+char_acc.Ulmus       -0.13832058 0.02806632  -4.928348 8.292761e-07
+char_acc.Fagus       -0.22365851 0.04104789  -5.448721 5.073337e-08
+char_acc.Quercus     -0.17367961 0.01701937 -10.204822 1.886670e-24
 
 
 Overall model
 
 B0 =
-            other  hardwood      Ulmus      Fagus  Quercus
-(intercept)     0 0.6462775 -0.2993318 -0.9186705 1.383475
+            other  hardwood     Ulmus      Fagus  Quercus
+(intercept)     0 0.6369148 -0.495024 -0.8169032 1.385651
 
 
 B =
          other   hardwood      Ulmus      Fagus    Quercus
-char_acc     0 -0.1577408 -0.1593736 -0.2157668 -0.1858097
+char_acc     0 -0.1548128 -0.1383206 -0.2236585 -0.1736796
 
 
 C =
-             other  hardwood     Ulmus      Fagus     Quercus
-other    0.8917747 0.0000000 0.0000000 0.00000000  0.00000000
-hardwood 0.0000000 0.9608335 0.0000000 0.00000000  0.00000000
-Ulmus    0.0000000 0.0000000 0.9459127 0.00000000  0.00000000
-Fagus    0.0000000 0.0000000 0.0000000 0.83383821 -0.08431459
-Quercus  0.0000000 0.0000000 0.0000000 0.06930431  0.99072926
+            other  hardwood     Ulmus      Fagus     Quercus
+other    0.888782 0.0000000 0.0000000 0.00000000  0.00000000
+hardwood 0.000000 0.9603256 0.0000000 0.00000000  0.00000000
+Ulmus    0.000000 0.0000000 0.9471049 0.00000000  0.00000000
+Fagus    0.000000 0.0000000 0.0000000 0.79372468 -0.09612673
+Quercus  0.000000 0.0000000 0.0000000 0.06851431  0.99381127
 
-sigma =  0.6603613
+sigma =  0.6377304
 
 V =
-             other   hardwood      Ulmus     Fagus    Quercus
-other    1.0000000 0.25286788 0.24451372 0.4181247 0.13922069
-hardwood 0.2528679 0.07460389 0.06003974 0.1084949 0.03416640
-Ulmus    0.2445137 0.06003974 0.09392674 0.1082596 0.03023850
-Fagus    0.4181247 0.10849494 0.10825965 0.3166117 0.02520510
-Quercus  0.1392207 0.03416640 0.03023850 0.0252051 0.02726373</code></pre>
+             other   hardwood      Ulmus      Fagus    Quercus
+other    1.0000000 0.26278313 0.23745269 0.48658980 0.14726872
+hardwood 0.2627831 0.08141971 0.05414713 0.13821541 0.03818023
+Ulmus    0.2374527 0.05414713 0.09440689 0.12441927 0.02506967
+Fagus    0.4865898 0.13821541 0.12441927 0.36913186 0.05369901
+Quercus  0.1472687 0.03818023 0.02506967 0.05369901 0.02632085</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">mnTS_mod_int</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>                           Coef.          se          t             P
-hardwood              0.64627755 0.128823953   5.016750  5.255293e-07
-Ulmus                -0.29933182 0.113566390  -2.635743  8.395329e-03
-Fagus                -0.91867049 0.255370791  -3.597398  3.214159e-04
-Quercus               1.38347522 0.089608656  15.439080  8.936578e-54
-sp.other.other        0.89177470 0.011064525  80.597648  0.000000e+00
-sp.hardwood.hardwood  0.96083347 0.013894772  69.150720  0.000000e+00
-sp.Ulmus.Ulmus        0.94591268 0.017282507  54.732377  0.000000e+00
-sp.Fagus.Fagus        0.83383821 0.036552053  22.812350 3.457807e-115
-sp.Quercus.Fagus      0.06930431         NaN        NaN           NaN
-sp.Fagus.Quercus     -0.08431459         NaN        NaN           NaN
-sp.Quercus.Quercus    0.99072926 0.007589615 130.537489  0.000000e+00
-char_acc.hardwood    -0.15774081 0.021983518  -7.175413  7.208936e-13
-char_acc.Ulmus       -0.15937356 0.037985313  -4.195663  2.720749e-05
-char_acc.Fagus       -0.21576678         NaN        NaN           NaN
-char_acc.Quercus     -0.18580969 0.019967371  -9.305666  1.331547e-20</code></pre>
+<pre><code>                           Coef.         se          t            P
+hardwood              0.63691477 0.28810394   2.210712 2.705580e-02
+Ulmus                -0.49502398 0.27873925  -1.775939 7.574293e-02
+Fagus                -0.81690318 0.24523132  -3.331154 8.648688e-04
+Quercus               1.38565091 0.17335303   7.993232 1.314470e-15
+sp.other.other        0.88878200        NaN        NaN          NaN
+sp.hardwood.hardwood  0.96032565 0.01470465  65.307616 0.000000e+00
+sp.Ulmus.Ulmus        0.94710493 0.01924021  49.225294 0.000000e+00
+sp.Fagus.Fagus        0.79372468 0.04327787  18.340197 3.953599e-75
+sp.Quercus.Fagus      0.06851431 0.01454481   4.710568 2.470277e-06
+sp.Fagus.Quercus     -0.09612673 0.03894519  -2.468257 1.357728e-02
+sp.Quercus.Quercus    0.99381127 0.01669040  59.543888 0.000000e+00
+char_acc.hardwood    -0.15481275 0.01476487 -10.485208 1.010230e-25
+char_acc.Ulmus       -0.13832058 0.02806632  -4.928348 8.292761e-07
+char_acc.Fagus       -0.22365851 0.04104789  -5.448721 5.073337e-08
+char_acc.Quercus     -0.17367961 0.01701937 -10.204822 1.886670e-24</code></pre>
 </div>
 </div>
 </section><section class="level2"><h3 id="bootstrapping">Bootstrapping<a class="anchor" aria-label="anchor" href="#bootstrapping"></a>
@@ -729,21 +729,16 @@ char_acc.Quercus     -0.18580969 0.019967371  -9.305666  1.331547e-20</code></pr
 <div class="cell">
 <div class="sourceCode cell-code" id="cb48"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">start_boot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">mnTS_int_boot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/boot.html">boot</a></span><span class="op">(</span><span class="va">mnTS_mod_int</span>, reps <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-bobyqa optimization failed to converge; check $opt.convergence</code></pre>
+<span><span class="va">mnTS_int_boot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/boot.html">boot</a></span><span class="op">(</span><span class="va">mnTS_mod_int</span>, reps <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="va">end_boot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div class="sourceCode cell-code" id="cb50"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">end_boot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-</div>
-<p>On the system that created this vignette: fitting the initial interaction model for Story Lake took 3; 5 replicate bootstraps took 4. The timing will depend greatly on the data being fit and the system you are running. To speed things up, it can be useful to process the bootstraps in parallel, check out the <a href="sunfish_pond_example.html">Sunfish Pond example</a> for some code on running in parallel and recalculating the coefficients and standard errors.</p>
+<p>On the system that created this vignette: fitting the initial interaction model for Story Lake took 2.38 minutes; 5 replicate bootstraps took 6.69 minutes. The timing will depend greatly on the data being fit and the system you are running. To speed things up, it can be useful to process the bootstraps in parallel, check out the <a href="sunfish_pond_example.html">Sunfish Pond example</a> for some code on running in parallel and recalculating the coefficients and standard errors.</p>
 <section class="level3"><h4 id="plotting-bootstrapped-coefficients">Plotting bootstrapped coefficients<a class="anchor" aria-label="anchor" href="#plotting-bootstrapped-coefficients"></a>
 </h4>
 <p>To show how to access and plot the bootstrapped coefficients we will use a pre-run example of 100 bootstraps using the <code>coef.table.boot</code> object. Only 100 bootstraps would usually be too few for best results, but we need a small working example for the purposes of demonstration.</p>
 <p>Bootstrapping simulates species from the process equation. The simulated species are named y1 … yn. in future versions I will update the bootstrapping function to have the option of maintaining the species names from the input matrix. But for now, we rename them:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb51"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb49"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Extract and reshape the summarised coefficient table from the bootstrap output</span></span>
 <span><span class="va">plot_boot</span> <span class="op">&lt;-</span> <span class="va">story_100_bootstraps</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html" class="external-link">as_tibble</a></span><span class="op">(</span>rownames <span class="op">=</span> <span class="st">"name"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -762,7 +757,7 @@ bobyqa optimization failed to converge; check $opt.convergence</code></pre>
 </div>
 <p>I’m going to separate the plots into covariate coefficients and species coefficients. Let’s take the covariates first:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb52"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb50"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plot_cov</span> <span class="op">&lt;-</span> <span class="va">plot_boot</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"char.*"</span>, <span class="va">name</span><span class="op">)</span><span class="op">)</span></span>
 <span>  </span>
@@ -783,7 +778,7 @@ bobyqa optimization failed to converge; check $opt.convergence</code></pre>
 </div>
 <p>Now let’s grab the species coefficients:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb53"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb51"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plot_spp</span> <span class="op">&lt;-</span> <span class="va">plot_boot</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"sp.*"</span>, <span class="va">name</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">name</span>,</span>
 <span>    levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>

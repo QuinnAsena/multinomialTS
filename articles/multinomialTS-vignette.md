@@ -491,7 +491,7 @@ without, and then with interactions.
 end_time - start_time
 ```
 
-    Time difference of 14.67755 secs
+    Time difference of 12.72835 secs
 
 The outputs of
 [`mnGLMM()`](https://quinnasena.github.io/multinomialTS/reference/mnGLMM.md)
@@ -509,32 +509,32 @@ summary(glmm_mod)
 
     Fitted Coefficients with approximate se
                                Coef.         se          t            P
-    (intercept).hardwood  0.32520544 0.08449697  3.8487232 1.187351e-04
-    char_acc.hardwood    -0.15611315 0.08828450 -1.7682962 7.701141e-02
-    (intercept).Ulmus    -0.31413043 0.11063692 -2.8392911 4.521389e-03
-    char_acc.Ulmus       -0.27877420 0.10904240 -2.5565671 1.057107e-02
-    (intercept).Fagus    -0.26463309 0.11061622 -2.3923534 1.674071e-02
-    char_acc.Fagus       -0.44517877 0.11465596 -3.8827356 1.032879e-04
-    (intercept).Quercus   0.99820549 0.08800678 11.3423702 8.092255e-30
-    char_acc.Quercus     -0.06223211 0.09098390 -0.6839903 4.939813e-01
+    (intercept).hardwood  0.32520750 0.08449716  3.8487389 1.187275e-04
+    char_acc.hardwood    -0.15611319 0.08828448 -1.7682971 7.701124e-02
+    (intercept).Ulmus    -0.31412746 0.11063702 -2.8392617 4.521805e-03
+    char_acc.Ulmus       -0.27877439 0.10904240 -2.5565689 1.057101e-02
+    (intercept).Fagus    -0.26463088 0.11061642 -2.3923292 1.674182e-02
+    char_acc.Fagus       -0.44517937 0.11465590 -3.8827428 1.032848e-04
+    (intercept).Quercus   0.99820757 0.08800696 11.3423709 8.092196e-30
+    char_acc.Quercus     -0.06223225 0.09098385 -0.6839923 4.939800e-01
 
 
     Overall model
 
     B =
                 other   hardwood      Ulmus      Fagus     Quercus
-    (intercept)     0  0.3252054 -0.3141304 -0.2646331  0.99820549
-    char_acc        0 -0.1561132 -0.2787742 -0.4451788 -0.06223211
+    (intercept)     0  0.3252075 -0.3141275 -0.2646309  0.99820757
+    char_acc        0 -0.1561132 -0.2787744 -0.4451794 -0.06223225
 
-    sigma =  1.055384
+    sigma =  1.055386
 
     V =
-             other   hardwood     Ulmus     Fagus    Quercus
-    other        1 0.00000000 0.0000000 0.0000000 0.00000000
-    hardwood     0 0.00443052 0.0000000 0.0000000 0.00000000
-    Ulmus        0 0.00000000 0.3021339 0.0000000 0.00000000
-    Fagus        0 0.00000000 0.0000000 0.3045231 0.00000000
-    Quercus      0 0.00000000 0.0000000 0.0000000 0.07575829
+             other    hardwood     Ulmus     Fagus    Quercus
+    other        1 0.000000000 0.0000000 0.0000000 0.00000000
+    hardwood     0 0.004430489 0.0000000 0.0000000 0.00000000
+    Ulmus        0 0.000000000 0.3021321 0.0000000 0.00000000
+    Fagus        0 0.000000000 0.0000000 0.3045221 0.00000000
+    Quercus      0 0.000000000 0.0000000 0.0000000 0.07575794
 
 ### Setting-up parameters for `mnTS()`
 
@@ -624,7 +624,7 @@ end_time <- Sys.time()
 end_time - start_time
 ```
 
-    Time difference of 1.176684 mins
+    Time difference of 1.09476 mins
 
 In this following code we set-up $C$ to define which interactions to
 estimate. Here we set-up a two-way interaction between key species. $C$
@@ -662,7 +662,7 @@ end_time <- Sys.time()
 end_time - start_time
 ```
 
-    Time difference of 3.436076 mins
+    Time difference of 2.376355 mins
 
 ### Interpreting outputs
 
@@ -688,79 +688,79 @@ summary(mnTS_mod_int)
 
     Call: mnTS with Tmax =  93  n =  5
 
-    logLik = 750.0241,  AIC = -1438.048 [df = 31]
+    logLik = 748.2719,  AIC = -1434.544 [df = 31]
 
     dispersion parameter =  1
 
     Fitted Coefficients with approximate se
-                               Coef.          se          t             P
-    hardwood              0.64627755 0.128823953   5.016750  5.255293e-07
-    Ulmus                -0.29933182 0.113566390  -2.635743  8.395329e-03
-    Fagus                -0.91867049 0.255370791  -3.597398  3.214159e-04
-    Quercus               1.38347522 0.089608656  15.439080  8.936578e-54
-    sp.other.other        0.89177470 0.011064525  80.597648  0.000000e+00
-    sp.hardwood.hardwood  0.96083347 0.013894772  69.150720  0.000000e+00
-    sp.Ulmus.Ulmus        0.94591268 0.017282507  54.732377  0.000000e+00
-    sp.Fagus.Fagus        0.83383821 0.036552053  22.812350 3.457807e-115
-    sp.Quercus.Fagus      0.06930431         NaN        NaN           NaN
-    sp.Fagus.Quercus     -0.08431459         NaN        NaN           NaN
-    sp.Quercus.Quercus    0.99072926 0.007589615 130.537489  0.000000e+00
-    char_acc.hardwood    -0.15774081 0.021983518  -7.175413  7.208936e-13
-    char_acc.Ulmus       -0.15937356 0.037985313  -4.195663  2.720749e-05
-    char_acc.Fagus       -0.21576678         NaN        NaN           NaN
-    char_acc.Quercus     -0.18580969 0.019967371  -9.305666  1.331547e-20
+                               Coef.         se          t            P
+    hardwood              0.63691477 0.28810394   2.210712 2.705580e-02
+    Ulmus                -0.49502398 0.27873925  -1.775939 7.574293e-02
+    Fagus                -0.81690318 0.24523132  -3.331154 8.648688e-04
+    Quercus               1.38565091 0.17335303   7.993232 1.314470e-15
+    sp.other.other        0.88878200        NaN        NaN          NaN
+    sp.hardwood.hardwood  0.96032565 0.01470465  65.307616 0.000000e+00
+    sp.Ulmus.Ulmus        0.94710493 0.01924021  49.225294 0.000000e+00
+    sp.Fagus.Fagus        0.79372468 0.04327787  18.340197 3.953599e-75
+    sp.Quercus.Fagus      0.06851431 0.01454481   4.710568 2.470277e-06
+    sp.Fagus.Quercus     -0.09612673 0.03894519  -2.468257 1.357728e-02
+    sp.Quercus.Quercus    0.99381127 0.01669040  59.543888 0.000000e+00
+    char_acc.hardwood    -0.15481275 0.01476487 -10.485208 1.010230e-25
+    char_acc.Ulmus       -0.13832058 0.02806632  -4.928348 8.292761e-07
+    char_acc.Fagus       -0.22365851 0.04104789  -5.448721 5.073337e-08
+    char_acc.Quercus     -0.17367961 0.01701937 -10.204822 1.886670e-24
 
 
     Overall model
 
     B0 =
-                other  hardwood      Ulmus      Fagus  Quercus
-    (intercept)     0 0.6462775 -0.2993318 -0.9186705 1.383475
+                other  hardwood     Ulmus      Fagus  Quercus
+    (intercept)     0 0.6369148 -0.495024 -0.8169032 1.385651
 
 
     B =
              other   hardwood      Ulmus      Fagus    Quercus
-    char_acc     0 -0.1577408 -0.1593736 -0.2157668 -0.1858097
+    char_acc     0 -0.1548128 -0.1383206 -0.2236585 -0.1736796
 
 
     C =
-                 other  hardwood     Ulmus      Fagus     Quercus
-    other    0.8917747 0.0000000 0.0000000 0.00000000  0.00000000
-    hardwood 0.0000000 0.9608335 0.0000000 0.00000000  0.00000000
-    Ulmus    0.0000000 0.0000000 0.9459127 0.00000000  0.00000000
-    Fagus    0.0000000 0.0000000 0.0000000 0.83383821 -0.08431459
-    Quercus  0.0000000 0.0000000 0.0000000 0.06930431  0.99072926
+                other  hardwood     Ulmus      Fagus     Quercus
+    other    0.888782 0.0000000 0.0000000 0.00000000  0.00000000
+    hardwood 0.000000 0.9603256 0.0000000 0.00000000  0.00000000
+    Ulmus    0.000000 0.0000000 0.9471049 0.00000000  0.00000000
+    Fagus    0.000000 0.0000000 0.0000000 0.79372468 -0.09612673
+    Quercus  0.000000 0.0000000 0.0000000 0.06851431  0.99381127
 
-    sigma =  0.6603613
+    sigma =  0.6377304
 
     V =
-                 other   hardwood      Ulmus     Fagus    Quercus
-    other    1.0000000 0.25286788 0.24451372 0.4181247 0.13922069
-    hardwood 0.2528679 0.07460389 0.06003974 0.1084949 0.03416640
-    Ulmus    0.2445137 0.06003974 0.09392674 0.1082596 0.03023850
-    Fagus    0.4181247 0.10849494 0.10825965 0.3166117 0.02520510
-    Quercus  0.1392207 0.03416640 0.03023850 0.0252051 0.02726373
+                 other   hardwood      Ulmus      Fagus    Quercus
+    other    1.0000000 0.26278313 0.23745269 0.48658980 0.14726872
+    hardwood 0.2627831 0.08141971 0.05414713 0.13821541 0.03818023
+    Ulmus    0.2374527 0.05414713 0.09440689 0.12441927 0.02506967
+    Fagus    0.4865898 0.13821541 0.12441927 0.36913186 0.05369901
+    Quercus  0.1472687 0.03818023 0.02506967 0.05369901 0.02632085
 
 ``` r
 coef(mnTS_mod_int)
 ```
 
-                               Coef.          se          t             P
-    hardwood              0.64627755 0.128823953   5.016750  5.255293e-07
-    Ulmus                -0.29933182 0.113566390  -2.635743  8.395329e-03
-    Fagus                -0.91867049 0.255370791  -3.597398  3.214159e-04
-    Quercus               1.38347522 0.089608656  15.439080  8.936578e-54
-    sp.other.other        0.89177470 0.011064525  80.597648  0.000000e+00
-    sp.hardwood.hardwood  0.96083347 0.013894772  69.150720  0.000000e+00
-    sp.Ulmus.Ulmus        0.94591268 0.017282507  54.732377  0.000000e+00
-    sp.Fagus.Fagus        0.83383821 0.036552053  22.812350 3.457807e-115
-    sp.Quercus.Fagus      0.06930431         NaN        NaN           NaN
-    sp.Fagus.Quercus     -0.08431459         NaN        NaN           NaN
-    sp.Quercus.Quercus    0.99072926 0.007589615 130.537489  0.000000e+00
-    char_acc.hardwood    -0.15774081 0.021983518  -7.175413  7.208936e-13
-    char_acc.Ulmus       -0.15937356 0.037985313  -4.195663  2.720749e-05
-    char_acc.Fagus       -0.21576678         NaN        NaN           NaN
-    char_acc.Quercus     -0.18580969 0.019967371  -9.305666  1.331547e-20
+                               Coef.         se          t            P
+    hardwood              0.63691477 0.28810394   2.210712 2.705580e-02
+    Ulmus                -0.49502398 0.27873925  -1.775939 7.574293e-02
+    Fagus                -0.81690318 0.24523132  -3.331154 8.648688e-04
+    Quercus               1.38565091 0.17335303   7.993232 1.314470e-15
+    sp.other.other        0.88878200        NaN        NaN          NaN
+    sp.hardwood.hardwood  0.96032565 0.01470465  65.307616 0.000000e+00
+    sp.Ulmus.Ulmus        0.94710493 0.01924021  49.225294 0.000000e+00
+    sp.Fagus.Fagus        0.79372468 0.04327787  18.340197 3.953599e-75
+    sp.Quercus.Fagus      0.06851431 0.01454481   4.710568 2.470277e-06
+    sp.Fagus.Quercus     -0.09612673 0.03894519  -2.468257 1.357728e-02
+    sp.Quercus.Quercus    0.99381127 0.01669040  59.543888 0.000000e+00
+    char_acc.hardwood    -0.15481275 0.01476487 -10.485208 1.010230e-25
+    char_acc.Ulmus       -0.13832058 0.02806632  -4.928348 8.292761e-07
+    char_acc.Fagus       -0.22365851 0.04104789  -5.448721 5.073337e-08
+    char_acc.Quercus     -0.17367961 0.01701937 -10.204822 1.886670e-24
 
 ### Bootstrapping
 
@@ -796,19 +796,15 @@ We can do a timing test on 5 bootstraps:
 ``` r
 start_boot <- Sys.time()
 mnTS_int_boot <- boot(mnTS_mod_int, reps = 5)
-```
-
-    bobyqa optimization failed to converge; check $opt.convergence
-
-``` r
 end_boot <- Sys.time()
 ```
 
 On the system that created this vignette: fitting the initial
-interaction model for Story Lake took 3; 5 replicate bootstraps took 4.
-The timing will depend greatly on the data being fit and the system you
-are running. To speed things up, it can be useful to process the
-bootstraps in parallel, check out the [Sunfish Pond
+interaction model for Story Lake took 2.38 minutes; 5 replicate
+bootstraps took 6.69 minutes. The timing will depend greatly on the data
+being fit and the system you are running. To speed things up, it can be
+useful to process the bootstraps in parallel, check out the [Sunfish
+Pond
 example](https://quinnasena.github.io/multinomialTS/articles/sunfish_pond_example.md)
 for some code on running in parallel and recalculating the coefficients
 and standard errors.
