@@ -491,7 +491,7 @@ without, and then with interactions.
 end_time - start_time
 ```
 
-    Time difference of 14.86249 secs
+    Time difference of 15.48823 secs
 
 The outputs of
 [`mnGLMM()`](https://quinnasena.github.io/multinomialTS/reference/mnGLMM.md)
@@ -624,7 +624,7 @@ end_time <- Sys.time()
 end_time - start_time
 ```
 
-    Time difference of 1.179673 mins
+    Time difference of 1.191162 mins
 
 In this following code we set-up $C$ to define which interactions to
 estimate. Here we set-up a two-way interaction between key species. $C$
@@ -662,7 +662,7 @@ end_time <- Sys.time()
 end_time - start_time
 ```
 
-    Time difference of 3.433358 mins
+    Time difference of 3.483199 mins
 
 ### Interpreting outputs
 
