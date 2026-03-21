@@ -444,7 +444,7 @@ end_time - start_time
 
 ## Interpreting outputs {#sec-interp}
 
-The `coef()` and `summary()` functions will show the model outputs. The `summary()` function provides more information including two methods for calculating the standard error from the model, and the fitted coefficients in their matrix positions. The `coef()` function provides a single table output of the Wald approximation of the standard errors. During the model development, we found that the most accurate (lowest type-I error) method of estimating standard errors was to use bootstrapping. So, we recommend using the model summaries only as a preliminary guide for the standard error estimates, and using bootstrapping to obtain the standard errors (the point estimates (`Coef.`) will be comparable after bootstrapping). Bootstrapping also sorts out those `NaN` values that occasionally occur! Let's check out the coefficients of interaction model:
+The `coef()` and `summary()` functions will show the model outputs. The `summary()` function provides more information including the fitted coefficients in their matrix positions. The `coef()` function provides a single table output of the Wald approximation of the standard errors. During the model development, we found that the most accurate (lowest type-I error) method of estimating standard errors was to use bootstrapping. So, we recommend using the model summaries only as a preliminary guide for the standard error estimates, and using bootstrapping to obtain the standard errors (the point estimates (`Coef.`) will be comparable after bootstrapping). Bootstrapping also sorts out those `NaN` values that occasionally occur! Let's check out the coefficients of interaction model:
 
 
 ```{r}
@@ -472,8 +472,11 @@ We strongly recommend bootstrapping your final models. Bootstrapping a model can
 2. `all_mods_pars`: the individual coefficients for all models, where each row is one model iteration of the bootstrapping, and each column is a coefficient or other model output. This is useful if you wish to calculate other metrics such as the median and quartiles of the bootstraps.
 3. `all_mods`: a large list containing all the fitted models in their original form.
 
+We can do a timing test on 5 bootstraps:
+
 ```{r}
-#| code-fold: true
+#| warning: false
+#| message: false
 
 start_boot <- Sys.time()
 mnTS_int_boot <- boot(mnTS_mod_int, reps = 5)
@@ -481,8 +484,7 @@ end_boot <- Sys.time()
 
 ```
 
-
-On the system that created this vignette: fitting the initial interaction model for Story Lake took `r end_time - start_time`; 5 replicate bootstraps took  `r end_boot - start_boot`. The timing will depend greatly on the data being fit and the system you are running. To speed things up, it can be useful to process the bootstraps in parallel, check out the [Sunfish Pond example](sunfish_pond_example.html) for some code on running in parallel and recalculating the coefficients and standard errors.
+On the system that created this vignette: fitting the initial interaction model for Story Lake took `r round(end_time - start_time)`; 5 replicate bootstraps took  `r round(end_boot - start_boot)`. The timing will depend greatly on the data being fit and the system you are running. To speed things up, it can be useful to process the bootstraps in parallel, check out the [Sunfish Pond example](sunfish_pond_example.html) for some code on running in parallel and recalculating the coefficients and standard errors.
 
 
 ### Plotting bootstrapped coefficients
@@ -553,7 +555,7 @@ ggplot(plot_spp, aes(x = name, y = boot_mean)) +
   labs(x = "Taxa", y = "MultinomialTS coefficient estimate") +
   theme_bw() +
   theme(
-        axis.text.x = element_text(angle = 45)
+        axis.text.x = element_text(angle = 45, hjust = 1)
   )
 
 ```
