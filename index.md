@@ -1,9 +1,8 @@
 # multinomialTS
 
 This is the initial working version of `multinomialTS`. See [the
-vignettes on the package
-website](https://quinnasena.github.io/multinomialTS/index.html) on how
-to use the model.
+vignette](https://quinnasena.github.io/multinomialTS/articles/multinomialTS-vignette.html)
+on how to use the model.
 
 ## Installation
 
@@ -19,7 +18,7 @@ The best way to install at the moment is to compile from source:
 Alternatively, if you are having issues with the build tools, install
 the binaries:
 
-- `install.packages("https://github.com/QuinnAsena/multinomialTS/releases/download/v1.0.2/multinomialTS_1.0.2-windows.zip", repos = NULL, type = "win.binary")`
+- `install.packages("https://github.com/QuinnAsena/multinomialTS/releases/download/v1.0.1-alpha/multinomialTS_1.0.1-alpha.zip", repos = NULL, type = "win.binary")`
 
 ### macOS
 
@@ -39,8 +38,8 @@ the binaries:
 
 For new M-series macs, use:
 
-- `install.packages("https://github.com/QuinnAsena/multinomialTS/releases/download/v1.0.2/multinomialTS_1.0.2-macOS-arm64.tgz", repos = NULL)`
+- `install.packages("https://github.com/QuinnAsena/multinomialTS/releases/download/v1.0.1-alpha/multinomialTS-arm64.tgz", repos = NULL)`
 
 For Intel macs, use:
 
-- `install.packages("https://github.com/QuinnAsena/multinomialTS/releases/download/v1.0.2/multinomialTS_1.0.2-macOS-x86_64.tgz", repos = NULL)`
+- `install.packages("https://github.com/QuinnAsena/multinomialTS/releases/download/v1.0.1-alpha/multinomialTS_1.0.0.tgz", repos = NULL)`
