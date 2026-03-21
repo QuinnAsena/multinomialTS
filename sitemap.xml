@@ -3,10 +3,12 @@
 <url><loc>https://quinnasena.github.io/multinomialTS/LICENSE-text.html</loc></url>
 <url><loc>https://quinnasena.github.io/multinomialTS/articles/index.html</loc></url>
 <url><loc>https://quinnasena.github.io/multinomialTS/articles/multinomialTS-vignette.html</loc></url>
+<url><loc>https://quinnasena.github.io/multinomialTS/articles/sunfish_pond_example.html</loc></url>
 <url><loc>https://quinnasena.github.io/multinomialTS/authors.html</loc></url>
 <url><loc>https://quinnasena.github.io/multinomialTS/index.html</loc></url>
 <url><loc>https://quinnasena.github.io/multinomialTS/reference/boot.html</loc></url>
 <url><loc>https://quinnasena.github.io/multinomialTS/reference/boot.mnTS.html</loc></url>
+<url><loc>https://quinnasena.github.io/multinomialTS/reference/bootstrap_sensitivity.html</loc></url>
 <url><loc>https://quinnasena.github.io/multinomialTS/reference/coef.mnTS.html</loc></url>
 <url><loc>https://quinnasena.github.io/multinomialTS/reference/index.html</loc></url>
 <url><loc>https://quinnasena.github.io/multinomialTS/reference/mnGLMM.html</loc></url>
@@ -23,5 +25,7 @@
 <url><loc>https://quinnasena.github.io/multinomialTS/reference/story_pollen_wide.html</loc></url>
 <url><loc>https://quinnasena.github.io/multinomialTS/reference/summary.mnGLMM.html</loc></url>
 <url><loc>https://quinnasena.github.io/multinomialTS/reference/summary.mnTS.html</loc></url>
+<url><loc>https://quinnasena.github.io/multinomialTS/reference/sunfish_ll.html</loc></url>
+<url><loc>https://quinnasena.github.io/multinomialTS/reference/sunfish_pollen_wide.html</loc></url>
 </urlset>
 

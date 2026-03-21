@@ -38,12 +38,7 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="active nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/multinomialTS-vignette.html">multinomialTS Vignette</a></li>
-  </ul>
-</li>
+<li class="active nav-item"><a class="nav-link" href="../articles/index.html">Articles</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -59,8 +54,8 @@
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>multinomialTS Vignette</h1>
 
-      <p class="author">Quinn Asena, Tony Ives, and Jack williams</p>
-      <p class="date">2025-10-06</p>
+      <p class="author">Quinn Asena, Tony Ives, and Jack Williams</p>
+      <p class="date">2026-03-21</p>
 
 
       <div class="d-none name"><code></code></div>
@@ -145,8 +140,8 @@
 6 -57.2   5.5     29.8</code></pre>
 </div>
 </div>
-<p>For the moment, we are keeping the age and depth columns in both tibbles. These columns are so that we have a common variable to match the two to tibbles, and will be removed a little later.</p>
-<p>Always checkout some plots! See that big spike in “other”, this is the rise of ambrosia in recent decades. Worth clipping that from the data, major trends in the out-group indicates that something important is being aggregated in the reference (we don’t want that). I have left it in this example dataset for demonstration purposes.</p>
+<p>For the moment, we are keeping the age and depth columns in both tibbles. These columns are so that we have a common variable to match the two tibbles, and will be removed a little later.</p>
+<p>Always check out some plots! See that big spike in “other”, this is the rise of ambrosia in recent decades. Worth clipping that from the data, major trends in the out-group indicates that something important is being aggregated in the reference (we don’t want that). I have left it in this example dataset for demonstration purposes.</p>
 <div class="cell">
 <details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">story_pollen_wide</span> <span class="op">|&gt;</span></span>
@@ -163,7 +158,7 @@
 <span>               nrow <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span></span>
-<span>      text <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">10</span><span class="op">)</span>,</span>
+<span>      text <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span>    <span class="op">)</span></span></code></pre></div>
 </details><div class="cell-output-display">
 <div>
@@ -234,7 +229,7 @@
 <span><span class="co"># dim(story_join)</span></span>
 <span><span class="co"># tail(story_join)</span></span></code></pre></div>
 </div>
-<p>Now we have all our data joined. Note that the covariate <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math> (<code>char_acc</code>) has observations every cm, whereas pollen was sampled at less frequent intervals (this is OK! :smiley:).</p>
+<p>Now we have all our data joined. Note that the covariate <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math> (<code>char_acc</code>) has observations every cm, whereas pollen was sampled at less frequent intervals (this is OK!).</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">story_join</span>, n <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></code></pre></div>
@@ -288,9 +283,9 @@
 <p>We now apply the bins to our data. For most types of covariates we want the <em>average</em> value of the covariate in each bin. But for the pollen count data, we want the <em>sum</em>. This is because of the underlying multinomial distribution in the model.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb23"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># The following code </span></span>
+<code class="sourceCode R"><span><span class="co"># Assign bin indices, then summarise: mean age and charcoal per bin; sum pollen counts per bin</span></span>
 <span><span class="va">story_binned</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_cols.html" class="external-link">bind_cols</a></span><span class="op">(</span>bins <span class="op">=</span> <span class="va">bins</span>, <span class="va">story_join</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">bins</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="co"># Group the data by the bins so that we calculate per time bin</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">bins</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span></span>
 <span>    age <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">age</span>, na.rm <span class="op">=</span> <span class="cn">T</span><span class="op">)</span>, <span class="co"># the center of the bin</span></span>
 <span>    char_acc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">char_acc</span>, na.rm <span class="op">=</span> <span class="cn">T</span><span class="op">)</span>, <span class="co"># mean charcoal accumulation rate per bin</span></span>
@@ -302,6 +297,12 @@
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/desc.html" class="external-link">desc</a></span><span class="op">(</span><span class="va">age</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co"># Be aware that the gaps in the pollen data are now filled with 0's not NA</span></span></code></pre></div>
+</div>
+<div>
+<blockquote>
+<p><strong>This is important</strong></p>
+<p>We want the model to run from the past to the present, and the model runs from the top of the matrix to the bottom. So we want to make sure that the top row of the data is the <em>oldest</em> date. Palaeo-data are usually ordered from the top of the core to the bottom (present to past), so we <code>arrange(desc(age))</code>.</p>
+</blockquote>
 </div>
 <p>Let’s see what the data look like binned at a 50 year resolution:</p>
 <div class="cell">
@@ -382,8 +383,8 @@
 <p>The arguments of the parameters to be <em>estimated</em> are all suffixed with <code>.fixed</code> (e.g., <code>B.fixed</code> will be parameters that are estimated from <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math> matrix).</p>
 </blockquote>
 </div>
-<section class="level3"><h4 id="setting-up-parameters-for-mngmll">Setting-up parameters for <code>mnGMLL()</code>
-<a class="anchor" aria-label="anchor" href="#setting-up-parameters-for-mngmll"></a>
+<section class="level3"><h4 id="setting-up-parameters-for-mnglmm">Setting-up parameters for <code>mnGLMM()</code>
+<a class="anchor" aria-label="anchor" href="#setting-up-parameters-for-mnglmm"></a>
 </h4>
 <p>Now, lets set up the parameters for <code><a href="../reference/mnGLMM.html">mnGLMM()</a></code>. We need:</p>
 <ul>
@@ -402,9 +403,9 @@
 </ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb30"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># set-up sample index</span></span>
+<code class="sourceCode R"><span><span class="co"># Row indices of non-empty time bins (bins containing at least one pollen observation)</span></span>
 <span><span class="va">sample_idx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="va">story_pollen_matrix</span><span class="op">)</span> <span class="op">!=</span> <span class="fl">0</span><span class="op">)</span></span>
-<span><span class="co"># make sure it works</span></span>
+<span><span class="co"># Verify: all rows should have non-zero counts</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">story_pollen_matrix</span><span class="op">[</span><span class="va">sample_idx</span>, <span class="op">]</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     other hardwood Ulmus Fagus Quercus
@@ -419,20 +420,22 @@
 <p>Set-up the remaining parameters:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb32"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Set-up parameters</span></span>
-<span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">story_char_matrix_scaled</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1</span> <span class="co"># Number of independent variables plus intercept</span></span>
-<span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">story_pollen_matrix</span><span class="op">)</span> <span class="co"># number of taxa</span></span>
+<code class="sourceCode R"><span><span class="co"># p = number of covariates + intercept; n = number of taxa</span></span>
+<span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">story_char_matrix_scaled</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1</span></span>
+<span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">story_pollen_matrix</span><span class="op">)</span></span>
+<span><span class="co"># Estimate all diagonal variances; fix reference taxon variance (V[1,1]) to 1 for identifiability</span></span>
 <span><span class="va">V.fixed.glmm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="va">V.fixed.glmm</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="cn">NA</span></span>
 <span><span class="va">V.fixed.glmm</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
-<span><span class="va">B.fixed.glmm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>,<span class="va">p</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="op">(</span><span class="va">n</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="va">p</span><span class="op">)</span><span class="op">)</span>, <span class="va">p</span>, <span class="va">n</span><span class="op">)</span> <span class="co"># reference taxa [,1] are set to 0</span></span>
-<span><span class="va">B.start.glmm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>,<span class="va">p</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">.01</span>, <span class="op">(</span><span class="va">n</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="va">p</span><span class="op">)</span><span class="op">)</span>, <span class="va">p</span>, <span class="va">n</span><span class="op">)</span> <span class="co"># reference taxa [,1] are set to 0</span></span></code></pre></div>
+<span><span class="co"># Fix reference taxon (column 1) coefficients to 0; estimate all others (NA = estimate)</span></span>
+<span><span class="va">B.fixed.glmm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>,<span class="va">p</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="op">(</span><span class="va">n</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="va">p</span><span class="op">)</span><span class="op">)</span>, <span class="va">p</span>, <span class="va">n</span><span class="op">)</span></span>
+<span><span class="va">B.start.glmm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>,<span class="va">p</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">.01</span>, <span class="op">(</span><span class="va">n</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="va">p</span><span class="op">)</span><span class="op">)</span>, <span class="va">p</span>, <span class="va">n</span><span class="op">)</span></span></code></pre></div>
 </div>
 <p>These parameters are used as arguments to the <code><a href="../reference/mnGLMM.html">mnGLMM()</a></code> function. Check them out by printing them in your console. Each matrix needs to be the correct dimensions given the number of taxa and number of covariates. The position elements of each matrix reflect the species and/or the covariates, as we will see later in the output of the model.</p>
 </section><section class="level3"><h4 id="fitting-mnglmm">Fitting <code>mnGLMM()</code>
 <a class="anchor" aria-label="anchor" href="#fitting-mnglmm"></a>
 </h4>
-<p>Remember that <code><a href="../reference/mnGLMM.html">mnGLMM()</a></code> does not handle gaps in the data and only fits complete <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math> matrices. We have created a variable for out observation indices (<code>sample_idx</code>), so for <code><a href="../reference/mnGLMM.html">mnGLMM()</a></code> we will index the matrices by this variable: e.g., <code>story_pollen_matrix[sample_idx, ]</code>.</p>
+<p>Remember that <code><a href="../reference/mnGLMM.html">mnGLMM()</a></code> does not handle gaps in the data and only fits complete <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math> matrices. We have created a variable for our observation indices (<code>sample_idx</code>), so for <code><a href="../reference/mnGLMM.html">mnGLMM()</a></code> we will index the matrices by this variable: e.g., <code>story_pollen_matrix[sample_idx, ]</code>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># fit glmm</span></span>
@@ -442,15 +445,19 @@
 <span>                   B.start <span class="op">=</span> <span class="va">B.start.glmm</span>,</span>
 <span>                   B.fixed <span class="op">=</span> <span class="va">B.fixed.glmm</span>,</span>
 <span>                   V.fixed <span class="op">=</span> <span class="va">V.fixed.glmm</span><span class="op">)</span></span>
-<span><span class="va">end_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">end_time</span> <span class="op">-</span> <span class="va">start_time</span></span></code></pre></div>
+<span><span class="va">end_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+</div>
+<p>I like to keep track of how long the models take to run. This will vary depending on the data set and the system hardware, but can be useful benchmarking for running models repeatedly. Note the time increase as we progess from <code><a href="../reference/mnGLMM.html">mnGLMM()</a></code> to <code><a href="../reference/mnTS.html">mnTS()</a></code> without, and then with interactions.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">end_time</span> <span class="op">-</span> <span class="va">start_time</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Time difference of 15.28561 secs</code></pre>
+<pre><code>Time difference of 14.86249 secs</code></pre>
 </div>
 </div>
 <p>The outputs of <code><a href="../reference/mnGLMM.html">mnGLMM()</a></code> can be examined with the <code>summary(glmm_mod)</code> function.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb35"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">glmm_mod</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -493,7 +500,7 @@ Quercus      0 0.00000000 0.0000000 0.0000000 0.07575829</code></pre>
 </section></section><section class="level2"><h3 id="setting-up-parameters-for-mnts">Setting-up parameters for <code>mnTS()</code>
 <a class="anchor" aria-label="anchor" href="#setting-up-parameters-for-mnts"></a>
 </h3>
-<p>Now, lets set up the parameters for <code><a href="../reference/mnTS.html">mnTS()</a></code>. <code>mTS()</code> needs:</p>
+<p>Now, lets set up the parameters for <code><a href="../reference/mnTS.html">mnTS()</a></code>. <code><a href="../reference/mnTS.html">mnTS()</a></code> needs:</p>
 <ul>
 <li>row indices as before: <code>sample_idx</code>
 </li>
@@ -504,7 +511,7 @@ Quercus      0 0.00000000 0.0000000 0.0000000 0.07575829</code></pre>
 <li>starting values for each matrix:
 <ul>
 <li>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mi>O</mi></mrow><annotation encoding="application/x-tex">BO</annotation></semantics></math>: <code>B0.start.mnTS</code> (intercept)</li>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mn>0</mn></mrow><annotation encoding="application/x-tex">B0</annotation></semantics></math>: <code>B0.start.mnTS</code> (intercept)</li>
 <li>
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math>: <code>B.start.mnTS</code> (driver-taxa)</li>
 <li>
@@ -516,7 +523,7 @@ Quercus      0 0.00000000 0.0000000 0.0000000 0.07575829</code></pre>
 <li>parameters to estimate for each matrix:
 <ul>
 <li>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mi>O</mi></mrow><annotation encoding="application/x-tex">BO</annotation></semantics></math>: <code>B0.fixed.mnTS</code>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mn>0</mn></mrow><annotation encoding="application/x-tex">B0</annotation></semantics></math>: <code>B0.fixed.mnTS</code>
 </li>
 <li>
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math>: <code>B.fixed.mnTS</code>
@@ -532,22 +539,24 @@ Quercus      0 0.00000000 0.0000000 0.0000000 0.07575829</code></pre>
 </ul>
 <p>We are using the output from <code><a href="../reference/mnGLMM.html">mnGLMM()</a></code> as starting values for the matrices <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mn>0</mn></mrow><annotation encoding="application/x-tex">B0</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math>, and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>V</mi><annotation encoding="application/x-tex">V</annotation></semantics></math>. <code><a href="../reference/mnGLMM.html">mnGLMM()</a></code> does not provide estimates for <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>, so we handle <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math> a little differently and we input values close to zero for each parameter estimated and let <code><a href="../reference/mnTS.html">mnTS()</a></code> do the rest.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb37"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># B.start etc</span></span>
+<div class="sourceCode cell-code" id="cb38"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Use GLMM estimates as starting values for mnTS: row 1 = intercepts, row 2 = covariate slopes</span></span>
 <span><span class="va">B0.start.mnTS</span> <span class="op">&lt;-</span> <span class="va">glmm_mod</span><span class="op">$</span><span class="va">B</span><span class="op">[</span><span class="fl">1</span>, , drop <span class="op">=</span> <span class="cn">F</span><span class="op">]</span></span>
 <span><span class="va">B.start.mnTS</span> <span class="op">&lt;-</span> <span class="va">glmm_mod</span><span class="op">$</span><span class="va">B</span><span class="op">[</span><span class="fl">2</span>, , drop <span class="op">=</span> <span class="cn">F</span><span class="op">]</span></span>
 <span></span>
-<span><span class="va">V.fixed.mnTS</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="va">n</span>, <span class="va">n</span><span class="op">)</span> <span class="co"># Covariance matrix of environmental variation in process eq</span></span>
+<span><span class="co"># Allow all V elements to be estimated; fix reference taxon variance V[1,1] to 1 for identifiability</span></span>
+<span><span class="va">V.fixed.mnTS</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="va">n</span>, <span class="va">n</span><span class="op">)</span></span>
 <span><span class="va">V.fixed.mnTS</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
 <span></span>
-<span><span class="va">V.start.mnTS</span> <span class="op">&lt;-</span> <span class="va">V.fixed.mnTS</span></span>
-<span><span class="va">V.start.mnTS</span> <span class="op">&lt;-</span> <span class="va">glmm_mod</span><span class="op">$</span><span class="va">V</span></span>
+<span><span class="va">V.start.mnTS</span> <span class="op">&lt;-</span> <span class="va">glmm_mod</span><span class="op">$</span><span class="va">V</span>  <span class="co"># initialise V from GLMM estimate</span></span>
 <span></span>
+<span><span class="co"># Fix reference taxon (column 1) B coefficients to 0; fix reference taxon intercept to 0</span></span>
 <span><span class="va">B.fixed.mnTS</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="va">p</span><span class="op">-</span><span class="fl">1</span>, <span class="va">n</span><span class="op">)</span></span>
 <span><span class="va">B.fixed.mnTS</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
 <span><span class="va">B0.fixed.mnTS</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="va">n</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">1</span>, ncol <span class="op">=</span> <span class="va">n</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Set-up C without interactions</span></span>
+<span><span class="co"># Diagonal-only C matrix: self-regulation terms only, no between-taxon interactions</span></span>
+<span><span class="co"># NA = estimate; 0 (off-diagonals) = fixed at zero</span></span>
 <span><span class="va">C.start.mnTS</span>  <span class="op">&lt;-</span> <span class="fl">.5</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span>
 <span><span class="va">C.fixed.mnTS</span> <span class="op">&lt;-</span> <span class="va">C.start.mnTS</span></span>
 <span><span class="va">C.fixed.mnTS</span><span class="op">[</span><span class="va">C.fixed.mnTS</span> <span class="op">!=</span> <span class="fl">0</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">NA</span></span></code></pre></div>
@@ -555,10 +564,10 @@ Quercus      0 0.00000000 0.0000000 0.0000000 0.07575829</code></pre>
 </section><section class="level2"><h3 id="sec-mnts">Fitting <code>mnTS()</code>
 <a class="anchor" aria-label="anchor" href="#sec-mnts"></a>
 </h3>
-<p>Remember, <code><a href="../reference/mnTS.html">mnTS()</a></code> <em>does</em> handle gaps in the state-variables where there are data in the covariate matrix. In the following code, we use the complete (no gaps) <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math> matrix <code>story_pollen_matrix[sample_idx, ]</code> with dimensions: 93, 5. And the full <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math> matrix: <code>story_char_matrix_scaled</code> with dimensions: 160, 1 We will fit the model twice:</p>
+<p>Remember, <code><a href="../reference/mnTS.html">mnTS()</a></code> <em>does</em> handle gaps in the state-variables where there are data in the covariate matrix. In the following code, we use the complete (no gaps) <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math> matrix <code>story_pollen_matrix[sample_idx, ]</code> with dimensions: 93, 5. And the full <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math> matrix: <code>story_char_matrix_scaled</code> with dimensions: 160, 1. We will fit the model twice:</p>
 <ul>
 <li>Without taxa interactions.</li>
-<li>And without taxa interactions.</li>
+<li>With taxa interactions.</li>
 </ul>
 <div>
 <blockquote>
@@ -567,7 +576,7 @@ Quercus      0 0.00000000 0.0000000 0.0000000 0.07575829</code></pre>
 </blockquote>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb38"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">start_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">mnTS_mod</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mnTS.html">mnTS</a></span><span class="op">(</span>Y <span class="op">=</span> <span class="va">story_pollen_matrix</span><span class="op">[</span><span class="va">sample_idx</span>, <span class="op">]</span>,</span>
 <span>                 X <span class="op">=</span> <span class="va">story_char_matrix_scaled</span>, Tsample <span class="op">=</span> <span class="va">sample_idx</span>,</span>
@@ -581,24 +590,25 @@ Quercus      0 0.00000000 0.0000000 0.0000000 0.07575829</code></pre>
 <span><span class="va">end_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">end_time</span> <span class="op">-</span> <span class="va">start_time</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Time difference of 1.227842 mins</code></pre>
+<pre><code>Time difference of 1.179673 mins</code></pre>
 </div>
 </div>
-<p>In this following code we set-up <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math> to define which interactions to estimate. <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math> can take many forms, here we set-up a two-way interaction between key species.</p>
+<p>In this following code we set-up <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math> to define which interactions to estimate. Here we set-up a two-way interaction between key species. <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math> is not restricted to being symmetrical matix, i.e., you can choose to have a one-way interaction effect.</p>
 <div>
 <blockquote>
 <p><strong>Tip</strong></p>
-<p>Note that for the starting values of parameters I am using the output of the no-interaction <code>mnts()</code> model above. This is perfectly OK because we are only providing reasonable models for the model to work with. If the starting values are closer to the ‘true’ values then the model will likely optimize faster.</p>
+<p>Note that for the starting values of parameters I am using the output of the no-interaction <code><a href="../reference/mnTS.html">mnTS()</a></code> model above. This is perfectly OK because we are only providing reasonable starting values for the model to work with. If the starting values are closer to the ‘true’ values then the model will likely optimize faster.</p>
 </blockquote>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb40"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Set-up C with interactions between Fagus and Quercus</span></span>
+<div class="sourceCode cell-code" id="cb41"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># C matrix with two-way interactions between Quercus (row/col 5) and Fagus (row/col 4)</span></span>
+<span><span class="co"># Off-diagonal elements [5,4] and [4,5] are initialised near zero and freed for estimation</span></span>
 <span><span class="va">C.start.int.mnTS</span>  <span class="op">&lt;-</span> <span class="fl">.5</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span>
-<span><span class="va">C.start.int.mnTS</span><span class="op">[</span><span class="fl">5</span>, <span class="fl">4</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">.001</span></span>
-<span><span class="va">C.start.int.mnTS</span><span class="op">[</span><span class="fl">4</span>, <span class="fl">5</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">.001</span></span>
+<span><span class="va">C.start.int.mnTS</span><span class="op">[</span><span class="fl">5</span>, <span class="fl">4</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">.001</span>  <span class="co"># Fagus effect on Quercus</span></span>
+<span><span class="va">C.start.int.mnTS</span><span class="op">[</span><span class="fl">4</span>, <span class="fl">5</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">.001</span>  <span class="co"># Quercus effect on Fagus</span></span>
 <span><span class="va">C.fixed.int.mnTS</span> <span class="op">&lt;-</span> <span class="va">C.start.int.mnTS</span></span>
-<span><span class="va">C.fixed.int.mnTS</span><span class="op">[</span><span class="va">C.fixed.int.mnTS</span> <span class="op">!=</span> <span class="fl">0</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">NA</span></span>
+<span><span class="va">C.fixed.int.mnTS</span><span class="op">[</span><span class="va">C.fixed.int.mnTS</span> <span class="op">!=</span> <span class="fl">0</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">NA</span>  <span class="co"># NA = estimate</span></span>
 <span></span>
 <span><span class="va">start_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">mnTS_mod_int</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mnTS.html">mnTS</a></span><span class="op">(</span>Y <span class="op">=</span> <span class="va">story_pollen_matrix</span><span class="op">[</span><span class="va">sample_idx</span>, <span class="op">]</span>,</span>
@@ -611,14 +621,14 @@ Quercus      0 0.00000000 0.0000000 0.0000000 0.07575829</code></pre>
 <span><span class="va">end_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span> </span>
 <span><span class="va">end_time</span> <span class="op">-</span> <span class="va">start_time</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Time difference of 3.560188 mins</code></pre>
+<pre><code>Time difference of 3.433358 mins</code></pre>
 </div>
 </div>
 </section><section class="level2"><h3 id="sec-interp">Interpreting outputs<a class="anchor" aria-label="anchor" href="#sec-interp"></a>
 </h3>
-<p>The <code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code> and <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> functions will show the model outputs. Let’s check out the coefficients of interaction model:</p>
+<p>The <code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code> and <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> functions will show the model outputs. The <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> function provides more information including the fitted coefficients in their matrix positions. The <code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code> function provides a single table output of the Wald approximation of the standard errors. During the model development, we found that the most accurate (lowest type-I error) method of estimating standard errors was to use bootstrapping. So, we recommend using the model summaries only as a preliminary guide for the standard error estimates, and using bootstrapping to obtain the standard errors (the point estimates (<code>Coef.</code>) will be comparable after bootstrapping). Bootstrapping also sorts out those <code>NaN</code> values that occasionally occur! Let’s check out the coefficients of interaction model:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb42"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">mnTS_mod_int</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -645,26 +655,6 @@ char_acc.hardwood    -0.15774081 0.021983518  -7.175413  7.208936e-13
 char_acc.Ulmus       -0.15937356 0.037985313  -4.195663  2.720749e-05
 char_acc.Fagus       -0.21576678         NaN        NaN           NaN
 char_acc.Quercus     -0.18580969 0.019967371  -9.305666  1.331547e-20
-
-
-Fitted Coefficients with conditional approximate se
-                           Coef.          se          t            P
-hardwood              0.64627755 0.146885289   4.399879 1.083111e-05
-Ulmus                -0.29933182 0.176984151  -1.691292 9.078111e-02
-Fagus                -0.91867049 0.265149460  -3.464727 5.307700e-04
-Quercus               1.38347522 0.068468911  20.205889 8.689079e-91
-sp.other.other        0.89177470 0.010890072  81.888780 0.000000e+00
-sp.hardwood.hardwood  0.96083347 0.010722160  89.611929 0.000000e+00
-sp.Ulmus.Ulmus        0.94591268 0.009032307 104.725480 0.000000e+00
-sp.Fagus.Fagus        0.83383821 0.021011423  39.684996 0.000000e+00
-sp.Quercus.Fagus      0.06930431 0.007267487   9.536213 1.481432e-21
-sp.Fagus.Quercus     -0.08431459 0.034418562  -2.449684 1.429818e-02
-sp.Quercus.Quercus    0.99072926 0.014078411  70.372233 0.000000e+00
-sigma                 0.66036129 0.037411671  17.651211 9.959806e-70
-char_acc.hardwood    -0.15774081 0.024046618  -6.559792 5.388286e-11
-char_acc.Ulmus       -0.15937356 0.031947105  -4.988670 6.079642e-07
-char_acc.Fagus       -0.21576678 0.060354060  -3.575017 3.502053e-04
-char_acc.Quercus     -0.18580969 0.018905045  -9.828577 8.480861e-23
 
 
 Overall model
@@ -697,7 +687,7 @@ Ulmus    0.2445137 0.06003974 0.09392674 0.1082596 0.03023850
 Fagus    0.4181247 0.10849494 0.10825965 0.3166117 0.02520510
 Quercus  0.1392207 0.03416640 0.03023850 0.0252051 0.02726373</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb44"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">mnTS_mod_int</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>                           Coef.          se          t             P
@@ -722,7 +712,7 @@ char_acc.Quercus     -0.18580969 0.019967371  -9.305666  1.331547e-20</code></pr
 </h3>
 <p>We have found that bootstrapping provides better estimates of standard errors (and subsequent P-values). The <code><a href="../reference/boot.html">boot()</a></code> function will bootstrap the model, caution as this may take a long time. To bootstrap a mnTS model you can call:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb46"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb47"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Not run as this takes a long time!</span></span>
 <span><span class="va">mnTS_int_boot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/boot.html">boot</a></span><span class="op">(</span><span class="va">mnTS_mod_int</span>, reps <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -735,13 +725,32 @@ char_acc.Quercus     -0.18580969 0.019967371  -9.305666  1.331547e-20</code></pr
 <li>
 <code>all_mods</code>: a large list containing all the fitted models in their original form.</li>
 </ol>
+<p>We can do a timing test on 5 bootstraps:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb48"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">start_boot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">mnTS_int_boot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/boot.html">boot</a></span><span class="op">(</span><span class="va">mnTS_mod_int</span>, reps <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+bobyqa optimization failed to converge; check $opt.convergence
+
+bobyqa optimization failed to converge; check $opt.convergence
+
+bobyqa optimization failed to converge; check $opt.convergence
+
+bobyqa optimization failed to converge; check $opt.convergence</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb50"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">end_boot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+</div>
+<p>On the system that created this vignette: fitting the initial interaction model for Story Lake took 3; 5 replicate bootstraps took 6. The timing will depend greatly on the data being fit and the system you are running. To speed things up, it can be useful to process the bootstraps in parallel, check out the <a href="sunfish_pond_example.html">Sunfish Pond example</a> for some code on running in parallel and recalculating the coefficients and standard errors.</p>
 <section class="level3"><h4 id="plotting-bootstrapped-coefficients">Plotting bootstrapped coefficients<a class="anchor" aria-label="anchor" href="#plotting-bootstrapped-coefficients"></a>
 </h4>
 <p>To show how to access and plot the bootstrapped coefficients we will use a pre-run example of 100 bootstraps using the <code>coef.table.boot</code> object. Only 100 bootstraps would usually be too few for best results, but we need a small working example for the purposes of demonstration.</p>
 <p>Bootstrapping simulates species from the process equation. The simulated species are named y1 … yn. in future versions I will update the bootstrapping function to have the option of maintaining the species names from the input matrix. But for now, we rename them:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb47"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># take the calculated coefficient table from the bootstrap output</span></span>
+<div class="sourceCode cell-code" id="cb51"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Extract and reshape the summarised coefficient table from the bootstrap output</span></span>
 <span><span class="va">plot_boot</span> <span class="op">&lt;-</span> <span class="va">story_100_bootstraps</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html" class="external-link">as_tibble</a></span><span class="op">(</span>rownames <span class="op">=</span> <span class="st">"name"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"sp.*|char.*"</span>, <span class="va">name</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="co"># Take species and covariate coefficients</span></span>
@@ -749,7 +758,7 @@ char_acc.Quercus     -0.18580969 0.019967371  -9.305666  1.331547e-20</code></pr
 <span>           <span class="fu"><a href="https://stringr.tidyverse.org/reference/str_replace.html" class="external-link">str_replace_all</a></span><span class="op">(</span></span>
 <span>             <span class="va">name</span>,</span>
 <span>             pattern <span class="op">=</span> <span class="st">"y1|y2|y3|y4|y5|y6"</span>,</span>
-<span>             replacement <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
+<span>             replacement <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
 <span>             <span class="va">x</span> <span class="op">==</span> <span class="st">"y1"</span> <span class="op">~</span> <span class="st">"Other"</span>,</span>
 <span>             <span class="va">x</span> <span class="op">==</span> <span class="st">"y2"</span> <span class="op">~</span> <span class="st">"hardwood"</span>,</span>
 <span>             <span class="va">x</span> <span class="op">==</span> <span class="st">"y3"</span> <span class="op">~</span> <span class="st">"Ulmus"</span>,</span>
@@ -759,7 +768,7 @@ char_acc.Quercus     -0.18580969 0.019967371  -9.305666  1.331547e-20</code></pr
 </div>
 <p>I’m going to separate the plots into covariate coefficients and species coefficients. Let’s take the covariates first:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb48"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb52"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plot_cov</span> <span class="op">&lt;-</span> <span class="va">plot_boot</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"char.*"</span>, <span class="va">name</span><span class="op">)</span><span class="op">)</span></span>
 <span>  </span>
@@ -773,14 +782,14 @@ char_acc.Quercus     -0.18580969 0.019967371  -9.305666  1.331547e-20</code></pr
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span> </span></code></pre></div>
 <div class="cell-output-display">
 <div>
-<figure><p><img src="multinomialTS-vignette_files/figure-html/unnamed-chunk-22-1.png" width="672"></p>
+<figure><p><img src="multinomialTS-vignette_files/figure-html/unnamed-chunk-24-1.png" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>Now let’s grab the species coefficients:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb49"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb53"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plot_spp</span> <span class="op">&lt;-</span> <span class="va">plot_boot</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"sp.*"</span>, <span class="va">name</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">name</span>,</span>
 <span>    levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
@@ -800,10 +809,13 @@ char_acc.Quercus     -0.18580969 0.019967371  -9.305666  1.331547e-20</code></pr
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_linerange.html" class="external-link">geom_errorbar</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>ymin <span class="op">=</span> <span class="va">lower68</span>, ymax <span class="op">=</span> <span class="va">upper68</span><span class="op">)</span>,</span>
 <span>                    width <span class="op">=</span> <span class="fl">.4</span>, alpha <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Taxa"</span>, y <span class="op">=</span> <span class="st">"MultinomialTS coefficient estimate"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span></span>
+<span>        axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>angle <span class="op">=</span> <span class="fl">45</span>, hjust <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
 <div>
-<figure><p><img src="multinomialTS-vignette_files/figure-html/unnamed-chunk-23-1.png" width="672"></p>
+<figure><p><img src="multinomialTS-vignette_files/figure-html/unnamed-chunk-25-1.png" width="672"></p>
 </figure>
 </div>
 </div>
@@ -907,7 +919,7 @@ char_acc.Quercus     -0.18580969 0.019967371  -9.305666  1.331547e-20</code></pr
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>
