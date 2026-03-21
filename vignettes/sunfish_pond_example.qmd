@@ -25,7 +25,7 @@ In this example, the data include a ~13,800-year long fossil pollen record, and 
 
 ## Why is bin width important?
 
-Consider the bin width a prediction resolution, it would be unrealistic to make annual predictions over a ~13,800-year long period from 69 observations (this is nice and intuitive), you can only make inference given the information in the data. For example, we may be able to make reasonable predictions at a centennial scale. The larger the bins the less the model will capture processes occurring at a finer temporal scale. For example, if your prediction resolution is 300-years, you might be losing early successional processes occurring at a 100-year scale. Additionally, observations of the covariates that fall within the same bin are averaged; thus, having a smoothing effect on the covariates, which may be undesirable. So, we aim for a bin width as small as reasonably possible in order to minimise the aggregation of data that fall within a single bin.
+Consider the bin width a prediction resolution, it would be unrealistic to make annual predictions over a ~13,800-year long period from 69 observations (this is nice and intuitive), we can only make inference given the information in the data. For example, we may be able to make reasonable predictions at a centennial scale. The larger the bins the less the model will capture processes occurring at a finer temporal scale. For example, if your prediction resolution is 300-years, you might be losing early successional processes occurring at a 100-year scale. Additionally, observations of the covariates that fall within the same bin are averaged; thus, having a smoothing effect on the covariates, which may be undesirable. So, we aim for a bin width as small as reasonably possible in order to minimise the aggregation of data that fall within a single bin.
 
 
 # Data processing
@@ -69,6 +69,7 @@ First let's see what the data look like:
 #| message: false
 #| warning: false
 #| code-fold: true
+#| fig-cap: "Pollen counts five key species in the Sunfish Pond record alongside the lake levek reconstruction. All other species are grouped in the 'other' species group"
 
 
 sunfish_pollen_long <- sunfish_pollen_wide |>
@@ -180,7 +181,7 @@ bin_sensitivity_data <- lapply(bin_width, \(bw) {
     full_join(ll_mean) |>
     arrange(desc(bins))
 
-  # Diagnostic: identify which bins lack a lake-level observation (typically the earliest bin)
+  # Diagnostic: identify which bins lack a lake-level observation
   which(is.na(sunfish_all$mean_ll))
 
   # Fill the missing lake-level bin using linear interpolation
@@ -206,7 +207,18 @@ names(bin_sensitivity_data) <- paste0("bw_", bin_width)
 ```
 
 
-We want to experiment with different binning resolutions to find out if the resolution has a notable effect on the model results. Below, I use the `future.apply` package to run _multinomialTS_ in parallel to save some time! 
+Let's check the output to see how many observations in $Y$ were aggregated.
+
+```{r}
+#| output: false
+
+sum(complete.cases(bin_sensitivity_data$bw_75$Y))
+sum(complete.cases(bin_sensitivity_data$bw_150$Y))
+```
+
+At a bin width of 75-years `r sum(complete.cases(bin_sensitivity_data$bw_75$Y))` remain (all original observations are in independent bins, this is good). At a bin width of 150-years `r sum(complete.cases(bin_sensitivity_data$bw_150$Y))` remain. Looks like `r 69 - sum(complete.cases(bin_sensitivity_data$bw_150$Y))` observations have been aggregated in bins.
+
+We want to find out if different binning resolutions have a notable effect on the model results. Below, I use the `future.apply` package to run _multinomialTS_ in parallel over the bin widths to save some time! 
 
 ::: {.callout-tip}
 
@@ -288,7 +300,7 @@ bin_sensitivity_res <- future_lapply(bin_sensitivity_data, \(x) {
 # saveRDS(bin_sensitivity_res, "...")
 ```
 
-It's always good idea to save the model outputs as they can take a while to run. Now that we have our model fits, let's bootstrap them. You will want to do more than the 20 bootstraps as in the demonstration below (data examples have to be small for vignettes). We recommend doing as many bootstraps as processing power will allow for, since the fitting time changes per data set it is tricky to provide any rule of thumb. One method is to fit 10-100 bootstraps using `Sys.time()` to time the process, then use the result to guide your bootstrapping. We are going to do this in parallel too:
+It's always good idea to save the model outputs as they can take a while to run. Now that we have our model fits, let's bootstrap them. You will want to do more than the 20 bootstraps as in the demonstration below (data examples have to be small for vignettes). We recommend doing as many bootstraps as processing power will allow for, since the fitting time changes per data set it is tricky to provide any rule of thumb. One method is to fit 10-100 bootstraps using `Sys.time()` to time the process, then use the result to guide your bootstrapping. We are going to do the bootstrapping in parallel too:
 
 ```{r}
 #| label: BootBin
@@ -327,7 +339,8 @@ mods_boot <- map(bootstrap_sensitivity, ~ {
   bind_rows(.id = "mod")
 
 # Compute per-coefficient summary statistics across bootstrap replicates.
-# The output already includes standard deviations, but recalculating here
+# The output already includes standard deviations, but recalculating here is
+# necessary because each parallel instance needs to be combined and this method
 # lets you choose custom quantile bounds (here: 68% credible interval ≈ ±1 SD).
 mods_boot_68 <- mods_boot |>
   group_by(mod, name) |>
@@ -406,7 +419,7 @@ mod_plots_B <- mods_boot_68_B |>
 mod_plots_B
 ```
 
-In this instance, there is no great change in the $B$ coefficients at the different binning resolutions. So, we can have some confidence that our inferences are not strongly affected by the window size.
+In this instance, there is no great change in the $B$ coefficients at the different binning resolutions. This is good! We can have some confidence that our inferences are not strongly affected by the window size. The smaller binning window (75-year bins) maintains all observations in independent bins and the model had no issue converging at this resolution. That is a reasonable justification to go with a 75-year binning resolution.
 
 
 
