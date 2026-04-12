@@ -108,4 +108,44 @@ mnGLMM(
 
 ## Value
 
-An object of class `"mnGLMM"`.
+An object of class `"mnGLMM"` with components including:
+
+- B:
+
+  Estimated covariate coefficients (p x n matrix).
+
+- sigma:
+
+  Estimated process noise scale.
+
+- V:
+
+  Estimated species covariance matrix.
+
+- dispersion:
+
+  Estimated observation dispersion parameter.
+
+- mu:
+
+  Fitted multinomial probabilities (Tmax x n matrix).
+
+- logLik:
+
+  Log-likelihood at the maximum.
+
+- AIC:
+
+  Akaike Information Criterion.
+
+- par:
+
+  Estimated parameters as a named vector.
+
+- se:
+
+  Approximate standard errors from the observed information matrix.
+
+- inv.information.matrix:
+
+  Inverse of the observed information matrix, or `NA` if not invertible.

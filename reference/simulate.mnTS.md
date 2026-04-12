@@ -6,12 +6,12 @@ Generates simulated datasets from a fitted mnTS object.
 
 ``` r
 # S3 method for class 'mnTS'
-simulate(mod, ...)
+simulate(object, ...)
 ```
 
 ## Arguments
 
-- mod:
+- object:
 
   An object of class `"mnTS"`, as returned by the
   [`mnTS`](https://quinnasena.github.io/multinomialTS/reference/mnTS.md)

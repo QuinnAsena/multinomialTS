@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">multinomialTS</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,14 +38,18 @@
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S3 method for class 'mnTS'</span></span>
-<span><span class="fu"><a href="boot.html">boot</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">reps</span>, dispersion.fixed <span class="op">=</span> <span class="fl">1</span>, maxit.optim <span class="op">=</span> <span class="fl">1e+05</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="boot.html">boot</a></span><span class="op">(</span><span class="va">object</span>, <span class="va">reps</span>, dispersion.fixed <span class="op">=</span> <span class="fl">1</span>, maxit.optim <span class="op">=</span> <span class="fl">1e+05</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-reps">reps<a class="anchor" aria-label="anchor" href="#arg-reps"></a></dt>
+<dl><dt id="arg-object">object<a class="anchor" aria-label="anchor" href="#arg-object"></a></dt>
+<dd><p>An object of class <code>mnTS</code>.</p></dd>
+
+
+<dt id="arg-reps">reps<a class="anchor" aria-label="anchor" href="#arg-reps"></a></dt>
 <dd><p>Integer. Number of bootstrap replications.</p></dd>
 
 
@@ -59,10 +63,6 @@
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Additional arguments (not currently used).</p></dd>
-
-
-<dt id="arg-object">object<a class="anchor" aria-label="anchor" href="#arg-object"></a></dt>
-<dd><p>An object of class <code>mnTS</code>.</p></dd>
 
 </dl></div>
 

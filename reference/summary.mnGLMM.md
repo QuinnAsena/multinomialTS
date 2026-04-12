@@ -6,14 +6,18 @@ Prints the summary of a mnGLMM model.
 
 ``` r
 # S3 method for class 'mnGLMM'
-summary(mod, ...)
+summary(object, ...)
 ```
 
 ## Arguments
 
-- mod:
+- object:
 
   An object of class "mnGLMM"
+
+- ...:
+
+  Additional arguments (currently unused).
 
 ## Value
 

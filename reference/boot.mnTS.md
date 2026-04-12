@@ -7,10 +7,14 @@ Provides bootstrapped confidence intervals for an object of class
 
 ``` r
 # S3 method for class 'mnTS'
-boot(mod, reps, dispersion.fixed = 1, maxit.optim = 1e+05, ...)
+boot(object, reps, dispersion.fixed = 1, maxit.optim = 1e+05, ...)
 ```
 
 ## Arguments
+
+- object:
+
+  An object of class `mnTS`.
 
 - reps:
 
@@ -27,7 +31,3 @@ boot(mod, reps, dispersion.fixed = 1, maxit.optim = 1e+05, ...)
 - ...:
 
   Additional arguments (not currently used).
-
-- object:
-
-  An object of class `mnTS`.

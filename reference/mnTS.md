@@ -130,4 +130,60 @@ mnTS(
 
 ## Value
 
-An object of class `"mnTS"` containing estimated parameters.
+An object of class `"mnTS"` with components including:
+
+- B0:
+
+  Estimated intercepts (1 x n matrix).
+
+- C:
+
+  Estimated interaction matrix (n x n).
+
+- B:
+
+  Estimated covariate coefficients (p x n matrix), or `NULL`.
+
+- sigma:
+
+  Estimated process noise scale.
+
+- V:
+
+  Estimated process noise covariance matrix.
+
+- dispersion:
+
+  Estimated observation dispersion parameter.
+
+- logLik:
+
+  Log-likelihood at the maximum.
+
+- AIC:
+
+  Akaike Information Criterion.
+
+- mu:
+
+  Fitted multinomial probabilities (Tmax x n matrix).
+
+- y:
+
+  Fitted latent states on the log-ratio scale (Tmax x n matrix).
+
+- se.y.fitted, se.mu.upper.fitted, se.mu.lower.fitted:
+
+  Kalman-filter standard errors and probability bands.
+
+- par:
+
+  Estimated parameters as a named vector.
+
+- se:
+
+  Approximate standard errors from the observed information matrix.
+
+- inv.information.matrix:
+
+  Inverse of the observed information matrix, or `NA` if not invertible.

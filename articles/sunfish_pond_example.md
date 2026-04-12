@@ -66,11 +66,6 @@ library(furrr)
 library(purrr)
 library(forcats)
 library(ggtext)
-
-# Load up the data
-data(sunfish_pollen_wide, package = "multinomialTS")
-data(sunfish_ll, package = "multinomialTS")
-data(bootstrap_sensitivity, package = "multinomialTS")
 ```
 
 First let’s see what the data look like:
