@@ -491,7 +491,7 @@ without, and then with interactions.
 end_time - start_time
 ```
 
-    Time difference of 4.983616 secs
+    Time difference of 5.422492 secs
 
 The outputs of
 [`mnGLMM()`](https://quinnasena.github.io/multinomialTS/reference/mnGLMM.md)
@@ -624,7 +624,7 @@ end_time <- Sys.time()
 end_time - start_time
 ```
 
-    Time difference of 1.200468 mins
+    Time difference of 1.24724 mins
 
 In this following code we set-up $C$ to define which interactions to
 estimate. Here we set-up a two-way interaction between key species. $C$
@@ -662,7 +662,7 @@ end_time <- Sys.time()
 end_time - start_time
 ```
 
-    Time difference of 2.783045 mins
+    Time difference of 2.905757 mins
 
 ### Interpreting outputs
 
@@ -800,8 +800,8 @@ end_boot <- Sys.time()
 ```
 
 On the system that created this vignette: fitting the initial
-interaction model for Story Lake took 2.78 minutes; 5 replicate
-bootstraps took 4.54 minutes. The timing will depend greatly on the data
+interaction model for Story Lake took 2.91 minutes; 5 replicate
+bootstraps took 5.66 minutes. The timing will depend greatly on the data
 being fit and the system you are running. To speed things up, it can be
 useful to process the bootstraps in parallel, check out the [Sunfish
 Pond

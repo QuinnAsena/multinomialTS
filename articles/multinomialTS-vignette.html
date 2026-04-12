@@ -452,7 +452,7 @@
 <div class="sourceCode cell-code" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">end_time</span> <span class="op">-</span> <span class="va">start_time</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Time difference of 4.983616 secs</code></pre>
+<pre><code>Time difference of 5.422492 secs</code></pre>
 </div>
 </div>
 <p>The outputs of <code><a href="../reference/mnGLMM.html">mnGLMM()</a></code> can be examined with the <code>summary(glmm_mod)</code> function.</p>
@@ -590,7 +590,7 @@ V =
 <span><span class="va">end_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">end_time</span> <span class="op">-</span> <span class="va">start_time</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Time difference of 1.200468 mins</code></pre>
+<pre><code>Time difference of 1.24724 mins</code></pre>
 </div>
 </div>
 <p>In this following code we set-up <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math> to define which interactions to estimate. Here we set-up a two-way interaction between key species. <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math> is not restricted to being symmetrical matix, i.e., you can choose to have a one-way interaction effect.</p>
@@ -621,7 +621,7 @@ V =
 <span><span class="va">end_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span> </span>
 <span><span class="va">end_time</span> <span class="op">-</span> <span class="va">start_time</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Time difference of 2.783045 mins</code></pre>
+<pre><code>Time difference of 2.905757 mins</code></pre>
 </div>
 </div>
 </section><section class="level2"><h3 id="sec-interp">Interpreting outputs<a class="anchor" aria-label="anchor" href="#sec-interp"></a>
@@ -732,7 +732,7 @@ char_acc.Quercus     -0.18645951 0.02086948 -8.934553  4.088285e-19</code></pre>
 <span><span class="va">mnTS_int_boot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/boot.html">boot</a></span><span class="op">(</span><span class="va">mnTS_mod_int</span>, reps <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="va">end_boot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
-<p>On the system that created this vignette: fitting the initial interaction model for Story Lake took 2.78 minutes; 5 replicate bootstraps took 4.54 minutes. The timing will depend greatly on the data being fit and the system you are running. To speed things up, it can be useful to process the bootstraps in parallel, check out the <a href="sunfish_pond_example.html">Sunfish Pond example</a> for some code on running in parallel and recalculating the coefficients and standard errors.</p>
+<p>On the system that created this vignette: fitting the initial interaction model for Story Lake took 2.91 minutes; 5 replicate bootstraps took 5.66 minutes. The timing will depend greatly on the data being fit and the system you are running. To speed things up, it can be useful to process the bootstraps in parallel, check out the <a href="sunfish_pond_example.html">Sunfish Pond example</a> for some code on running in parallel and recalculating the coefficients and standard errors.</p>
 <section class="level3"><h4 id="plotting-bootstrapped-coefficients">Plotting bootstrapped coefficients<a class="anchor" aria-label="anchor" href="#plotting-bootstrapped-coefficients"></a>
 </h4>
 <p>To show how to access and plot the bootstrapped coefficients we will use a pre-run example of 100 bootstraps using the <code>coef.table.boot</code> object. Only 100 bootstraps would usually be too few for best results, but we need a small working example for the purposes of demonstration.</p>
