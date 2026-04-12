@@ -87,7 +87,21 @@ optimizer. See the \code{minqa} package documentation for details.}
 numerical Hessian calculator (e.g., \code{numDeriv::hessian}).}
 }
 \value{
-An object of class \code{"mnTS"} containing estimated parameters.
+An object of class \code{"mnTS"} with components including:
+  \item{B0}{Estimated intercepts (1 x n matrix).}
+  \item{C}{Estimated interaction matrix (n x n).}
+  \item{B}{Estimated covariate coefficients (p x n matrix), or \code{NULL}.}
+  \item{sigma}{Estimated process noise scale.}
+  \item{V}{Estimated process noise covariance matrix.}
+  \item{dispersion}{Estimated observation dispersion parameter.}
+  \item{logLik}{Log-likelihood at the maximum.}
+  \item{AIC}{Akaike Information Criterion.}
+  \item{mu}{Fitted multinomial probabilities (Tmax x n matrix).}
+  \item{y}{Fitted latent states on the log-ratio scale (Tmax x n matrix).}
+  \item{se.y.fitted, se.mu.upper.fitted, se.mu.lower.fitted}{Kalman-filter standard errors and probability bands.}
+  \item{par}{Estimated parameters as a named vector.}
+  \item{se}{Approximate standard errors from the observed information matrix.}
+  \item{inv.information.matrix}{Inverse of the observed information matrix, or \code{NA} if not invertible.}
 }
 \description{
 Fits a multinomial state-space model for multivariate count data,

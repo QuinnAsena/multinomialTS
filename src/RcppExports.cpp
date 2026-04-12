@@ -11,9 +11,9 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// mnTS_ml_cpp
-double mnTS_ml_cpp(arma::vec par, arma::vec par_fixed, arma::mat Y, arma::mat X, arma::vec Tsample);
-RcppExport SEXP _multinomialTS_mnTS_ml_cpp(SEXP parSEXP, SEXP par_fixedSEXP, SEXP YSEXP, SEXP XSEXP, SEXP TsampleSEXP) {
+// mnGLMM_ml_cpp_list
+Rcpp::List mnGLMM_ml_cpp_list(arma::vec par, arma::vec par_fixed, arma::mat Y, arma::mat X);
+RcppExport SEXP _multinomialTS_mnGLMM_ml_cpp_list(SEXP parSEXP, SEXP par_fixedSEXP, SEXP YSEXP, SEXP XSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -21,8 +21,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::vec >::type par_fixed(par_fixedSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type Y(YSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type Tsample(TsampleSEXP);
-    rcpp_result_gen = Rcpp::wrap(mnTS_ml_cpp(par, par_fixed, Y, X, Tsample));
+    rcpp_result_gen = Rcpp::wrap(mnGLMM_ml_cpp_list(par, par_fixed, Y, X));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -43,7 +42,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_multinomialTS_mnTS_ml_cpp", (DL_FUNC) &_multinomialTS_mnTS_ml_cpp, 5},
+    {"_multinomialTS_mnGLMM_ml_cpp_list", (DL_FUNC) &_multinomialTS_mnGLMM_ml_cpp_list, 4},
     {"_multinomialTS_mnTS_ml_cpp_list", (DL_FUNC) &_multinomialTS_mnTS_ml_cpp_list, 5},
     {NULL, NULL, 0}
 };

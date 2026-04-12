@@ -4,10 +4,12 @@
 \alias{summary.mnGLMM}
 \title{GLMM summary}
 \usage{
-\method{summary}{mnGLMM}(mod, ...)
+\method{summary}{mnGLMM}(object, ...)
 }
 \arguments{
-\item{mod}{An object of class "mnGLMM"}
+\item{object}{An object of class "mnGLMM"}
+
+\item{...}{Additional arguments (currently unused).}
 }
 \value{
 Prints coefficient estimates from a fitted mnGLMM

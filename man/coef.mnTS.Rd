@@ -4,10 +4,10 @@
 \alias{coef.mnTS}
 \title{Coefficients for Multinomial State-Space Model}
 \usage{
-\method{coef}{mnTS}(mod, ...)
+\method{coef}{mnTS}(object, ...)
 }
 \arguments{
-\item{mod}{An object of class \code{"mnTS"}, as returned by the
+\item{object}{An object of class \code{"mnTS"}, as returned by the
 \code{\link{mnTS}} function.}
 
 \item{...}{Additional arguments (currently unused).}

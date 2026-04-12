@@ -4,10 +4,10 @@
 \alias{summary.mnTS}
 \title{Summary Method for Multinomial State-Space Models}
 \usage{
-\method{summary}{mnTS}(mod, ...)
+\method{summary}{mnTS}(object, ...)
 }
 \arguments{
-\item{mod}{An object of class \code{"mnTS"}, typically returned by the
+\item{object}{An object of class \code{"mnTS"}, typically returned by the
 \code{\link{mnTS}} function.}
 
 \item{...}{Additional arguments (currently unused).}

@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Rscript -e \"devtools::compile_dll\\(\\)\")",
+      "Bash(Rscript -e \"devtools::load_all\\(recompile = TRUE\\)\")",
+      "Bash(Rscript -e ':*)",
+      "Bash(Rscript --vanilla -e \"load\\('data/story_pollen_wide.rda'\\); cat\\('dims:', dim\\(story_pollen_wide\\), '\\\\n'\\); cat\\('head colnames:', head\\(colnames\\(story_pollen_wide\\)\\), '\\\\n'\\)\")",
+      "Bash(Rscript --vanilla -e ':*)",
+      "Bash(Rscript --vanilla -e \"load\\('data/story_pollen_wide.rda'\\); print\\(colnames\\(story_pollen_wide\\)\\)\")",
+      "Bash(Rscript test_scripts/test_cpp_equivalency.R)",
+      "Bash(Rscript test_scripts/test_glmm_cpp_equivalency.R)",
+      "Bash(Rscript -e \"devtools::load_all\\(quiet=TRUE\\); cat\\('load_all: OK\\\\n'\\)\")",
+      "Bash(Rscript -e \"devtools::check\\(document = FALSE, cran = FALSE\\)\")",
+      "Bash(Rscript --vanilla -e \"e <- new.env\\(\\); load\\('data/sunfish_pollen_wide.rda', envir=e\\); cat\\('Objects in rda:', ls\\(e\\), '\\\\n'\\)\")"
+    ]
+  }
+}

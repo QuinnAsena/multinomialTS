@@ -3,11 +3,10 @@
 #'
 #' This is an internal function called by mnGLMM.
 #'
-#'
 #' @import minqa
 #' @import numDeriv
 #' @import stats
-#'
+#' @noRd
 
 mnGLMM.ml <- function(par, par.fixed, Y, X, fitted.values = FALSE, REML = FALSE) {
 	parameters <- par.fixed
@@ -122,7 +121,17 @@ if (!fitted.values) {
 #' @param compute.information.matrix Logical. If \code{TRUE},
 #'     computes the observed information matrix.
 #'
-#' @return An object of class \code{"mnGLMM"}.
+#' @return An object of class \code{"mnGLMM"} with components including:
+#'   \item{B}{Estimated covariate coefficients (p x n matrix).}
+#'   \item{sigma}{Estimated process noise scale.}
+#'   \item{V}{Estimated species covariance matrix.}
+#'   \item{dispersion}{Estimated observation dispersion parameter.}
+#'   \item{mu}{Fitted multinomial probabilities (Tmax x n matrix).}
+#'   \item{logLik}{Log-likelihood at the maximum.}
+#'   \item{AIC}{Akaike Information Criterion.}
+#'   \item{par}{Estimated parameters as a named vector.}
+#'   \item{se}{Approximate standard errors from the observed information matrix.}
+#'   \item{inv.information.matrix}{Inverse of the observed information matrix, or \code{NA} if not invertible.}
 #'
 #' @import minqa
 #' @export
@@ -134,12 +143,6 @@ else matrix(c(rep(0, (ncol(X) + 1) * ncol(Y)), rep(NA, (ncol(Y) - 1) * (ncol(X) 
 	matrix(0, nrow = 1, ncol = ncol(Y))
 else matrix(0, nrow = ncol(X) + 1, ncol = ncol(Y)), sigma.fixed = NA, sigma.start = 0.1, dispersion.fixed = 1, dispersion.start = 1,
 	V.fixed = diag(ncol(Y)), V.start = diag(ncol(Y)), method = "bobyqa", optim.control = NULL, maxit.optim = 1e+05, REML = FALSE, compute.information.matrix = TRUE) {
-
-	# catch cases caused when X is defined outside the function call
-	# if(is.null(X)) {
-# B.fixed <- matrix(c(0, rep(NA, ncol(Y) - 1)), nrow = 1, ncol = ncol(Y))
-# B.start <- matrix(0, nrow = 1, ncol = ncol(Y))
-# }
 
 	# check and name Y
 	if (!is.matrix(Y)) {
@@ -153,23 +156,9 @@ else matrix(0, nrow = ncol(X) + 1, ncol = ncol(Y)), sigma.fixed = NA, sigma.star
 		colnames(Y) <- rep(NA, ncol(Y))
 		for (i.col in 1:ncol(Y)) colnames(Y)[i.col] <- paste0("y", i.col)
 	}
-	# if (any(diag(var(Y, na.rm = TRUE)) == 0)) {
-	# stop("The response Y (dependent variable) has no variation.")
-# }
-n <- ncol(Y)
+	n <- ncol(Y)
 	nn <- n - 1
 	Tmax <- nrow(X)
-
-	# # V
-	# if(sum(diag(V)) != n) stop("Diagonal elements of V must be one.")
-#
-# # expand sigma
-# if(length(sigma.fixed) == 1){
-#   sigma.fixed <- rep(sigma.fixed, n)
-# }
-# if(length(sigma.start) == 1){
-#   sigma.start <- rep(sigma.start, n)
-# }
 
 	# check and name X
 	if (is.null(X)) {
@@ -262,31 +251,29 @@ n <- ncol(Y)
 	}
 
 	if (method == "Nelder-Mead") {
-		opt <- optim(fn = mnGLMM.ml, par = par.start, method = "Nelder-Mead", control = optim.control, par.fixed = par.fixed, Y = Y,
-			X = X, fitted.values = FALSE, REML = FALSE)
+		opt <- optim(fn = mnGLMM.ml.wrapper, par = par.start, method = "Nelder-Mead", control = optim.control, par.fixed = par.fixed, Y = Y,
+			X = X)
 		if (opt$convergence != 0)
 			cat("\nNelder-Mead optimization failed to converge; check $opt.convergence\n")
 		opt.convergence <- opt$convergence
 	}
 
 	if (method == "BFGS") {
-		opt <- optim(fn = mnGLMM.ml, par = par.start, method = "BFGS", control = optim.control, par.fixed = par.fixed, Y = Y, X = X,
-			fitted.values = FALSE, REML = FALSE)
+		opt <- optim(fn = mnGLMM.ml.wrapper, par = par.start, method = "BFGS", control = optim.control, par.fixed = par.fixed, Y = Y, X = X)
 		if (opt$convergence != 0)
 			cat("\nBFGS optimization failed to converge; check $opt.convergence\n")
 		opt.convergence <- opt$convergence
 	}
 
 	if (method == "bobyqa") {
-		opt <- bobyqa(fn = mnGLMM.ml, par = par.start, control = optim.control, par.fixed = par.fixed, Y = Y, X = X, fitted.values = FALSE,
-			REML = FALSE)
+		opt <- bobyqa(fn = mnGLMM.ml.wrapper, par = par.start, control = optim.control, par.fixed = par.fixed, Y = Y, X = X)
 		if (opt$ierr != 0)
 			cat("\nbobyqa optimization failed to converge; check $opt.convergence\n")
 		opt.convergence <- opt$ierr
 		opt$value <- opt$fval
 	}
 
-	fitted <- mnGLMM.ml(opt$par, par.fixed = par.fixed, Y = Y, X = X, fitted.values = TRUE, REML = FALSE)
+	fitted <- mnGLMM_ml_cpp_listout(opt$par, par.fixed, Y, X)
 
 	names(fitted$par) <- names(par.fixed)[is.na(par.fixed)]
 
@@ -303,22 +290,9 @@ n <- ncol(Y)
 			inv.information.matrix <- solve(H)
 		}
 
-		# attenpt to use a robust SE estimate
-		# gradL <- NULL
-		# for(i in 1:length(fitted$par)) {
-		# grad.par <- fitted$par
-		# grad.par[i] <- 0
-		# gradL <- c(gradL, (fitted$LL + mnGLMM.ml(grad.par, par.fixed = par.fixed, Y = Y, X = X))/fitted$par[i])
-		# }
-		# gradL <- matrix(gradL, nrow = 1)
-		# robust.cov <- inv.information.matrix %*% (t(gradL) %*% gradL) %*% inv.information.matrix
 		} else {
 		information.matrix <- NULL
 		}
-	# logLik <- logLik.glm +
-	# as.numeric(-LL + pglmm.LL(0 * ss, H = H, X = X, Zt = Zt, St = St, mu = mu,
-	# nested = nested, REML = REML, family = family,
-	# size = size, verbose = verbose))
 
 	fitted$par["dispersion"] <- exp(fitted$par["dispersion"])
 
@@ -337,13 +311,15 @@ n <- ncol(Y)
 #'
 #' Prints the summary of a mnGLMM model.
 #'
-#' @param mod An object of class "mnGLMM"
+#' @param object An object of class "mnGLMM"
+#' @param ... Additional arguments (currently unused).
 #'
 #' @return Prints coefficient estimates from a fitted mnGLMM
 #'
 #' @export
 
-summary.mnGLMM <- function(mod, ...) {
+summary.mnGLMM <- function(object, ...) {
+  mod <- object
 
 	cat("\nCall: mnGLMM with Tmax = ", nrow(mod$Y), " n = ", ncol(mod$Y), "\n")
 
@@ -356,7 +332,7 @@ summary.mnGLMM <- function(mod, ...) {
 	if (!is.null(mod$inv.information.matrix)) {
 		cat("\n\nFitted Coefficients with approximate se\n")
 		if (!all(is.na(mod$inv.information.matrix))) {
-			v.pars <- names(mod$par)[grep(names(mod$par), pattern = "v.")]
+			v.pars <- names(mod$par)[grep(names(mod$par), pattern = "^v\\.")]
 			par.names.without.se <- c("dispersion","sigma", v.pars)
 			par.with.se <- mod$par[!is.element(names(mod$par), par.names.without.se)]
 			se <- mod$se[!is.element(names(mod$par), par.names.without.se)]

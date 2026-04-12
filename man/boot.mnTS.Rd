@@ -4,9 +4,11 @@
 \alias{boot.mnTS}
 \title{Bootstrap method for mnTS objects}
 \usage{
-\method{boot}{mnTS}(mod, reps, dispersion.fixed = 1, maxit.optim = 1e+05, ...)
+\method{boot}{mnTS}(object, reps, dispersion.fixed = 1, maxit.optim = 1e+05, ...)
 }
 \arguments{
+\item{object}{An object of class \code{mnTS}.}
+
 \item{reps}{Integer. Number of bootstrap replications.}
 
 \item{dispersion.fixed}{Numeric. Dispersion parameter (default is 1).}
@@ -14,8 +16,6 @@
 \item{maxit.optim}{Integer. Max iterations for optimization (default 100000).}
 
 \item{...}{Additional arguments (not currently used).}
-
-\item{object}{An object of class \code{mnTS}.}
 }
 \description{
 Provides bootstrapped confidence intervals for an object of class \code{mnTS}.

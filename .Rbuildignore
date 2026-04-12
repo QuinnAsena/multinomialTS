@@ -6,3 +6,7 @@
 ^\.github$
 ^doc$
 ^Meta$
+^test_scripts$
+^\.claude$
+^\.vscode$
+^vignettes/\.quarto$

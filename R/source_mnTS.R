@@ -2,7 +2,7 @@
 #' Multinomial state-space Maximum likelihood
 #'
 #' This is an internal function called by mnTS
-#'
+#' @noRd
 
 mnTS.ml <- function(par, par.fixed, Y, X = NULL, Tsample, fitted.values = FALSE) {
 
@@ -195,7 +195,21 @@ mnTS.ml <- function(par, par.fixed, Y, X = NULL, Tsample, fitted.values = FALSE)
 #' @param hessian.method.args A list of control parameters passed to the
 #'     numerical Hessian calculator (e.g., \code{numDeriv::hessian}).
 #'
-#' @return An object of class \code{"mnTS"} containing estimated parameters.
+#' @return An object of class \code{"mnTS"} with components including:
+#'   \item{B0}{Estimated intercepts (1 x n matrix).}
+#'   \item{C}{Estimated interaction matrix (n x n).}
+#'   \item{B}{Estimated covariate coefficients (p x n matrix), or \code{NULL}.}
+#'   \item{sigma}{Estimated process noise scale.}
+#'   \item{V}{Estimated process noise covariance matrix.}
+#'   \item{dispersion}{Estimated observation dispersion parameter.}
+#'   \item{logLik}{Log-likelihood at the maximum.}
+#'   \item{AIC}{Akaike Information Criterion.}
+#'   \item{mu}{Fitted multinomial probabilities (Tmax x n matrix).}
+#'   \item{y}{Fitted latent states on the log-ratio scale (Tmax x n matrix).}
+#'   \item{se.y.fitted, se.mu.upper.fitted, se.mu.lower.fitted}{Kalman-filter standard errors and probability bands.}
+#'   \item{par}{Estimated parameters as a named vector.}
+#'   \item{se}{Approximate standard errors from the observed information matrix.}
+#'   \item{inv.information.matrix}{Inverse of the observed information matrix, or \code{NA} if not invertible.}
 #'
 #' @import numDeriv
 #' @import minqa
@@ -401,39 +415,9 @@ mnTS <- function(Y, X = NULL, Tsample = 1:nrow(Y),
 		rownames(inv.information.matrix) <- names(par.with.se)
 		colnames(inv.information.matrix) <- names(par.with.se)
 
-		# # compute information matrix excluding V, sigma and dispersion
-		# par.with.se.cond <- fitted_par
-		# par.fixed.for.se.cond <- par.fixed
-		# if (!is.na(fitted_par["dispersion"])) {
-		# 	#pick.pars.with.se.cond <- !is.element(names(fitted_par), c("sigma", L.names, "dispersion"))
-		# 	pick.pars.with.se.cond <- !is.element(names(fitted_par), c(L.names, "dispersion"))
-		# } else {
-		#   #pick.pars.with.se.cond <- !is.element(names(fitted_par), c("sigma", L.names))
-		#   pick.pars.with.se.cond <- !is.element(names(fitted_par), c(L.names))
-		# }
-		# par.with.se.cond <- fitted_par[pick.pars.with.se.cond]
-		# par.fixed.for.se.cond <- par.fixed
-		# par.fixed.for.se.cond[names(fitted_par[!pick.pars.with.se.cond])] <- fitted_par[!pick.pars.with.se.cond]
-		# #	par.fixed.for.se["dispersion"] <- fitted_par["dispersion"]
-
-		# H.cond <- hessian(func = mnTS.ml.wrapper, x = par.with.se.cond, par.fixed = par.fixed.for.se.cond, Y = Y, X = X, Tsample = Tsample,
-		#                   method.args = hessian.method.args)
-
-		# if (any(is.nan(H.cond)) || rcond(H.cond) < 1e-12) {
-		#   inv.information.matrix.cond <- matrix(NA, nrow(H.cond), ncol(H.cond))
-		# } else {
-		#   inv.information.matrix.cond <- solve(H.cond)
-		# }
-		# se.cond <- diag(inv.information.matrix.cond)^0.5
-		# names(se.cond) <- names(par.with.se.cond)
-		# rownames(inv.information.matrix.cond) <- names(par.with.se.cond)
-		# colnames(inv.information.matrix.cond) <- names(par.with.se.cond)
-
 		} else {
 		  information.matrix <- NULL
-		#   information.matrix.cond <- NULL
 		  inv.information.matrix <- NULL
-		#   inv.information.matrix.cond <- NULL
 		}
 
 	fitted_par["dispersion"] <- exp(fitted_par["dispersion"])
@@ -453,10 +437,6 @@ mnTS <- function(Y, X = NULL, Tsample = 1:nrow(Y),
 		y = fitted$y, mu = fitted$mu, par = fitted_par, par.fixed = par.fixed,
 		opt.convergence = opt.convergence, se.y.fitted = fitted$se.y.fitted,
 		se.mu.upper.fitted = fitted$se.mu.upper.fitted, se.mu.lower.fitted = fitted$se.mu.lower.fitted
-		
-		# par.with.se.cond = par.with.se.cond, se.cond = se.cond,
-		# inv.information.matrix.cond = inv.information.matrix.cond,
-		# information.matrix.cond = H.cond
 		)
 	class(results) <- "mnTS"
 	return(results)
@@ -467,7 +447,7 @@ mnTS <- function(Y, X = NULL, Tsample = 1:nrow(Y),
 #'
 #' Provides a summary of the fitted multinomial state-space model.
 #'
-#' @param mod An object of class \code{"mnTS"}, typically returned by the
+#' @param object An object of class \code{"mnTS"}, typically returned by the
 #'     \code{\link{mnTS}} function.
 #' @param ... Additional arguments (currently unused).
 #'
@@ -476,7 +456,8 @@ mnTS <- function(Y, X = NULL, Tsample = 1:nrow(Y),
 #'
 #' @export
 
-summary.mnTS <- function(mod, ...) {
+summary.mnTS <- function(object, ...) {
+  mod <- object
 
 	cat("\nCall: mnTS with Tmax = ", nrow(mod$Y), " n = ", ncol(mod$Y), "\n")
 
@@ -487,7 +468,7 @@ summary.mnTS <- function(mod, ...) {
 	if (!is.null(mod$inv.information.matrix)) {
 	  if (!all(is.na(mod$inv.information.matrix))) {
 	    cat("\n\nFitted Coefficients with approximate se\n")
-	    v.pars <- names(mod$par)[grep(names(mod$par), pattern = "v.")]
+	    v.pars <- names(mod$par)[grep(names(mod$par), pattern = "^v\\.")]
 	    par.names.noshow.se <- c("dispersion","sigma", v.pars)
 	    par.show.se <- mod$par[!is.element(names(mod$par), par.names.noshow.se)]
 	    se.show.se <- mod$se[!is.element(names(mod$se), par.names.noshow.se)]
@@ -544,7 +525,7 @@ print.mnTS <- summary.mnTS
 #' Extracts estimated coefficients from a fitted multinomial state-space model.
 
 #'
-#' @param mod An object of class \code{"mnTS"}, as returned by the
+#' @param object An object of class \code{"mnTS"}, as returned by the
 #'     \code{\link{mnTS}} function.
 #' @param ... Additional arguments (currently unused).
 #'
@@ -552,11 +533,12 @@ print.mnTS <- summary.mnTS
 #'
 #' @export
 
-coef.mnTS <- function(mod, ...) {
+coef.mnTS <- function(object, ...) {
+  mod <- object
 
   if (!is.null(mod$inv.information.matrix)) {
     if (!all(is.na(mod$inv.information.matrix))) {
-       v.pars <- names(mod$par)[grep(names(mod$par), pattern = "v.")]
+       v.pars <- names(mod$par)[grep(names(mod$par), pattern = "^v\\.")]
       par.names.noshow.se <- c("dispersion","sigma", v.pars)
       par.show.se <- mod$par[!is.element(names(mod$par), par.names.noshow.se)]
       se.show.se <- mod$se[!is.element(names(mod$se), par.names.noshow.se)]
@@ -577,7 +559,7 @@ coef.mnTS <- function(mod, ...) {
 #'
 #' Generates simulated datasets from a fitted mnTS object.
 #'
-#' @param mod An object of class \code{"mnTS"}, as returned by the
+#' @param object An object of class \code{"mnTS"}, as returned by the
 #'     \code{\link{mnTS}} function.
 #' @param ... Additional arguments passed to the simulation routine.
 #'
@@ -588,7 +570,8 @@ coef.mnTS <- function(mod, ...) {
 #' @export
 
 
-simulate.mnTS <- function(mod, ...) {
+simulate.mnTS <- function(object, ...) {
+  mod <- object
 
   Y <- t(mod$Y)
   n <- nrow(Y)
@@ -684,7 +667,8 @@ boot <- function(object, ...) {
 #' @export
 #' @method boot mnTS
 
-boot.mnTS <- function(mod, reps, dispersion.fixed = 1, maxit.optim = 1e+05, ...) {
+boot.mnTS <- function(object, reps, dispersion.fixed = 1, maxit.optim = 1e+05, ...) {
+  mod <- object
 
   mods <- replicate(simulate(mod), n = reps)
   fit_mods <- vector(mode = "list", length = ncol(mods))
@@ -731,7 +715,7 @@ boot.mnTS <- function(mod, reps, dispersion.fixed = 1, maxit.optim = 1e+05, ...)
   # Filter out any models that had an error
   fit_mods <- fit_mods[lapply(fit_mods, class) == "mnTS"]
 
-  v.pars <- names(mod$par)[grep(names(mod$par), pattern = "v.")]
+  v.pars <- names(mod$par)[grep(names(mod$par), pattern = "^v\\.")]
   par.names.noshow.se <- c("dispersion","sigma", v.pars)
 
   pars <- lapply(seq_along(fit_mods), \(rep) {
