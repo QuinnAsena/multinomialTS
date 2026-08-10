@@ -64,11 +64,10 @@ First let's see what the data look like:
 #| message: false
 #| warning: false
 #| code-fold: true
-#| fig-cap: "Pollen counts five key species in the Sunfish Pond record alongside the lake levek reconstruction. All other species are grouped in the 'other' species group"
+#| fig-cap: "Pollen counts of five key species in the Sunfish Pond record alongside the lake level reconstruction. All other species are grouped in the 'other' species group"
 
 
 sunfish_pollen_long <- sunfish_pollen_wide |>
-  rename(P.strobus = "P.strobu") |>
   pivot_longer(-age) |>
   mutate(name = factor(name, levels = c(
     "other", "P.strobus", "Tsuga", "Fagus", "Quercus", "Betula"))) |>
@@ -142,14 +141,14 @@ bin_sensitivity_data <- lapply(bin_width, \(bw) {
       sunfish_pollen_wide$age,
       breaks = seq(
         from = min(sunfish_pollen_wide$age),
-        to = max(sunfish_pollen_wide$age + bw),
+        to = max(sunfish_pollen_wide$age) + bw,
         by = bw
-      ), include.lowest = T, labels = F)
+      ), include.lowest = TRUE, labels = FALSE)
 
   # Sum pollen counts within each bin; take mean age as the bin's representative age
   sunfish_spp_binned <- bind_cols(bins = sunfish_bins, sunfish_pollen_wide) |>
     group_by(bins) |>
-    summarise(across(c("other", "P.strobu", "Tsuga", "Fagus", "Quercus", "Betula"), \(x) sum(x ,na.rm = TRUE)),
+    summarise(across(c("other", "P.strobus", "Tsuga", "Fagus", "Quercus", "Betula"), \(x) sum(x ,na.rm = TRUE)),
               age = mean(age, na.rm = TRUE)) |>
     arrange(desc(age))
 
@@ -159,9 +158,9 @@ bin_sensitivity_data <- lapply(bin_width, \(bw) {
       sunfish_ll$age,
       breaks = seq(
         from = min(sunfish_pollen_wide$age),
-        to = max(sunfish_pollen_wide$age + bw),
+        to = max(sunfish_pollen_wide$age) + bw,
         by = bw
-      ), include.lowest = T, labels = F)
+      ), include.lowest = TRUE, labels = FALSE)
 
   # Average lake level within each bin; drop bins outside the pollen age range
   ll_mean <- cbind(bins = ll_bins, sunfish_ll) |>
@@ -173,7 +172,7 @@ bin_sensitivity_data <- lapply(bin_width, \(bw) {
 
   # Join pollen and lake level by shared bin index
   sunfish_all <- sunfish_spp_binned |>
-    full_join(ll_mean) |>
+    full_join(ll_mean, by = "bins") |>
     arrange(desc(bins))
 
   # Diagnostic: identify which bins lack a lake-level observation
@@ -184,7 +183,7 @@ bin_sensitivity_data <- lapply(bin_width, \(bw) {
     mutate(across(c(mean_ll), forecast::na.interp))
 
   Y <- sunfish_all_interp |>
-    select(other, P.strobu, Tsuga, Fagus, Quercus, Betula) |>
+    select(other, P.strobus, Tsuga, Fagus, Quercus, Betula) |>
     as.matrix()
 
   # set up X
@@ -248,13 +247,13 @@ bin_sensitivity_res <- future_lapply(bin_sensitivity_data, \(x) {
 
   # Fit the GLMM to get starting values for the full mnTS model
   glmm_mod <- multinomialTS::mnGLMM(Y = Y[which(rowSums(Y) != 0),],
-                                    X = X[which(rowSums(Y) != 0), ,drop = F],
+                                    X = X[which(rowSums(Y) != 0), , drop = FALSE],
                                     B.start = B.start, B.fixed = B.fixed,
                                     V.fixed = V.fixed)
 
   # Use GLMM estimates as starting values for mnTS
-  B0.start <- glmm_mod$B[1, , drop = F]
-  B.start <- glmm_mod$B[2:p, , drop = F]
+  B0.start <- glmm_mod$B[1, , drop = FALSE]
+  B.start <- glmm_mod$B[2:p, , drop = FALSE]
 
   sigma.start <- glmm_mod$sigma
 
@@ -305,7 +304,7 @@ It's always good idea to save the model outputs as they can take a while to run.
 
 plan(multisession, workers = length(bin_sensitivity_res))
 bootstrap_sensitivity <- furrr::future_map(
-  bin_sensitivity_res, multinomialTS::boot, rep = 20,
+  bin_sensitivity_res, multinomialTS::boot, reps = 20,
   .options = furrr_options(seed = 1984))
 
 # saveRDS(bootstrap_sensitivity, "...")
@@ -344,24 +343,11 @@ mods_boot_68 <- mods_boot |>
             upper_68 = quantile(value, probs = 0.84),
             lower_68 = quantile(value, probs = 0.16)) |>
   mutate(t_scores = boot_mean / boot_sd,
-         p_vals = 2 * pnorm(q = abs(t_scores), lower.tail = F),
+         p_vals = 2 * pnorm(q = abs(t_scores), lower.tail = FALSE),
          sig = p_vals < 0.05)
 
-# Map internal y1–y6 column names back to taxon names.
+# Map internal y1-y6 column names back to taxon names.
 # Order must match the column order in the original Y matrix.
-mods_boot_table <- mods_boot_68 |>
-  mutate(name = str_replace_all(name,
-                                pattern = "y1|y2|y3|y4|y5|y6",
-                                replacement = function(x) case_when(
-                                  x == "y1" ~ "Other",
-                                  x == "y2" ~ "P.strobus",
-                                  x == "y3" ~ "Tsuga",
-                                  x == "y4" ~ "Fagus",
-                                  x == "y5" ~ "Quercus",
-                                  x == "y6" ~ "Betula",
-                                  TRUE ~ x))) |>
-  filter(!str_detect(name, "v."))
-
 mods_boot_68_B <- mods_boot_68 |>
   filter(grepl(paste(names(X_names_list), collapse = "|"), name)) |>
   separate_wider_delim(cols = name, delim = ".", names = c("cov", "name")) |>
@@ -382,7 +368,7 @@ names(bin_labs) <- levels(mods_boot_68_B$mod)
 
 ```
 
-Now that we have everthing wrangled and re-named, let's make some visualisations to compare the different binning resolutions.
+Now that we have everything wrangled and re-named, let's make some visualisations to compare the different binning resolutions.
 
 ```{r}
 #| label: BootPlot

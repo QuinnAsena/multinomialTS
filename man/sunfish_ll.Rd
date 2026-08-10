@@ -5,13 +5,19 @@
 \alias{sunfish_ll}
 \title{Sunfish Pond level}
 \format{
-A tibble 299 x 2 tibble.
+A tibble with `299` rows and `4` columns: `age`, `lake_lvl`
+   (cm relative to modern), and the reconstruction bounds `UpperBound`
+   and `LowerBound`.
+}
+\source{
+Johnson et al., in review. See the Sunfish Pond vignette.
 }
 \usage{
 sunfish_ll
 }
 \description{
-A ~14,950 yr lake level record from Sunfish Pond
+A ~14,950 yr lake level record from Sunfish Pond, used as a proxy for
+hydroclimatic variability and plant water availability.
 }
 \examples{
 data(sunfish_ll)

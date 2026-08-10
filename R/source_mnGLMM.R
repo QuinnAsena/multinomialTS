@@ -1,91 +1,10 @@
-# Multinomial GLMM ML -----------------------------------------------------
-#' Multinomial GLMM Maximum likelihood
-#'
-#' This is an internal function called by mnGLMM.
-#'
-#' @import minqa
-#' @import numDeriv
-#' @import stats
-#' @noRd
-
-mnGLMM.ml <- function(par, par.fixed, Y, X, fitted.values = FALSE, REML = FALSE) {
-	parameters <- par.fixed
-	parameters[is.na(par.fixed)] <- par
-
-	n <- ncol(Y)
-	nn <- n - 1
-	p <- ncol(X)
-	Tmax <- nrow(Y)
-	size <- rowSums(Y)
-
-	B <- matrix(parameters[1:(n * p)], p, n, byrow = F)
-	L <- matrix(parameters[(n * p + 1):(n * p + n * n)], n, n)
-	sigma <- parameters[n * p + n * n + 1]
-
-	S <- t(L) %*% L
-	#Ssd <- diag(diag(S)^-.5)
-	#P <- sigma^2 * Ssd %*% S %*% Ssd
-	Ssd <- S[1, 1]
-	P <- sigma^2 * S/Ssd
-
-	dispersion <- exp(parameters[n * p + n * n + 1 + 1])
-
-	y <- X %*% B
-	mu <- exp(y)/((exp(y) %*% matrix(1, n, 1)) %*% matrix(1, 1, n))
-
-	SS <- 0
-	for (i in 1:nrow(mu)) {
-
-		W <- diag((mu[i, ] * (1 - mu[i, ]))^-1) %*% (diag(mu[i, ]) - matrix(mu[i, ], n, 1) %*% matrix(mu[i, ], 1, n)) %*% diag((mu[i,
-			] * (1 - mu[i, ]))^-1)
-		M <- diag(1 + mu[i, ]) - (matrix(1, n, 1) %*% matrix(mu[i, ], 1, n))
-		S <- dispersion * (W/size[i]) + M %*% P %*% t(M)
-		D <- diag(mu[i, ] * (1 - mu[i, ]))
-		S <- D %*% S %*% D
-
-		v <- (Y[i, -1]/size[i] - mu[i, -1])
-
-		if (nn > 1) {
-			invS <- solve(S[-1, -1])
-			if (REML) {
-				SS <- SS + t(v) %*% invS %*% v + as.numeric(determinant(S[-1, -1])$modulus) + as.numeric(determinant(t(matrix(1, nn, p) %*%
-					X[i, -1]) %*% invS %*% (matrix(1, nn, p) %*% X[i, -1]))$modulus)
-			} else {
-				SS <- SS + t(v) %*% invS %*% v + as.numeric(determinant(S[-1, -1])$modulus)
-			}
-		} else {
-			if (REML) {
-				SS <- SS + v^2/S[-1, -1] + log(S[-1, -1]) + X[i, -1]^2/S[-1, -1]
-			} else {
-				SS <- SS + v^2/S[-1, -1] + log(S[-1, -1])
-			}
-		}
-	}
-if (!fitted.values) {
-		return(SS/2)
-	} else {
-		colnames(B) <- colnames(Y)
-		rownames(B) <- colnames(X)
-
-		V <- (t(L) %*% L)
-		colnames(V) <- colnames(Y)
-		rownames(V) <- colnames(Y)
-
-		par <- parameters[is.na(par.fixed)]
-		logLik <- -((n - 1) * Tmax/2) * log(2 * pi) - SS/2
-
-		return(list(B = B, sigma = abs(sigma), V = V, dispersion = dispersion, logLik = logLik, par = par, mu = mu))
-	}
-}
-
-
 # Multinomial GLMM --------------------------------------------------------
 #' Multinomial Generalized Linear Mixed Model (mnGLMM)
 #'
 #' Fits a multivariate generalized linear regression model for multinomially
 #' distributed response data. This function estimates driver-species
 #' relationships (B coefficients), observation-level dispersion,
-#' and species covariance structures via maximum likelihood or REML.
+#' and species covariance structures via maximum likelihood.
 #'
 #' @param Y A matrix of multinomially distributed count data
 #'     (e.g., community count data).
@@ -115,11 +34,11 @@ if (!fitted.values) {
 #' @param optim.control Optional list of control parameters passed to the
 #'     optimizer. See the \code{minqa} package documentation for details.
 #' @param maxit.optim Maximum number of iterations for the optimizer
-#'     (default is 1e+05). Increase if of optimizer needs more itterations.
-#' @param REML Logical. If \code{TRUE}, uses restricted maximum likelihood
-#'     for variance estimation.
+#'     (default is 1e+05). Increase if the optimizer needs more iterations.
 #' @param compute.information.matrix Logical. If \code{TRUE},
 #'     computes the observed information matrix.
+#' @param hessian.method.args A list of control parameters passed to the
+#'     numerical Hessian calculator (e.g., \code{numDeriv::hessian}).
 #'
 #' @return An object of class \code{"mnGLMM"} with components including:
 #'   \item{B}{Estimated covariate coefficients (p x n matrix).}
@@ -133,22 +52,43 @@ if (!fitted.values) {
 #'   \item{se}{Approximate standard errors from the observed information matrix.}
 #'   \item{inv.information.matrix}{Inverse of the observed information matrix, or \code{NA} if not invertible.}
 #'
+#' @seealso [mnTS()], which uses the estimates from \code{mnGLMM} as starting
+#'     values.
+#'
+#' @examples
+#' data(story_pollen_matrix)
+#' data(story_char_matrix)
+#'
+#' # mnGLMM cannot handle gaps, so use only the rows with pollen counts.
+#' sample_idx <- which(rowSums(story_pollen_matrix) != 0)
+#' Y <- story_pollen_matrix[sample_idx, ]
+#' X <- scale(story_char_matrix)[sample_idx, , drop = FALSE]
+#'
+#' n <- ncol(Y)          # number of taxa
+#' p <- ncol(X) + 1      # covariates + intercept
+#'
+#' # Fix the reference taxon (column 1) to 0; estimate the rest (NA = estimate).
+#' B.fixed <- matrix(c(rep(0, p), rep(NA, (n - 1) * p)), p, n)
+#' B.start <- matrix(c(rep(0, p), rep(0.01, (n - 1) * p)), p, n)
+#'
+#' glmm_mod <- mnGLMM(Y = Y, X = X, B.start = B.start, B.fixed = B.fixed,
+#'                    V.fixed = diag(n))
+#' summary(glmm_mod)
+#'
 #' @import minqa
 #' @export
 
 
-mnGLMM <- function(Y, X = NULL, B.fixed = if (is.null(X))
-	matrix(c(0, rep(NA, ncol(Y) - 1)), nrow = 1, ncol = ncol(Y))
-else matrix(c(rep(0, (ncol(X) + 1) * ncol(Y)), rep(NA, (ncol(Y) - 1) * (ncol(X) + 1))), nrow = ncol(X) + 1, ncol = ncol(Y)), B.start = if (is.null(X))
-	matrix(0, nrow = 1, ncol = ncol(Y))
-else matrix(0, nrow = ncol(X) + 1, ncol = ncol(Y)), sigma.fixed = NA, sigma.start = 0.1, dispersion.fixed = 1, dispersion.start = 1,
-	V.fixed = diag(ncol(Y)), V.start = diag(ncol(Y)), method = "bobyqa", optim.control = NULL, maxit.optim = 1e+05, REML = FALSE, compute.information.matrix = TRUE) {
+mnGLMM <- function(Y, X = NULL, B.fixed = NULL, B.start = NULL,
+	sigma.fixed = NA, sigma.start = 0.1, dispersion.fixed = 1, dispersion.start = 1,
+	V.fixed = diag(ncol(Y)), V.start = diag(ncol(Y)), method = "bobyqa", optim.control = NULL, maxit.optim = 1e+05, compute.information.matrix = TRUE,
+	hessian.method.args = list(eps = 1e-04, d = 0.1)) {
 
 	# check and name Y
 	if (!is.matrix(Y)) {
 		Y <- as.matrix(Y)
 	}
-	if (!is.null(X))
+	if (!is.null(X) && !is.null(B.fixed))
 		if (!(ncol(X) == (dim(B.fixed)[1] - 1) & ncol(Y) == dim(B.fixed)[2])) {
 			stop("dimensions of B.fixed should be c(ncol(X)+1, ncol(Y)).")
 		}
@@ -157,8 +97,6 @@ else matrix(0, nrow = ncol(X) + 1, ncol = ncol(Y)), sigma.fixed = NA, sigma.star
 		for (i.col in 1:ncol(Y)) colnames(Y)[i.col] <- paste0("y", i.col)
 	}
 	n <- ncol(Y)
-	nn <- n - 1
-	Tmax <- nrow(X)
 
 	# check and name X
 	if (is.null(X)) {
@@ -178,6 +116,16 @@ else matrix(0, nrow = ncol(X) + 1, ncol = ncol(Y)), sigma.fixed = NA, sigma.star
 	if (nrow(X) != nrow(Y))
 		stop("Variables X and Y have different lengths.")
 	p <- ncol(X)
+
+	# Defaults for B are built here rather than in the formals. X is rebuilt
+	# just above (NULL becomes an intercept-only matrix; otherwise an intercept
+	# column is prepended), and R evaluates default arguments lazily, so a
+	# formal referring to X would see the rebuilt version and get both the
+	# is.null(X) test and ncol(X) wrong.
+	if (is.null(B.fixed))
+		B.fixed <- matrix(c(rep(0, p), rep(NA, (n - 1) * p)), nrow = p, ncol = n)
+	if (is.null(B.start))
+		B.start <- matrix(0, nrow = p, ncol = n)
 
 	# check and name V.fixed
 	if (!is.matrix(V.fixed)) {
@@ -217,6 +165,16 @@ else matrix(0, nrow = ncol(X) + 1, ncol = ncol(Y)), sigma.fixed = NA, sigma.star
 		}
 	}
 
+	# Check dispersion
+	# dispersion is log-transformed below, so a value of 0 would put -Inf into
+	# par.fixed, which the C++ side would treat as a free parameter.
+	if (!is.na(dispersion.fixed) && (!is.finite(dispersion.fixed) || dispersion.fixed <= 0)) {
+		stop("dispersion.fixed must be a positive, finite value, or NA to estimate it.")
+	}
+	if (!is.finite(dispersion.start) || dispersion.start <= 0) {
+		stop("dispersion.start must be a positive, finite value.")
+	}
+
 	# log-transform dispersion
 	dispersion.fixed <- log(dispersion.fixed)
 	dispersion.start <- log(dispersion.start)
@@ -228,9 +186,6 @@ else matrix(0, nrow = ncol(X) + 1, ncol = ncol(Y)), sigma.fixed = NA, sigma.star
 	L.names <- rep(NA, n * n)
 	for (j in 1:n) for (i in 1:n) L.names[i + n * (j - 1)] <- paste0("v.", colnames(Y)[i], ".", colnames(Y)[j])
 
-	#if(is.na(dispersion.fixed)) dispersion.name <- "dispersion" else dispersion.name <- NULL
-	#names(par.fixed) <- c(B.names, L.names, "sigma", dispersion.name)
-
 	names(par.fixed) <- c(B.names, L.names, "sigma", "dispersion")
 
 	par.start <- c(B.start, L.start, sigma.start, dispersion.start)
@@ -239,8 +194,6 @@ else matrix(0, nrow = ncol(X) + 1, ncol = ncol(Y)), sigma.fixed = NA, sigma.star
 
 	if (!is.element(method, c("Nelder-Mead", "bobyqa", "BFGS")))
 		stop("Acceptable methods are Nelder-Mead {optim},  BFGS {optim}, and bobyqa {minqa}.")
-	# if (method == "bobyqa")
-	# 	require(minqa)
 
 	if (is.null(optim.control)) {
 		if (method == "bobyqa") {
@@ -282,16 +235,26 @@ else matrix(0, nrow = ncol(X) + 1, ncol = ncol(Y)), sigma.fixed = NA, sigma.star
 		par.with.se <- fitted$par
 		par.fixed.for.se <- par.fixed
 
-		H <- numDeriv::hessian(func = mnGLMM.ml, x = par.with.se, par.fixed = par.fixed.for.se, Y = Y, X = X, fitted.values = FALSE,
-			REML = FALSE, method.args = list(eps = 1e-04, d = 0.1))
+		# Use the C++ likelihood, as mnTS does. The pure-R mnGLMM.ml is kept only
+		# as the reference implementation the equivalency tests check against.
+		H <- numDeriv::hessian(func = mnGLMM.ml.wrapper, x = par.with.se, par.fixed = par.fixed.for.se, Y = Y, X = X,
+			method.args = hessian.method.args)
 		if (any(is.nan(H)) || rcond(H) < 1e-12) {
 			inv.information.matrix <- matrix(NA, nrow(H), ncol(H))
 		} else {
 			inv.information.matrix <- solve(H)
 		}
+		se <- diag(inv.information.matrix)^0.5
+		names(se) <- names(par.with.se)
+		rownames(inv.information.matrix) <- names(par.with.se)
+		colnames(inv.information.matrix) <- names(par.with.se)
 
 		} else {
-		information.matrix <- NULL
+		# All of these are referenced when the results list is built below.
+		H <- NULL
+		se <- NULL
+		par.with.se <- NULL
+		inv.information.matrix <- NULL
 		}
 
 	fitted$par["dispersion"] <- exp(fitted$par["dispersion"])
@@ -300,7 +263,7 @@ else matrix(0, nrow = ncol(X) + 1, ncol = ncol(Y)), sigma.fixed = NA, sigma.star
 	AIC <- -2 * fitted$logLik + 2 * npar
 
 	results <- list(Y = Y, X = X, B = fitted$B, sigma = fitted$sigma, V = fitted$V, dispersion = fitted$dispersion, logLik = fitted$logLik,
-		AIC = AIC, npar = npar, inv.information.matrix = inv.information.matrix, par.with.se = par.with.se, se = diag(inv.information.matrix)^0.5,
+		AIC = AIC, npar = npar, inv.information.matrix = inv.information.matrix, par.with.se = par.with.se, se = se,
 		par = fitted$par, par.fixed = par.fixed, opt.convergence = opt.convergence)
 	class(results) <- "mnGLMM"
 	return(results)
@@ -314,7 +277,15 @@ else matrix(0, nrow = ncol(X) + 1, ncol = ncol(Y)), sigma.fixed = NA, sigma.star
 #' @param object An object of class "mnGLMM"
 #' @param ... Additional arguments (currently unused).
 #'
-#' @return Prints coefficient estimates from a fitted mnGLMM
+#' @return \code{object}, invisibly. Called for the side effect of printing
+#'     the coefficient estimates from a fitted mnGLMM.
+#'
+#' @examples
+#' data(story_pollen_matrix)
+#' sample_idx <- which(rowSums(story_pollen_matrix) != 0)
+#' n <- ncol(story_pollen_matrix)
+#' glmm_mod <- mnGLMM(Y = story_pollen_matrix[sample_idx, ], V.fixed = diag(n))
+#' summary(glmm_mod)
 #'
 #' @export
 
@@ -323,8 +294,6 @@ summary.mnGLMM <- function(object, ...) {
 
 	cat("\nCall: mnGLMM with Tmax = ", nrow(mod$Y), " n = ", ncol(mod$Y), "\n")
 
-	# npar <- length(mod$par)
-	# AIC <- -2*mod$logLik + 2*npar
 	cat("\nlogLik = ", mod$logLik, ",  AIC = ", mod$AIC, " [df = ", mod$npar, "]\n", sep = "")
 
 	cat("\ndispersion parameter = ", mod$dispersion)
@@ -361,6 +330,33 @@ summary.mnGLMM <- function(object, ...) {
 	print(mod$V)
 
 	cat("\n")
+
+	invisible(object)
 }
 
-print.mnGLMM <- summary.mnGLMM
+
+# print.mnGLMM --------------------------------------------------------
+#' Print Method for Multinomial GLMMs
+#'
+#' Prints a fitted multinomial GLMM, using the same layout as
+#' \code{\link{summary.mnGLMM}}.
+#'
+#' @param x An object of class \code{"mnGLMM"}, as returned by the
+#'     \code{\link{mnGLMM}} function.
+#' @param ... Additional arguments passed to \code{\link{summary.mnGLMM}}.
+#'
+#' @return \code{x}, invisibly.
+#'
+#' @examples
+#' data(story_pollen_matrix)
+#' sample_idx <- which(rowSums(story_pollen_matrix) != 0)
+#' n <- ncol(story_pollen_matrix)
+#' glmm_mod <- mnGLMM(Y = story_pollen_matrix[sample_idx, ], V.fixed = diag(n))
+#' print(glmm_mod)
+#'
+#' @export
+
+print.mnGLMM <- function(x, ...) {
+	summary(x, ...)
+	invisible(x)
+}

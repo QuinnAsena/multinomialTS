@@ -12,11 +12,13 @@ reference:
   - coef.mnTS
   - simulate.mnTS
   - summary.mnTS
+  - print.mnTS
 - title: Generalized Linear Mixed Model
   desc: Fit multinomial GLMMs (typically used to initialise mnTS)
   contents:
   - mnGLMM
   - summary.mnGLMM
+  - print.mnGLMM
 - title: Generic functions
   contents:
   - boot

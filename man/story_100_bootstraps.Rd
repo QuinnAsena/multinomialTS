@@ -5,15 +5,23 @@
 \alias{story_100_bootstraps}
 \title{Story 100 bootstraps}
 \format{
-A list containing the bootstrapped outputs.
+A matrix with `29` rows (coefficients) and `8` columns:
+   `boot_mean`, `se`, `t`, `P`, `upper68`, `lower68`, `n_fail_converged`
+   and `n_total`.
+}
+\source{
+Produced by bootstrapping the Story Lake model; see vignette.
 }
 \usage{
 story_100_bootstraps
 }
 \description{
-100 bootstraps of the story data as modelled in the vignette
+100 bootstraps of the story data as modelled in the vignette. This is the
+   \code{coef.table.boot} element of a \code{\link{boot.mnTS}} result, not
+   the full bootstrap object.
 }
 \examples{
 data(story_100_bootstraps)
+head(story_100_bootstraps)
 }
 \keyword{datasets}

@@ -17,12 +17,16 @@ Rcpp::List mnTS_ml_cpp_list(
     // Convert Tsample to 0-indexed to match C++ loop
     Tsample -= 1;
 
+    // Free parameters are the NaN entries of par_fixed. This must match R's
+    // is.na(par.fixed), which is NaN only: find_nonfinite would also pick up
+    // +/-Inf entries and silently shift the parameter mapping.
     arma::vec parameters = par_fixed;
-    arma::uvec par_nas = arma::find_nonfinite(par_fixed);
+    arma::uvec par_nas = arma::find_nan(par_fixed);
     parameters.elem(par_nas) = par;
 
     int n = Y.n_rows;
-    size_t Tmax = static_cast<size_t>(Tsample.back());
+    // max(), not back(): an unsorted Tsample would otherwise truncate the run.
+    size_t Tmax = static_cast<size_t>(Tsample.max());
 
     // --- Parameter extraction ---
     arma::mat B0(n, 1);
@@ -39,8 +43,10 @@ Rcpp::List mnTS_ml_cpp_list(
 
     double dispersion = std::exp(parameters(n + n * n + 1 + n * n));
 
+    // Use the same emptiness test as the prediction equations below, so there
+    // is one definition of "no covariates" throughout.
     arma::mat B;
-    if (X.n_rows > 0) {
+    if (!X.is_empty()) {
         arma::uword p = X.n_rows;
         arma::vec subvector_B = parameters.subvec(n + n * n + 1 + n * n + 1,
                                                    n + n * n + 1 + n * n + p * n);

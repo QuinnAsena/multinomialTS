@@ -52,3 +52,9 @@ docs
 inst/doc
 /doc/
 /Meta/
+
+# Compiled objects and shared libraries
+*.o
+*.so
+*.dll
+*.dylib

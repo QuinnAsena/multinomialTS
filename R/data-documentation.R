@@ -1,7 +1,9 @@
 #' Story Charcoal Matrix
 #'
 #' A matrix of charcoal accumulation rates from Story Lake, Indiana.
-#'    This matrix has been binned at a 50-year resolution and scaled.
+#'    This matrix has been binned at a 50-year resolution. Values are on the
+#'    original measurement scale; scale them (e.g. with [scale()]) before
+#'    passing them to [mnGLMM()] or [mnTS()].
 #'
 #' @format A `1` column matrix with `160` rows (observations).
 #' @source For details see vignette
@@ -63,12 +65,18 @@
 
 #' Story 100 bootstraps
 #'
-#' 100 bootstraps of the story data as modelled in the vignette
+#' 100 bootstraps of the story data as modelled in the vignette. This is the
+#'    \code{coef.table.boot} element of a \code{\link{boot.mnTS}} result, not
+#'    the full bootstrap object.
 #'
-#' @format A list containing the bootstrapped outputs.
+#' @format A matrix with `29` rows (coefficients) and `8` columns:
+#'    `boot_mean`, `se`, `t`, `P`, `upper68`, `lower68`, `n_fail_converged`
+#'    and `n_total`.
+#' @source Produced by bootstrapping the Story Lake model; see vignette.
 #'
 #' @examples
 #' data(story_100_bootstraps)
+#' head(story_100_bootstraps)
 "story_100_bootstraps"
 
 
@@ -77,7 +85,10 @@
 #' A ~13,800 yr pollen record organised into
 #' 5 focal taxa, a reference group, and an estimated age per sample
 #'
-#' @format A tibble 69 x 7 tibble.
+#' @format A tibble with `69` rows (samples) and `7` columns: `age`, the
+#'    reference group `other`, and the focal taxa `Betula`, `Fagus`,
+#'    `P.strobus`, `Quercus` and `Tsuga`.
+#' @source Johnson et al., in review. See the Sunfish Pond vignette.
 #'
 #' @examples
 #' data(sunfish_pollen_wide)
@@ -86,9 +97,13 @@
 
 #' Sunfish Pond level
 #'
-#' A ~14,950 yr lake level record from Sunfish Pond
+#' A ~14,950 yr lake level record from Sunfish Pond, used as a proxy for
+#' hydroclimatic variability and plant water availability.
 #'
-#' @format A tibble 299 x 2 tibble.
+#' @format A tibble with `299` rows and `4` columns: `age`, `lake_lvl`
+#'    (cm relative to modern), and the reconstruction bounds `UpperBound`
+#'    and `LowerBound`.
+#' @source Johnson et al., in review. See the Sunfish Pond vignette.
 #'
 #' @examples
 #' data(sunfish_ll)
@@ -98,9 +113,11 @@
 #'
 #' Bootstrapped sensitivity to binning width
 #'
-#' @format a list where each element is the output of
-#' a bootstrapped model.
+#' @format A list with one element per binning resolution (75- and 150-year
+#'    bins), each the output of \code{\link{boot.mnTS}}.
+#' @source Produced by the code in the Sunfish Pond vignette.
 #'
 #' @examples
 #' data(bootstrap_sensitivity)
+#' names(bootstrap_sensitivity)
 "bootstrap_sensitivity"

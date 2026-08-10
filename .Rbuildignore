@@ -10,3 +10,4 @@
 ^\.claude$
 ^\.vscode$
 ^vignettes/\.quarto$
+^LICENSE\.md$

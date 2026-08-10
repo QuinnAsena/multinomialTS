@@ -11,6 +11,20 @@ boot(object, ...)
 
 \item{...}{Additional arguments passed to the method.}
 }
+\value{
+The value returned by the method dispatched on \code{object};
+    see [boot.mnTS()].
+}
 \description{
 This is a generic bootstrap function for models.
+}
+\section{Name clash}{
+
+This generic is also the name of the function in the \pkg{boot} package.
+If both packages are attached, call \code{multinomialTS::boot()}
+explicitly to be unambiguous.
+}
+
+\seealso{
+[boot.mnTS()]
 }

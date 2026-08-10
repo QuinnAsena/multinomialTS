@@ -7,11 +7,8 @@
 mnGLMM(
   Y,
   X = NULL,
-  B.fixed = if (is.null(X)) matrix(c(0, rep(NA, ncol(Y) - 1)), nrow = 1, ncol = ncol(Y))
-    else matrix(c(rep(0, (ncol(X) + 1) * ncol(Y)), rep(NA, (ncol(Y) - 1) * (ncol(X) +
-    1))), nrow = ncol(X) + 1, ncol = ncol(Y)),
-  B.start = if (is.null(X)) matrix(0, nrow = 1, ncol = ncol(Y)) else matrix(0, nrow =
-    ncol(X) + 1, ncol = ncol(Y)),
+  B.fixed = NULL,
+  B.start = NULL,
   sigma.fixed = NA,
   sigma.start = 0.1,
   dispersion.fixed = 1,
@@ -21,8 +18,8 @@ mnGLMM(
   method = "bobyqa",
   optim.control = NULL,
   maxit.optim = 1e+05,
-  REML = FALSE,
-  compute.information.matrix = TRUE
+  compute.information.matrix = TRUE,
+  hessian.method.args = list(eps = 1e-04, d = 0.1)
 )
 }
 \arguments{
@@ -66,13 +63,13 @@ and \code{"bobyqa"} (via the \code{minqa} package).}
 optimizer. See the \code{minqa} package documentation for details.}
 
 \item{maxit.optim}{Maximum number of iterations for the optimizer
-(default is 1e+05). Increase if of optimizer needs more itterations.}
-
-\item{REML}{Logical. If \code{TRUE}, uses restricted maximum likelihood
-for variance estimation.}
+(default is 1e+05). Increase if the optimizer needs more iterations.}
 
 \item{compute.information.matrix}{Logical. If \code{TRUE},
 computes the observed information matrix.}
+
+\item{hessian.method.args}{A list of control parameters passed to the
+numerical Hessian calculator (e.g., \code{numDeriv::hessian}).}
 }
 \value{
 An object of class \code{"mnGLMM"} with components including:
@@ -91,5 +88,30 @@ An object of class \code{"mnGLMM"} with components including:
 Fits a multivariate generalized linear regression model for multinomially
 distributed response data. This function estimates driver-species
 relationships (B coefficients), observation-level dispersion,
-and species covariance structures via maximum likelihood or REML.
+and species covariance structures via maximum likelihood.
+}
+\examples{
+data(story_pollen_matrix)
+data(story_char_matrix)
+
+# mnGLMM cannot handle gaps, so use only the rows with pollen counts.
+sample_idx <- which(rowSums(story_pollen_matrix) != 0)
+Y <- story_pollen_matrix[sample_idx, ]
+X <- scale(story_char_matrix)[sample_idx, , drop = FALSE]
+
+n <- ncol(Y)          # number of taxa
+p <- ncol(X) + 1      # covariates + intercept
+
+# Fix the reference taxon (column 1) to 0; estimate the rest (NA = estimate).
+B.fixed <- matrix(c(rep(0, p), rep(NA, (n - 1) * p)), p, n)
+B.start <- matrix(c(rep(0, p), rep(0.01, (n - 1) * p)), p, n)
+
+glmm_mod <- mnGLMM(Y = Y, X = X, B.start = B.start, B.fixed = B.fixed,
+                   V.fixed = diag(n))
+summary(glmm_mod)
+
+}
+\seealso{
+[mnTS()], which uses the estimates from \code{mnGLMM} as starting
+    values.
 }

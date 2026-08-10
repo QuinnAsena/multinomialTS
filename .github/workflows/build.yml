@@ -12,19 +12,25 @@ permissions:
 jobs:
   build:
     runs-on: ${{ matrix.os }}
+    name: ${{ matrix.label }}
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: windows-latest
-            r-version: '4.4.3'
+            label: windows
+            ext: zip
+          # macos-14 and later runners are Apple Silicon; macos-13 is the last
+          # Intel runner. R packages with compiled code cannot be
+          # cross-compiled, so each architecture needs its own native runner.
           - os: macos-latest
-            r-version: '4.4.3'
-            architecture: x86_64
-          - os: macos-latest
-            r-version: '4.4.3'
-            architecture: arm64
+            label: macOS-arm64
+            ext: tgz
+          - os: macos-13
+            label: macOS-x86_64
+            ext: tgz
 
     steps:
       - name: Checkout code
@@ -33,94 +39,62 @@ jobs:
       - name: Set up R
         uses: r-lib/actions/setup-r@v2
         with:
-          r-version: ${{ matrix.r-version }}
+          use-public-rspm: true
 
-      - name: Install system dependencies (macOS)
-        if: matrix.os == 'macos-latest'
-        run: |
-          brew install libomp
-          brew install gcc
-
+      # Installs and caches the dependencies declared in DESCRIPTION rather
+      # than a hand-maintained list.
       - name: Install R package dependencies
-        run: Rscript -e 'install.packages(c("devtools", "remotes", "RcppArmadillo", "minqa", "matrixStats", "numDeriv", "mvtnorm"))'
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::pkgbuild
+          dependencies: '"hard"'
 
-      - name: Clean previous builds
-        run: Rscript -e 'devtools::clean_dll()'
-
-      - name: Build package (macOS ARM64)
-        if: matrix.os == 'macos-latest' && matrix.architecture == 'arm64'
-        run: |
-          export ARCHFLAGS="-arch arm64"
-          Rscript -e 'devtools::build(binary = TRUE, path = "../", args = c("--no-multiarch","--preclean","--clean","--verbose"))'
-
-      # >>> ADDED: rename the macOS arm64 artifact to include arch & version
-      - name: Rename macOS arm64 artifact
-        if: matrix.os == 'macos-latest' && matrix.architecture == 'arm64'
+      - name: Build binary package
+        id: build
+        shell: bash
         run: |
           set -e
+          mkdir -p "${{ runner.temp }}/build"
+          Rscript -e 'pkgbuild::build(binary = TRUE, dest_path = Sys.getenv("DEST"), args = c("--no-multiarch", "--preclean", "--clean"))' \
+            2>&1 | tee build.log
           VER=$(Rscript -e 'cat(read.dcf("DESCRIPTION")[1,"Version"])')
-          ART=$(ls -1 ../multinomialTS_*.tgz | tail -n 1)
-          echo "Found artifact: $ART"
-          mv "$ART" "../multinomialTS_${VER}-macOS-arm64.tgz"
-          echo "Renamed to: ../multinomialTS_${VER}-macOS-arm64.tgz"
+          ART=$(ls -1 "${{ runner.temp }}/build"/multinomialTS_*.${{ matrix.ext }} | head -n 1)
+          NEW="${{ runner.temp }}/build/multinomialTS_${VER}-${{ matrix.label }}.${{ matrix.ext }}"
+          mv "$ART" "$NEW"
+          echo "Built: $NEW"
+          echo "artifact=$NEW" >> "$GITHUB_OUTPUT"
+        env:
+          DEST: ${{ runner.temp }}/build
 
-      - name: Build package (macOS x86_64)
-        if: matrix.os == 'macos-latest' && matrix.architecture == 'x86_64'
-        run: |
-          export ARCHFLAGS="-arch x86_64"
-          Rscript -e 'devtools::build(binary = TRUE, path = "../", args = c("--no-multiarch","--preclean","--clean","--verbose"))'
-
-      # >>> ADDED: rename the macOS x86_64 artifact to include arch & version
-      - name: Rename macOS x86_64 artifact
-        if: matrix.os == 'macos-latest' && matrix.architecture == 'x86_64'
+      # Guards against shipping a binary built for the wrong architecture, which
+      # is what happened when both macOS builds ran on the same runner.
+      - name: Verify macOS architecture
+        if: runner.os == 'macOS'
+        shell: bash
         run: |
           set -e
-          VER=$(Rscript -e 'cat(read.dcf("DESCRIPTION")[1,"Version"])')
-          ART=$(ls -1 ../multinomialTS_*.tgz | tail -n 1)
-          echo "Found artifact: $ART"
-          mv "$ART" "../multinomialTS_${VER}-macOS-x86_64.tgz"
-          echo "Renamed to: ../multinomialTS_${VER}-macOS-x86_64.tgz"
+          cd "${{ runner.temp }}/build"
+          tar xzf multinomialTS_*-${{ matrix.label }}.tgz
+          FOUND=$(lipo -archs multinomialTS/libs/multinomialTS.so)
+          echo "Shared object architectures: $FOUND"
+          case "${{ matrix.label }}" in
+            macOS-arm64)  EXPECT=arm64 ;;
+            macOS-x86_64) EXPECT=x86_64 ;;
+          esac
+          if ! echo "$FOUND" | grep -qw "$EXPECT"; then
+            echo "::error::Expected $EXPECT but built $FOUND"
+            exit 1
+          fi
 
-      - name: Build package (Windows)
-        if: matrix.os == 'windows-latest'
-        run: Rscript -e 'devtools::build(binary = TRUE, path = "D:/a/multinomialTS/", args = c("--no-multiarch","--preclean","--clean","--verbose"))'
-
-      # >>> ADDED: rename the Windows artifact to include arch & version (PowerShell)
-      - name: Rename Windows artifact
-        if: matrix.os == 'windows-latest'
-        shell: pwsh
-        run: |
-          $VER = & Rscript -e 'cat(read.dcf("DESCRIPTION")[1,"Version"])'
-          $ART = Get-ChildItem -Path 'D:\a\multinomialTS\multinomialTS_*.zip' | Sort-Object LastWriteTime | Select-Object -Last 1
-          Write-Host "Found artifact: $($ART.FullName)"
-          Rename-Item -Path $ART.FullName -NewName ("multinomialTS_{0}-windows.zip" -f $VER)
-          Write-Host "Renamed to: D:\a\multinomialTS\multinomialTS_${VER}-windows.zip"
-
-      - name: Upload Release Asset (macOS ARM64)
-        if: matrix.os == 'macos-latest' && matrix.architecture == 'arm64'
+      - name: Upload Release Asset
         uses: actions/upload-artifact@v4
         with:
-          name: multinomialTS-macOS-arm64
-          path: /Users/runner/work/multinomialTS/multinomialTS_*macOS-arm64.tgz
-
-      - name: Upload Release Asset (macOS x86_64)
-        if: matrix.os == 'macos-latest' && matrix.architecture == 'x86_64'
-        uses: actions/upload-artifact@v4
-        with:
-          name: multinomialTS-macOS-x86_64
-          path: /Users/runner/work/multinomialTS/multinomialTS_*macOS-x86_64.tgz
-
-      - name: Upload Release Asset (Windows)
-        if: matrix.os == 'windows-latest'
-        uses: actions/upload-artifact@v4
-        with:
-          name: multinomialTS-Windows
-          path: D:/a/multinomialTS/multinomialTS_*windows.zip
-
+          name: multinomialTS-${{ matrix.label }}
+          path: ${{ runner.temp }}/build/multinomialTS_*-${{ matrix.label }}.${{ matrix.ext }}
 
   release:
     runs-on: ubuntu-latest
-    needs: build  # Ensures this job runs after the build job
+    needs: build
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -128,20 +102,17 @@ jobs:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          path: /home/runner/work/multinomialTS/
-      - name: Show artifacts
-        run: find /home/runner/work/multinomialTS/
+          path: artifacts
 
-      - name: List all downloaded files
-        run: ls -R /home/runner/work/multinomialTS/
+      - name: Show artifacts
+        run: find artifacts -type f
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
           files: |
-            /home/runner/work/multinomialTS/multinomialTS-macOS-arm64/*.tgz
-            /home/runner/work/multinomialTS/multinomialTS-macOS-x86_64/*.tgz
-            /home/runner/work/multinomialTS/multinomialTS-Windows/*.zip
+            artifacts/**/*.tgz
+            artifacts/**/*.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

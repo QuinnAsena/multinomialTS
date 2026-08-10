@@ -4,18 +4,68 @@
 \alias{simulate.mnTS}
 \title{Simulate Data from a Multinomial State-Space Model}
 \usage{
-\method{simulate}{mnTS}(object, ...)
+\method{simulate}{mnTS}(object, nsim = 1, seed = NULL, size = NULL, ...)
 }
 \arguments{
 \item{object}{An object of class \code{"mnTS"}, as returned by the
 \code{\link{mnTS}} function.}
 
-\item{...}{Additional arguments passed to the simulation routine.}
+\item{nsim}{Number of simulated datasets to generate (default 1).}
+
+\item{seed}{Optional seed for the random number generator. Passed to
+\code{\link{set.seed}}; the previous RNG state is restored on exit.}
+
+\item{size}{Multinomial sample size (total counts) to draw at each sampled
+time step. Defaults to \code{NULL}, which reuses the observed totals
+from the data the model was fitted to, so simulated replicates carry the
+same sampling effort as the data. May also be a single number, or a
+vector with one entry per element of \code{object$Tsample}.}
+
+\item{...}{Additional arguments (currently unused).}
 }
 \value{
-A simulated dataset in the same structure as the response variable
-    \code{Y} used to fit the model.
+When \code{nsim = 1}, a list with the simulated response \code{Y}
+    and the model components used to generate it (\code{X}, \code{B0},
+    \code{C}, \code{sigma}, \code{V}, \code{B}). When \code{nsim > 1}, an
+    unnamed list of \code{nsim} such lists. Rows of \code{Y} at time steps
+    not in \code{object$Tsample} are \code{NA}, matching the observation
+    design of the input data.
 }
 \description{
 Generates simulated datasets from a fitted mnTS object.
+}
+\examples{
+# A small, fast example: the reference taxon plus two others over the first
+# 60 time steps. See the package vignette for a full analysis.
+data(story_pollen_matrix)
+data(story_char_matrix)
+
+Y_all <- story_pollen_matrix[, 1:3]
+sample_idx <- which(rowSums(Y_all) != 0)
+sample_idx <- sample_idx[sample_idx <= 60]
+Y <- Y_all[sample_idx, ]
+X <- scale(story_char_matrix)[1:60, , drop = FALSE]
+n <- ncol(Y)
+
+# NA = estimate, a number = hold fixed at that value.
+B0.fixed <- matrix(c(0, rep(NA, n - 1)), nrow = 1, ncol = n)
+B.fixed <- matrix(NA, nrow = ncol(X), ncol = n)
+B.fixed[, 1] <- 0                    # reference taxon
+V.fixed <- matrix(NA, n, n)
+V.fixed[1] <- 1                      # identifiability constraint
+C.start <- 0.5 * diag(n)             # self-regulation only
+C.fixed <- C.start
+C.fixed[C.fixed != 0] <- NA
+
+\donttest{
+ts_mod <- mnTS(Y = Y, X = X, Tsample = sample_idx,
+               B0.fixed = B0.fixed, B.fixed = B.fixed,
+               C.start = C.start, C.fixed = C.fixed,
+               V.fixed = V.fixed, dispersion.fixed = 1)
+sim <- simulate(ts_mod, seed = 1)
+# Simulated totals match the observed sampling effort.
+rowSums(sim$Y[sample_idx, ])[1:5]
+rowSums(ts_mod$Y)[1:5]
+}
+
 }

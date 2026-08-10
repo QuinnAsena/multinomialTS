@@ -108,3 +108,41 @@ Fits a multinomial state-space model for multivariate count data,
 allowing for latent temporal processes, covariate effects, and species
 interactions.
 }
+\examples{
+# Tsample gives the time steps at which Y was observed: Y holds only the
+# sampled rows, while X must cover every time step the model iterates over.
+# This is a small, fast example (reference taxon plus two others over the
+# first 60 time steps). See the package vignette for a full analysis.
+data(story_pollen_matrix)
+data(story_char_matrix)
+
+Y_all <- story_pollen_matrix[, 1:3]
+sample_idx <- which(rowSums(Y_all) != 0)
+sample_idx <- sample_idx[sample_idx <= 60]
+Y <- Y_all[sample_idx, ]
+X <- scale(story_char_matrix)[1:60, , drop = FALSE]
+n <- ncol(Y)
+
+# NA = estimate, a number = hold fixed at that value.
+B0.fixed <- matrix(c(0, rep(NA, n - 1)), nrow = 1, ncol = n)
+B.fixed <- matrix(NA, nrow = ncol(X), ncol = n)
+B.fixed[, 1] <- 0                    # reference taxon
+V.fixed <- matrix(NA, n, n)
+V.fixed[1] <- 1                      # identifiability constraint
+C.start <- 0.5 * diag(n)             # self-regulation only
+C.fixed <- C.start
+C.fixed[C.fixed != 0] <- NA
+
+\donttest{
+ts_mod <- mnTS(Y = Y, X = X, Tsample = sample_idx,
+               B0.fixed = B0.fixed, B.fixed = B.fixed,
+               C.start = C.start, C.fixed = C.fixed,
+               V.fixed = V.fixed, dispersion.fixed = 1)
+summary(ts_mod)
+}
+
+}
+\seealso{
+[mnGLMM()] for obtaining starting values, [boot.mnTS()] for
+    bootstrapped standard errors, and [simulate.mnTS()].
+}

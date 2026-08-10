@@ -19,7 +19,7 @@ vignette: >
 
 # Introduction
 
-One of the primary goals of this model is to be able to test multiple hypotheses about the data and lend statistical support to the different hypotheses. For example which environmental drivers are having the strongest effects on which taxa? Or, are interactions among taxa or abiotic variables driving change in the system? This state-space approach allows us to estimate coefficients for taxa interactions and driver-taxa relationships, that we don't get from methods such as ordination or cluster analysis. We recommend this method as complimentary to other methods, as both have their advantages.
+One of the primary goals of this model is to be able to test multiple hypotheses about the data and lend statistical support to the different hypotheses. For example which environmental drivers are having the strongest effects on which taxa? Or, are interactions among taxa or abiotic variables driving change in the system? This state-space approach allows us to estimate coefficients for taxa interactions and driver-taxa relationships, that we don't get from methods such as ordination or cluster analysis. We recommend this method as complementary to other methods, as both have their advantages.
 
 
 ## This vignette
@@ -43,16 +43,13 @@ This vignette will work with the data that have focal taxa and groups already wr
 #| warning: false
 
 # Load required packages
+# multinomialTS handles its own dependencies (Rcpp, minqa, numDeriv, ...);
+# the packages below are only for the data wrangling and plotting shown here.
 library(ggplot2)
 library(dplyr)
 library(tidyr)
 library(stringr)
 library(scales)
-library(RcppArmadillo)
-library(minqa)
-library(matrixStats)
-library(numDeriv)
-library(mvtnorm)
 library(multinomialTS)
 
 # Read-in the wrangled data 
@@ -145,7 +142,7 @@ Since we need to apply the same binning procedure to both the state variables an
 # Join the two by age so that we get a square matrix
 story_join <- story_char_wide |>
   dplyr::filter(age <= max(story_pollen_wide$age)) |>
-  left_join(story_pollen_wide)
+  left_join(story_pollen_wide, by = c("age", "depth"))
 
 # Always double check dimensions before/after joining!
 # dim(story_join)
@@ -178,7 +175,7 @@ This all looks good, and we can now bin the data to an appropriate temporal reso
 bin_width <- 50
 bins <- cut(story_join$age,
             breaks = seq(from = min(story_join$age),
-            to = max(story_join$age + bin_width),
+            to = max(story_join$age) + bin_width,
             by = bin_width), include.lowest = TRUE, labels = FALSE)
 
 ```
@@ -191,13 +188,13 @@ We now apply the bins to our data. For most types of covariates we want the _ave
 story_binned <- bind_cols(bins = bins, story_join) |>
   group_by(bins) |>
   summarise(
-    age = mean(age, na.rm = T), # the center of the bin
-    char_acc = mean(char_acc, na.rm = T), # mean charcoal accumulation rate per bin
-    other = sum(other, na.rm = T), # the sums of the count data
-    hardwood = sum(hardwood, na.rm = T),
-    `Fagus grandifolia` = sum(`Fagus grandifolia`, na.rm = T),
-    Ulmus = sum(Ulmus, na.rm = T),
-    Quercus = sum(Quercus, na.rm = T)
+    age = mean(age, na.rm = TRUE), # the center of the bin
+    char_acc = mean(char_acc, na.rm = TRUE), # mean charcoal accumulation rate per bin
+    other = sum(other, na.rm = TRUE), # the sums of the count data
+    hardwood = sum(hardwood, na.rm = TRUE),
+    `Fagus grandifolia` = sum(`Fagus grandifolia`, na.rm = TRUE),
+    Ulmus = sum(Ulmus, na.rm = TRUE),
+    Quercus = sum(Quercus, na.rm = TRUE)
   ) |>
   arrange(desc(age))
 # Be aware that the gaps in the pollen data are now filled with 0's not NA
@@ -308,14 +305,14 @@ Remember that `mnGLMM()` does not handle gaps in the data and only fits complete
 # fit glmm
 start_time <- Sys.time()
 glmm_mod <- mnGLMM(Y = story_pollen_matrix[sample_idx, ],
-                   X = story_char_matrix_scaled[sample_idx, ,drop = F],
+                   X = story_char_matrix_scaled[sample_idx, , drop = FALSE],
                    B.start = B.start.glmm,
                    B.fixed = B.fixed.glmm,
                    V.fixed = V.fixed.glmm)
 end_time <- Sys.time()
 ```
 
-I like to keep track of how long the models take to run. This will vary depending on the data set and the system hardware, but can be useful benchmarking for running models repeatedly. Note the time increase as we progess from `mnGLMM()` to `mnTS()` without, and then with interactions.
+I like to keep track of how long the models take to run. This will vary depending on the data set and the system hardware, but can be useful benchmarking for running models repeatedly. Note the time increase as we progress from `mnGLMM()` to `mnTS()` without, and then with interactions.
 
 ```{r}
 end_time - start_time
@@ -354,8 +351,8 @@ We are using the output from `mnGLMM()` as starting values for the matrices $B0$
 ```{r}
 
 # Use GLMM estimates as starting values for mnTS: row 1 = intercepts, row 2 = covariate slopes
-B0.start.mnTS <- glmm_mod$B[1, , drop = F]
-B.start.mnTS <- glmm_mod$B[2, , drop = F]
+B0.start.mnTS <- glmm_mod$B[1, , drop = FALSE]
+B.start.mnTS <- glmm_mod$B[2, , drop = FALSE]
 
 # Allow all V elements to be estimated; fix reference taxon variance V[1,1] to 1 for identifiability
 V.fixed.mnTS <- matrix(NA, n, n)
@@ -409,7 +406,7 @@ end_time - start_time
 ```
 
 
-In this following code we set-up $C$ to define which interactions to estimate. Here we set-up a two-way interaction between key species. $C$ is not restricted to being symmetrical matix, i.e., you can choose to have a one-way interaction effect.
+In this following code we set-up $C$ to define which interactions to estimate. Here we set-up a two-way interaction between key species. $C$ is not restricted to being symmetrical matrix, i.e., you can choose to have a one-way interaction effect.
 
 ::: {.callout-tip}
 
@@ -491,7 +488,11 @@ On the system that created this vignette: fitting the initial interaction model 
 
 To show how to access and plot the bootstrapped coefficients we will use a pre-run example of 100 bootstraps using the `coef.table.boot` object. Only 100 bootstraps would usually be too few for best results, but we need a small working example for the purposes of demonstration.
 
-Bootstrapping simulates species from the process equation. The simulated species are named y1 ... yn. in future versions I will update the bootstrapping function to have the option of maintaining the species names from the input matrix. But for now, we rename them:
+Bootstrapping simulates species from the process equation. The simulated species are named y1 ... yn. In future versions I will update the bootstrapping function to have the option of maintaining the species names from the input matrix. But for now, we rename them:
+
+::: {.callout-warning}
+The `y1 ... yn` names map to columns of $Y$ **by position**, so the mapping below is specific to the column order we built above (`other`, `hardwood`, `Ulmus`, `Fagus`, `Quercus`). Note that the packaged `story_pollen_matrix` dataset has `Ulmus` and `Fagus grandifolia` the other way round — always take the mapping from `colnames()` of the matrix you actually fitted, or the coefficients will be attributed to the wrong taxa.
+:::
 
 ```{r}
 
@@ -525,7 +526,7 @@ ggplot(plot_cov, aes(x = name, y = boot_mean)) +
   geom_hline(yintercept = 0, linetype = "dashed", alpha = 0.2) +
   geom_errorbar(aes(ymin = lower68, ymax = upper68),
                     width = .4, alpha = 0.5) +
-  labs(x = "Taxa", y = "MultinomialTS coefficient estimate") +
+  labs(x = "Taxa", y = "multinomialTS coefficient estimate") +
   theme_bw() 
 
 ```
@@ -552,7 +553,7 @@ ggplot(plot_spp, aes(x = name, y = boot_mean)) +
   geom_hline(yintercept = 0, linetype = "dashed", alpha = 0.2) +
   geom_errorbar(aes(ymin = lower68, ymax = upper68),
                     width = .4, alpha = 0.5) +
-  labs(x = "Taxa", y = "MultinomialTS coefficient estimate") +
+  labs(x = "Taxa", y = "multinomialTS coefficient estimate") +
   theme_bw() +
   theme(
         axis.text.x = element_text(angle = 45, hjust = 1)

@@ -5,7 +5,12 @@
 \alias{sunfish_pollen_wide}
 \title{Sunfish Pond pollen}
 \format{
-A tibble 69 x 7 tibble.
+A tibble with `69` rows (samples) and `7` columns: `age`, the
+   reference group `other`, and the focal taxa `Betula`, `Fagus`,
+   `P.strobus`, `Quercus` and `Tsuga`.
+}
+\source{
+Johnson et al., in review. See the Sunfish Pond vignette.
 }
 \usage{
 sunfish_pollen_wide

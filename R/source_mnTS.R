@@ -1,154 +1,3 @@
-# Multinomial state-space ML -----------------------------------------------------
-#' Multinomial state-space Maximum likelihood
-#'
-#' This is an internal function called by mnTS
-#' @noRd
-
-mnTS.ml <- function(par, par.fixed, Y, X = NULL, Tsample, fitted.values = FALSE) {
-
-	parameters <- par.fixed
-	parameters[is.na(par.fixed)] <- par
-	n <- nrow(Y)
-	Tmax <- Tsample[length(Tsample)]
-
-	B0 <- matrix(parameters[1:n], n, 1, byrow = F)
-	C <- matrix(parameters[(n + 1):(n + n * n)], n, n, byrow = F)
-	sigma <- parameters[n + n * n + 1]
-
-	L <- matrix(parameters[(n + n * n + 1 + 1):(n + n * n + 1 + n * n)], n, n)
-	S <- t(L) %*% L
-	#Ssd <- diag(diag(S)^-.5)
-	#Se <- sigma^2 * Ssd %*% S %*% Ssd
-	Ssd <- S[1, 1]
-	Se <- sigma^2 * S/Ssd
-
-	dispersion <- exp(parameters[n + n * n + 1 + n * n + 1])
-
-	if (!is.null(X)) {
-		p <- nrow(X)
-		B <- matrix(parameters[(n + n * n + 1 + n * n + 1 + 1):(n + n * n + 1 + 1 + n * n + p * n)], n, p, byrow = TRUE)
-	}
-
-	logFt <- 0
-	vFv <- 0
-
-	if (fitted.values) {
-		y.fitted <- matrix(NA, n, Tmax)
-		mu.fitted <- matrix(NA, n, Tmax)
-		se.y.fitted <- matrix(NA, n, Tmax)
-		se.mu.upper.fitted <- matrix(NA, n, Tmax)
-		se.mu.lower.fitted <- matrix(NA, n, Tmax)
-
-	}
-
-	for (t in 1:Tmax) {
-
-		if (t == 1) {
-
-			# Initial values at the stationary distribution
-
-			if (!is.null(X)) {
-				y <- B0 + B %*% X[, t, drop = FALSE]
-			} else {
-				y <- B0
-			}
-			if (max(abs(eigen(C)$values)) < 1) {
-				PP <- solve(diag(n * n) - kronecker(C, C)) %*% matrix(Se, nrow = n * n)
-				PP <- matrix(PP, n, n)
-			} else {
-				PP <- Se
-			}
-
-		} else {
-
-			# PREDICTION EQUATIONS
-
-			if (!is.null(X)) {
-				y <- B0 + C %*% (y - B0 - B %*% X[, t - 1, drop = FALSE]) + B %*% X[, t, drop = FALSE]
-			} else {
-				y <- B0 + C %*% (y - B0)
-			}
-			# y <- B0 + C %*% (y - B0) + B %*% X[, t, drop = FALSE]
-			PP <- C %*% PP %*% t(C) + Se
-		}
-
-		if (!any(is.na(Y[, which(t == Tsample)])) & is.element(t, Tsample)) {
-
-			# UPDATING EQUATIONS
-
-			size <- sum(Y[, which(t == Tsample)])
-
-			mu <- as.numeric(exp(y))
-			mu <- mu/sum(mu)
-
-			W <- diag((mu * (1 - mu))^-1) %*% (diag(mu) - matrix(mu, n, 1) %*% matrix(mu, 1, n)) %*% diag((mu * (1 - mu))^-1)
-			M <- diag(1 + mu) - (matrix(1, n, 1) %*% matrix(mu, 1, n))
-			D <- diag(mu * (1 - mu))
-			ZDM <- (D %*% M)[-1, ]
-			FF <- ZDM %*% PP %*% t(ZDM) + dispersion * (D %*% (W/size) %*% D)[-1, -1]
-
-			if (any(is.nan(FF)) || rcond(FF) < 1e-12)
-				return(1e+10)
-			invF <- solve(FF)
-
-			v <- Y[-1, which(t == Tsample)]/size - mu[-1]
-
-			y <- y + PP %*% t(ZDM) %*% invF %*% v
-			PP <- PP - PP %*% t(ZDM) %*% invF %*% ZDM %*% PP
-
-			logFt <- logFt + determinant(FF)$modulus[1]
-			vFv <- vFv + t(v) %*% invF %*% v
-
-		}
-		if (fitted.values) {
-			y.fitted[, t] <- y
-			mu <- as.numeric(exp(y))
-			mu <- mu/sum(mu)
-			mu.fitted[, t] <- mu
-			se.y.fitted[, t] <- sqrt(diag(PP))
-			se.mu.upper.fitted[, t] <- exp(y.fitted[, t] + se.y.fitted[, t])/sum(as.numeric(exp(y)))
-			se.mu.lower.fitted[, t] <- exp(y.fitted[, t] - se.y.fitted[, t])/sum(as.numeric(exp(y)))
-		}
-	}
-	LL <- logFt + vFv
-
-
-	if (is.complex(LL))
-		LL <- 10^10
-
-	if (!fitted.values) {
-		return(LL/2)
-	} else {
-		B0 <- t(B0)
-		colnames(B0) <- rownames(Y)
-		rownames(B0) <- "mean"
-
-		colnames(C) <- rownames(Y)
-		rownames(C) <- rownames(Y)
-
-		V <- (t(L) %*% L)
-		colnames(V) <- rownames(Y)
-		rownames(V) <- rownames(Y)
-
-		if (!is.null(X)) {
-			B <- t(B)
-			colnames(B) <- rownames(Y)
-			rownames(B) <- rownames(X)
-		} else {
-			B <- NULL
-		}
-
-		par <- parameters[is.na(par.fixed)]
-		logLik <- -((n - 1) * length(Tsample)/2) * log(2 * pi) - LL/2
-
-		sigma = abs(sigma)
-		par[names(par) == "sigma"] <- abs(par[names(par) == "sigma"])
-
-		return(list(B0 = B0, C = C, sigma = sigma, V = V, B = B, dispersion = dispersion, logLik = logLik, par = par, mu = t(mu.fitted),
-			y = t(y.fitted), se.y.fitted = t(se.y.fitted), se.mu.upper.fitted = t(se.mu.upper.fitted), se.mu.lower.fitted = t(se.mu.lower.fitted)))
-	}
-}
-
 # mnTS ------------------------------------------------------------------------
 #' Multinomial State-Space Model (mnTS)
 #'
@@ -211,6 +60,42 @@ mnTS.ml <- function(par, par.fixed, Y, X = NULL, Tsample, fitted.values = FALSE)
 #'   \item{se}{Approximate standard errors from the observed information matrix.}
 #'   \item{inv.information.matrix}{Inverse of the observed information matrix, or \code{NA} if not invertible.}
 #'
+#' @seealso [mnGLMM()] for obtaining starting values, [boot.mnTS()] for
+#'     bootstrapped standard errors, and [simulate.mnTS()].
+#'
+#' @examples
+#' # Tsample gives the time steps at which Y was observed: Y holds only the
+#' # sampled rows, while X must cover every time step the model iterates over.
+#' # This is a small, fast example (reference taxon plus two others over the
+#' # first 60 time steps). See the package vignette for a full analysis.
+#' data(story_pollen_matrix)
+#' data(story_char_matrix)
+#'
+#' Y_all <- story_pollen_matrix[, 1:3]
+#' sample_idx <- which(rowSums(Y_all) != 0)
+#' sample_idx <- sample_idx[sample_idx <= 60]
+#' Y <- Y_all[sample_idx, ]
+#' X <- scale(story_char_matrix)[1:60, , drop = FALSE]
+#' n <- ncol(Y)
+#'
+#' # NA = estimate, a number = hold fixed at that value.
+#' B0.fixed <- matrix(c(0, rep(NA, n - 1)), nrow = 1, ncol = n)
+#' B.fixed <- matrix(NA, nrow = ncol(X), ncol = n)
+#' B.fixed[, 1] <- 0                    # reference taxon
+#' V.fixed <- matrix(NA, n, n)
+#' V.fixed[1] <- 1                      # identifiability constraint
+#' C.start <- 0.5 * diag(n)             # self-regulation only
+#' C.fixed <- C.start
+#' C.fixed[C.fixed != 0] <- NA
+#'
+#' \donttest{
+#' ts_mod <- mnTS(Y = Y, X = X, Tsample = sample_idx,
+#'                B0.fixed = B0.fixed, B.fixed = B.fixed,
+#'                C.start = C.start, C.fixed = C.fixed,
+#'                V.fixed = V.fixed, dispersion.fixed = 1)
+#' summary(ts_mod)
+#' }
+#'
 #' @import numDeriv
 #' @import minqa
 #' @import stats
@@ -243,8 +128,26 @@ mnTS <- function(Y, X = NULL, Tsample = 1:nrow(Y),
 		stop("The response Y (dependent variable) has no variation.")
 	}
 	n <- ncol(Y)
-	nn <- n - 1
-	Tmax <- Tsample[length(Tsample)]
+
+	# check Tsample
+	# The filter steps forward from t = 1 to max(Tsample) and matches each row of
+	# Y to a time step by position, so Tsample must be strictly increasing and
+	# have exactly one entry per row of Y. Out-of-order indices used to be
+	# accepted silently and produced a model fitted over the wrong time span.
+	if (!is.numeric(Tsample) || anyNA(Tsample)) {
+		stop("Tsample must be a numeric vector of row indices with no missing values.")
+	}
+	if (any(Tsample != round(Tsample)) || any(Tsample < 1)) {
+		stop("Tsample must contain positive whole-number row indices.")
+	}
+	if (is.unsorted(Tsample, strictly = TRUE)) {
+		stop("Tsample must be strictly increasing; the model steps forward through time.")
+	}
+	if (length(Tsample) != nrow(Y)) {
+		stop("length(Tsample) (", length(Tsample), ") must equal nrow(Y) (", nrow(Y),
+			"); Tsample gives the time step of each row of Y.")
+	}
+	Tmax <- max(Tsample)
 
 	# check and name X
 	if (!is.null(X)) {
@@ -254,6 +157,10 @@ mnTS <- function(Y, X = NULL, Tsample = 1:nrow(Y),
 		if (is.null(colnames(X))) {
 			colnames(X) <- rep(NA, ncol(X))
 			for (i.col in 1:ncol(X)) colnames(X)[i.col] <- paste0("x", i.col)
+		}
+		if (nrow(X) < Tmax) {
+			stop("X has ", nrow(X), " rows but the model iterates to time step ", Tmax,
+				" (max(Tsample)); X must cover every time step.")
 		}
 		p <- ncol(X)
 	} else {
@@ -282,6 +189,17 @@ mnTS <- function(Y, X = NULL, Tsample = 1:nrow(Y),
 	# should stop users trying to use negative inputs
 	if (sigma.start < 0) {
 	  stop("Sigma is less than 0")
+	}
+
+	# Check dispersion
+	# dispersion is log-transformed below, so a value of 0 would put -Inf into
+	# par.fixed. The C++ side treats any non-finite entry as a free parameter,
+	# so that used to surface as an opaque "Mat::elem(): size mismatch".
+	if (!is.na(dispersion.fixed) && (!is.finite(dispersion.fixed) || dispersion.fixed <= 0)) {
+		stop("dispersion.fixed must be a positive, finite value, or NA to estimate it.")
+	}
+	if (!is.finite(dispersion.start) || dispersion.start <= 0) {
+		stop("dispersion.start must be a positive, finite value.")
 	}
 
 	# handle V
@@ -376,8 +294,16 @@ mnTS <- function(Y, X = NULL, Tsample = 1:nrow(Y),
 	fitted_par <- as.vector(fitted$par)
 	names(fitted_par) <- names(par.fixed)[is.na(par.fixed)]
 
-	rownames(fitted$B) <- B0.names
-	colnames(fitted$B) <- X.names
+	# Note: do not delete fitted$B to signal "no covariates". Removing the element
+	# makes fitted$B fall through to partial matching and silently return
+	# fitted$B0 instead. Build the output separately.
+	if (!is.null(X)) {
+		rownames(fitted$B) <- B0.names
+		colnames(fitted$B) <- X.names
+		B.out <- t(fitted$B)
+	} else {
+		B.out <- NULL
+	}
 
 	rownames(fitted$B0) <- B0.names
 	colnames(fitted$B0) <- "(intercept)"
@@ -416,7 +342,11 @@ mnTS <- function(Y, X = NULL, Tsample = 1:nrow(Y),
 		colnames(inv.information.matrix) <- names(par.with.se)
 
 		} else {
-		  information.matrix <- NULL
+		  # Every one of these is referenced when the results list is built below,
+		  # so they all need a value here, not just the information matrix.
+		  H <- NULL
+		  se <- NULL
+		  par.with.se <- NULL
 		  inv.information.matrix <- NULL
 		}
 
@@ -431,7 +361,7 @@ mnTS <- function(Y, X = NULL, Tsample = 1:nrow(Y),
 
 	results <- list(Y = t(Y), X = tX, Tsample = Tsample, B0 = t(fitted$B0), C = fitted$C,
 		sigma = fitted$sigma, dispersion = fitted$dispersion,
-		V = fitted$V, B = t(fitted$B), logLik = fitted$logLik,
+		V = fitted$V, B = B.out, logLik = fitted$logLik,
 		AIC = AIC, npar = npar, inv.information.matrix = inv.information.matrix,
 		par.with.se = par.with.se, se = se, information.matrix = H,
 		y = fitted$y, mu = fitted$mu, par = fitted_par, par.fixed = par.fixed,
@@ -451,8 +381,39 @@ mnTS <- function(Y, X = NULL, Tsample = 1:nrow(Y),
 #'     \code{\link{mnTS}} function.
 #' @param ... Additional arguments (currently unused).
 #'
-#' @return Returns a summary list containing key model estimates.
-#'     Also prints the summary to the console.
+#' @return \code{object}, invisibly. Called for the side effect of printing
+#'     the model summary to the console.
+#'
+#' @examples
+#' # A small, fast example: the reference taxon plus two others over the first
+#' # 60 time steps. See the package vignette for a full analysis.
+#' data(story_pollen_matrix)
+#' data(story_char_matrix)
+#'
+#' Y_all <- story_pollen_matrix[, 1:3]
+#' sample_idx <- which(rowSums(Y_all) != 0)
+#' sample_idx <- sample_idx[sample_idx <= 60]
+#' Y <- Y_all[sample_idx, ]
+#' X <- scale(story_char_matrix)[1:60, , drop = FALSE]
+#' n <- ncol(Y)
+#'
+#' # NA = estimate, a number = hold fixed at that value.
+#' B0.fixed <- matrix(c(0, rep(NA, n - 1)), nrow = 1, ncol = n)
+#' B.fixed <- matrix(NA, nrow = ncol(X), ncol = n)
+#' B.fixed[, 1] <- 0                    # reference taxon
+#' V.fixed <- matrix(NA, n, n)
+#' V.fixed[1] <- 1                      # identifiability constraint
+#' C.start <- 0.5 * diag(n)             # self-regulation only
+#' C.fixed <- C.start
+#' C.fixed[C.fixed != 0] <- NA
+#'
+#' \donttest{
+#' ts_mod <- mnTS(Y = Y, X = X, Tsample = sample_idx,
+#'                B0.fixed = B0.fixed, B.fixed = B.fixed,
+#'                C.start = C.start, C.fixed = C.fixed,
+#'                V.fixed = V.fixed, dispersion.fixed = 1)
+#' summary(ts_mod)
+#' }
 #'
 #' @export
 
@@ -482,18 +443,6 @@ summary.mnTS <- function(object, ...) {
 	    print(coef.table)
 	    cat("\ninformation matrix not invertible so se's not calculated")
 	  }
-	#   if (!all(is.na(mod$inv.information.matrix.cond))) {
-	#     cat("\n\nFitted Coefficients with conditional approximate se\n")
-	#     t.scores.cond <- mod$par.with.se.cond/mod$se.cond
-	#     coef.table.cond <- as.matrix(cbind(mod$par.with.se.cond, mod$se.cond, t.scores.cond, 2 * pnorm(q = abs(t.scores.cond), lower.tail = F)))
-	#     colnames(coef.table.cond) <- c("Coef.", "se", "t", "P")
-	#     print(coef.table.cond)
-	#   } else {
-	#     coef.table.cond <- as.matrix(mod$par.with.se.cond)
-	#     colnames(coef.table.cond) <- "Coef."
-	#     print(coef.table.cond)
-	#     cat("\nconditional information matrix not invertible so se's not calculated")
-	#   }
 	}
 
 	cat("\n\nOverall model")
@@ -513,9 +462,60 @@ summary.mnTS <- function(object, ...) {
 
 	cat("\n\nV = ", "\n")
 	print(mod$V)
+
+	invisible(object)
 }
 
-print.mnTS <- summary.mnTS
+
+# print.mnTS ----------------------------------------------------------
+#' Print Method for Multinomial State-Space Models
+#'
+#' Prints a fitted multinomial state-space model, using the same layout as
+#' \code{\link{summary.mnTS}}.
+#'
+#' @param x An object of class \code{"mnTS"}, as returned by the
+#'     \code{\link{mnTS}} function.
+#' @param ... Additional arguments passed to \code{\link{summary.mnTS}}.
+#'
+#' @return \code{x}, invisibly.
+#'
+#' @examples
+#' # A small, fast example: the reference taxon plus two others over the first
+#' # 60 time steps. See the package vignette for a full analysis.
+#' data(story_pollen_matrix)
+#' data(story_char_matrix)
+#'
+#' Y_all <- story_pollen_matrix[, 1:3]
+#' sample_idx <- which(rowSums(Y_all) != 0)
+#' sample_idx <- sample_idx[sample_idx <= 60]
+#' Y <- Y_all[sample_idx, ]
+#' X <- scale(story_char_matrix)[1:60, , drop = FALSE]
+#' n <- ncol(Y)
+#'
+#' # NA = estimate, a number = hold fixed at that value.
+#' B0.fixed <- matrix(c(0, rep(NA, n - 1)), nrow = 1, ncol = n)
+#' B.fixed <- matrix(NA, nrow = ncol(X), ncol = n)
+#' B.fixed[, 1] <- 0                    # reference taxon
+#' V.fixed <- matrix(NA, n, n)
+#' V.fixed[1] <- 1                      # identifiability constraint
+#' C.start <- 0.5 * diag(n)             # self-regulation only
+#' C.fixed <- C.start
+#' C.fixed[C.fixed != 0] <- NA
+#'
+#' \donttest{
+#' ts_mod <- mnTS(Y = Y, X = X, Tsample = sample_idx,
+#'                B0.fixed = B0.fixed, B.fixed = B.fixed,
+#'                C.start = C.start, C.fixed = C.fixed,
+#'                V.fixed = V.fixed, dispersion.fixed = 1)
+#' print(ts_mod)
+#' }
+#'
+#' @export
+
+print.mnTS <- function(x, ...) {
+	summary(x, ...)
+	invisible(x)
+}
 
 
 
@@ -529,7 +529,40 @@ print.mnTS <- summary.mnTS
 #'     \code{\link{mnTS}} function.
 #' @param ... Additional arguments (currently unused).
 #'
-#' @return A list of estimated model coefficients.
+#' @return A matrix of estimated coefficients. When an information matrix
+#'     is available it has columns \code{Coef.}, \code{se}, \code{t} and
+#'     \code{P}; otherwise it holds point estimates only.
+#'
+#' @examples
+#' # A small, fast example: the reference taxon plus two others over the first
+#' # 60 time steps. See the package vignette for a full analysis.
+#' data(story_pollen_matrix)
+#' data(story_char_matrix)
+#'
+#' Y_all <- story_pollen_matrix[, 1:3]
+#' sample_idx <- which(rowSums(Y_all) != 0)
+#' sample_idx <- sample_idx[sample_idx <= 60]
+#' Y <- Y_all[sample_idx, ]
+#' X <- scale(story_char_matrix)[1:60, , drop = FALSE]
+#' n <- ncol(Y)
+#'
+#' # NA = estimate, a number = hold fixed at that value.
+#' B0.fixed <- matrix(c(0, rep(NA, n - 1)), nrow = 1, ncol = n)
+#' B.fixed <- matrix(NA, nrow = ncol(X), ncol = n)
+#' B.fixed[, 1] <- 0                    # reference taxon
+#' V.fixed <- matrix(NA, n, n)
+#' V.fixed[1] <- 1                      # identifiability constraint
+#' C.start <- 0.5 * diag(n)             # self-regulation only
+#' C.fixed <- C.start
+#' C.fixed[C.fixed != 0] <- NA
+#'
+#' \donttest{
+#' ts_mod <- mnTS(Y = Y, X = X, Tsample = sample_idx,
+#'                B0.fixed = B0.fixed, B.fixed = B.fixed,
+#'                C.start = C.start, C.fixed = C.fixed,
+#'                V.fixed = V.fixed, dispersion.fixed = 1)
+#' coef(ts_mod)
+#' }
 #'
 #' @export
 
@@ -549,8 +582,12 @@ coef.mnTS <- function(object, ...) {
       coef.table <- as.matrix(mod$par.with.se)
       colnames(coef.table) <- "Coef."
     }
+  } else {
+    # Fitted with compute.information.matrix = FALSE: point estimates only.
+    coef.table <- as.matrix(mod$par)
+    colnames(coef.table) <- "Coef."
   }
-  return(coef.table = coef.table)
+  return(coef.table)
 }
 
 
@@ -561,81 +598,165 @@ coef.mnTS <- function(object, ...) {
 #'
 #' @param object An object of class \code{"mnTS"}, as returned by the
 #'     \code{\link{mnTS}} function.
-#' @param ... Additional arguments passed to the simulation routine.
+#' @param nsim Number of simulated datasets to generate (default 1).
+#' @param seed Optional seed for the random number generator. Passed to
+#'     \code{\link{set.seed}}; the previous RNG state is restored on exit.
+#' @param size Multinomial sample size (total counts) to draw at each sampled
+#'     time step. Defaults to \code{NULL}, which reuses the observed totals
+#'     from the data the model was fitted to, so simulated replicates carry the
+#'     same sampling effort as the data. May also be a single number, or a
+#'     vector with one entry per element of \code{object$Tsample}.
+#' @param ... Additional arguments (currently unused).
 #'
-#' @return A simulated dataset in the same structure as the response variable
-#'     \code{Y} used to fit the model.
+#' @return When \code{nsim = 1}, a list with the simulated response \code{Y}
+#'     and the model components used to generate it (\code{X}, \code{B0},
+#'     \code{C}, \code{sigma}, \code{V}, \code{B}). When \code{nsim > 1}, an
+#'     unnamed list of \code{nsim} such lists. Rows of \code{Y} at time steps
+#'     not in \code{object$Tsample} are \code{NA}, matching the observation
+#'     design of the input data.
+#'
+#' @examples
+#' # A small, fast example: the reference taxon plus two others over the first
+#' # 60 time steps. See the package vignette for a full analysis.
+#' data(story_pollen_matrix)
+#' data(story_char_matrix)
+#'
+#' Y_all <- story_pollen_matrix[, 1:3]
+#' sample_idx <- which(rowSums(Y_all) != 0)
+#' sample_idx <- sample_idx[sample_idx <= 60]
+#' Y <- Y_all[sample_idx, ]
+#' X <- scale(story_char_matrix)[1:60, , drop = FALSE]
+#' n <- ncol(Y)
+#'
+#' # NA = estimate, a number = hold fixed at that value.
+#' B0.fixed <- matrix(c(0, rep(NA, n - 1)), nrow = 1, ncol = n)
+#' B.fixed <- matrix(NA, nrow = ncol(X), ncol = n)
+#' B.fixed[, 1] <- 0                    # reference taxon
+#' V.fixed <- matrix(NA, n, n)
+#' V.fixed[1] <- 1                      # identifiability constraint
+#' C.start <- 0.5 * diag(n)             # self-regulation only
+#' C.fixed <- C.start
+#' C.fixed[C.fixed != 0] <- NA
+#'
+#' \donttest{
+#' ts_mod <- mnTS(Y = Y, X = X, Tsample = sample_idx,
+#'                B0.fixed = B0.fixed, B.fixed = B.fixed,
+#'                C.start = C.start, C.fixed = C.fixed,
+#'                V.fixed = V.fixed, dispersion.fixed = 1)
+#' sim <- simulate(ts_mod, seed = 1)
+#' # Simulated totals match the observed sampling effort.
+#' rowSums(sim$Y[sample_idx, ])[1:5]
+#' rowSums(ts_mod$Y)[1:5]
+#' }
 #'
 #' @importFrom mvtnorm rmvnorm
 #' @export
 
 
-simulate.mnTS <- function(object, ...) {
+simulate.mnTS <- function(object, nsim = 1, seed = NULL, size = NULL, ...) {
   mod <- object
+
+  # Standard stats::simulate seed handling: set the seed for this call only and
+  # restore whatever the caller had afterwards.
+  if (!is.null(seed)) {
+    if (!exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)) runif(1)
+    R.seed <- get(".Random.seed", envir = .GlobalEnv)
+    set.seed(seed)
+    on.exit(assign(".Random.seed", R.seed, envir = .GlobalEnv))
+  }
+  if (length(nsim) != 1L || !is.finite(nsim) || nsim < 1) {
+    stop("nsim must be a single positive whole number.")
+  }
+  nsim <- as.integer(nsim)
 
   Y <- t(mod$Y)
   n <- nrow(Y)
-  Tmax <- nrow(mod$X)
+  Tsample <- mod$Tsample
+  # Iterate over the same time span as the fitted model. nrow(mod$X) was used
+  # here previously, which is NULL for a model fitted without covariates.
+  Tmax <- max(Tsample)
+
+  # Multinomial sample sizes. These used to be hard-coded to 100 regardless of
+  # the data, which meant boot.mnTS() resampled with far less sampling effort
+  # than the real counts and so overstated the bootstrap standard errors.
+  # colSums(Y) is the observed total at each sampled time, i.e. the
+  # sum(Y[, which(t == Tsample)]) used by the likelihood.
+  size.t <- rep(NA_real_, Tmax)
+  if (is.null(size)) {
+    size.t[Tsample] <- colSums(Y)
+  } else if (length(size) == 1L) {
+    size.t[Tsample] <- size
+  } else if (length(size) == length(Tsample)) {
+    size.t[Tsample] <- size
+  } else {
+    stop("size must be a single value or have one entry per element of object$Tsample (",
+         length(Tsample), ").")
+  }
+  if (any(!is.finite(size.t[Tsample]) | size.t[Tsample] < 1)) {
+    stop("size must be finite and at least 1 at every sampled time step.")
+  }
 
   if (!is.null(mod$X)) {
     X <- t(mod$X)
-    # p <- nrow(X)
     B <- t(mod$B)
   } else {
     X <- NULL
-    p <- 1
-    B = (matrix(0, n, p))
+    B <- matrix(0, n, 1)
   }
 
   B0 <- t(mod$B0)
   C <- mod$C
   sigma <- mod$sigma
 
-  # V <- mod$V
-  # L <- V
-  # S <- t(L) %*% L
-  # S <-  mod$V
-  # Ssd <- diag(diag(S)^-.5)
-  # Se <- sigma^2 * Ssd %*% S %*% Ssd
-  # Ssd <- S[1, 1]
-  # Se <- sigma^2 * S/Ssd
   Se <- sigma^2 * mod$V
 
-  Y.sim <- matrix(NA, n, Tmax)
+  sim.one <- function() {
 
-  for (t in 1:Tmax) {
+    Y.sim <- matrix(NA, n, Tmax)
 
-    if (t == 1) {
+    for (t in 1:Tmax) {
 
-      # Initial values at the stationary distribution
+      if (t == 1) {
 
-      if (!is.null(X)) {
-        y <- B0 + B %*% X[, t, drop = FALSE]
+        # Initial values at the stationary distribution
+
+        if (!is.null(X)) {
+          y <- B0 + B %*% X[, t, drop = FALSE]
+        } else {
+          y <- B0
+        }
+        y <- y + t(rmvnorm(n = 1, sigma = Se))
       } else {
-        y <- B0
-      }
-      y <- y + t(rmvnorm(n = 1, sigma = Se))
-    } else {
 
-      # PREDICTION EQUATIONS
+        # PREDICTION EQUATIONS
 
-      if (!is.null(X)) {
-        y <- B0 + C %*% (y - B0 - B %*% X[, t - 1, drop = FALSE]) + B %*% X[, t, drop = FALSE]
-      } else {
-        y <- B0 + C %*% (y - B0)
+        if (!is.null(X)) {
+          y <- B0 + C %*% (y - B0 - B %*% X[, t - 1, drop = FALSE]) + B %*% X[, t, drop = FALSE]
+        } else {
+          y <- B0 + C %*% (y - B0)
+        }
+        y <- y + t(rmvnorm(n = 1, sigma = Se))
       }
-      y <- y + t(rmvnorm(n = 1, sigma = Se))
+
+      mu <- as.numeric(exp(y))
+      mu <- mu/sum(mu)
+
+      # Counts only exist where the data were sampled; other time steps stay NA.
+      if (!is.na(size.t[t])) {
+        Y.sim[, t] <- rmultinom(n = 1, size = size.t[t], prob = mu)
+      }
+
     }
-
-    mu <- as.numeric(exp(y))
-    mu <- mu/sum(mu)
-    size <- 100
-
-    Y.sim[,t] <- rmultinom(n = 1, size = size, prob = mu)
-
+    list(Y = t(Y.sim), X = mod$X, B0 = mod$B0, C = C, sigma = abs(sigma),
+         V = mod$V, B = mod$B)
   }
-  return(list(Y = t(Y.sim), X = t(X), B0 = t(B0), C = C, sigma = abs(sigma),
-              V = mod$V, B = t(B)))
+
+  # nsim = 1 returns a single simulation directly, so existing code that treats
+  # the result as one dataset keeps working.
+  if (nsim == 1L) {
+    return(sim.one())
+  }
+  lapply(seq_len(nsim), function(i) sim.one())
 }
 
 
@@ -646,6 +767,16 @@ simulate.mnTS <- function(object, ...) {
 #'
 #' @param object An object for which the bootstrap method is defined.
 #' @param ... Additional arguments passed to the method.
+#'
+#' @return The value returned by the method dispatched on \code{object};
+#'     see [boot.mnTS()].
+#'
+#' @section Name clash:
+#' This generic is also the name of the function in the \pkg{boot} package.
+#' If both packages are attached, call \code{multinomialTS::boot()}
+#' explicitly to be unambiguous.
+#'
+#' @seealso [boot.mnTS()]
 #'
 #' @export
 boot <- function(object, ...) {
@@ -659,10 +790,48 @@ boot <- function(object, ...) {
 #' Provides bootstrapped confidence intervals for an object of class \code{mnTS}.
 #'
 #' @param object An object of class \code{mnTS}.
-#' @param reps Integer. Number of bootstrap replications.
+#' @param reps Integer. Number of bootstrap replications. More is better; the
+#'     package vignette discusses how to choose a value.
 #' @param dispersion.fixed Numeric. Dispersion parameter (default is 1).
 #' @param maxit.optim Integer. Max iterations for optimization (default 100000).
 #' @param ... Additional arguments (not currently used).
+#'
+#' @return A list with three elements: \code{coef.table.boot}, a table of
+#'     bootstrapped coefficients with standard deviations, t-scores, P-values
+#'     and 68\% bounds; \code{all_mods_pars}, one row of coefficients per
+#'     successful replicate; and \code{all_mods}, the fitted replicate models.
+#'
+#' @examples
+#' # A small, fast example: the reference taxon plus two others over the first
+#' # 60 time steps. See the package vignette for a full analysis.
+#' data(story_pollen_matrix)
+#' data(story_char_matrix)
+#'
+#' Y_all <- story_pollen_matrix[, 1:3]
+#' sample_idx <- which(rowSums(Y_all) != 0)
+#' sample_idx <- sample_idx[sample_idx <= 60]
+#' Y <- Y_all[sample_idx, ]
+#' X <- scale(story_char_matrix)[1:60, , drop = FALSE]
+#' n <- ncol(Y)
+#'
+#' # NA = estimate, a number = hold fixed at that value.
+#' B0.fixed <- matrix(c(0, rep(NA, n - 1)), nrow = 1, ncol = n)
+#' B.fixed <- matrix(NA, nrow = ncol(X), ncol = n)
+#' B.fixed[, 1] <- 0                    # reference taxon
+#' V.fixed <- matrix(NA, n, n)
+#' V.fixed[1] <- 1                      # identifiability constraint
+#' C.start <- 0.5 * diag(n)             # self-regulation only
+#' C.fixed <- C.start
+#' C.fixed[C.fixed != 0] <- NA
+#'
+#' \donttest{
+#' ts_mod <- mnTS(Y = Y, X = X, Tsample = sample_idx,
+#'                B0.fixed = B0.fixed, B.fixed = B.fixed,
+#'                C.start = C.start, C.fixed = C.fixed,
+#'                V.fixed = V.fixed, dispersion.fixed = 1)
+#' boot_out <- boot(ts_mod, reps = 3)
+#' boot_out$coef.table.boot
+#' }
 #'
 #' @export
 #' @method boot mnTS
@@ -670,24 +839,34 @@ boot <- function(object, ...) {
 boot.mnTS <- function(object, reps, dispersion.fixed = 1, maxit.optim = 1e+05, ...) {
   mod <- object
 
-  mods <- replicate(simulate(mod), n = reps)
-  fit_mods <- vector(mode = "list", length = ncol(mods))
+  if (length(reps) != 1L || !is.finite(reps) || reps < 1) {
+    stop("reps must be a single positive whole number.")
+  }
+  reps <- as.integer(reps)
 
-  for (j in seq_len(ncol(mods))) {
+  # simulate() returns one dataset for nsim = 1 and a list of datasets above
+  # that, so normalise to a list either way.
+  sims <- if (reps == 1L) list(simulate(mod)) else simulate(mod, nsim = reps)
+  fit_mods <- vector(mode = "list", length = reps)
 
-    X <- mods[2, j]$X
-    Y <- mods[1, j]$Y
+  for (j in seq_along(sims)) {
+
+    X <- sims[[j]]$X
+    Y <- sims[[j]]$Y
+    n <- ncol(Y)
     Y <- Y[mod$Tsample, ]
 
+    # With no covariates there are no B coefficients to estimate; passing a
+    # non-NULL B.fixed here would add unnamed slots to the parameter vector.
     if (!is.null(X)) {
-      p <- ncol(mods[2, j]$X)
-    } else{
-      p <- 1
+      p <- ncol(X)
+      B.fixed <- matrix(NA, p, n)
+      B.fixed[, 1] <- 0
+      B.start <- mod$B
+    } else {
+      B.fixed <- NULL
+      B.start <- NULL
     }
-
-    n <- ncol(mods[1, j]$Y)
-    B.fixed <- matrix(NA, p, n)
-    B.fixed[,1] <- 0
 
     V.fixed <- matrix(NA, n, n)
     V.fixed[1] <- 1
@@ -699,21 +878,27 @@ boot.mnTS <- function(object, reps, dispersion.fixed = 1, maxit.optim = 1e+05, .
       {
         ss_mod <- mnTS(Y = Y, X = X,
                        B0.start = mod$B0,
-                       B.start = mod$B, B.fixed = B.fixed,
+                       B.start = B.start, B.fixed = B.fixed,
                        C.fixed = C.fixed, C.start = mod$C*0.5,
                        V.fixed = V.fixed, V.start = mod$V,
+                       sigma.start = mod$sigma,
                        dispersion.fixed = dispersion.fixed,
                        Tsample = mod$Tsample, maxit.optim = maxit.optim)
       },
       error=function(cond) {
         message("Here's the original error message:")
         message(conditionMessage(cond))
-        return(list(err = cond, full_mod = mods[1, j]))
+        return(list(err = cond, full_mod = sims[[j]]))
       }
     )
   }
-  # Filter out any models that had an error
-  fit_mods <- fit_mods[lapply(fit_mods, class) == "mnTS"]
+  # Filter out any models that had an error. inherits() rather than
+  # class() == "mnTS", which compares a list to a string and breaks for any
+  # object whose class attribute is not length 1.
+  fit_mods <- fit_mods[vapply(fit_mods, inherits, logical(1), what = "mnTS")]
+  if (!length(fit_mods)) {
+    stop("No bootstrap replicate fitted successfully; see the error messages above.")
+  }
 
   v.pars <- names(mod$par)[grep(names(mod$par), pattern = "^v\\.")]
   par.names.noshow.se <- c("dispersion","sigma", v.pars)
@@ -734,7 +919,10 @@ boot.mnTS <- function(object, reps, dispersion.fixed = 1, maxit.optim = 1e+05, .
   t_scores <- most_pars_mean / most_pars_sd
   p_vals <- 2 * pnorm(q = abs(t_scores), lower.tail = F)
 
-  n_fail_converged <- rep(sum(all_pars[, colnames(all_pars) %in% "opt.convergence"]), length(most_pars_mean))
+  # Count replicates that failed to converge. Summing the codes themselves
+  # overcounts: bobyqa reports 0 on success and 1-5 for different failures, so
+  # a single ierr = 5 used to be reported as five failures.
+  n_fail_converged <- rep(sum(all_pars[, colnames(all_pars) %in% "opt.convergence"] != 0), length(most_pars_mean))
   n_total <- rep(nrow(all_pars), length(most_pars_mean))
 
   boot_bind <- cbind(

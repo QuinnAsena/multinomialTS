@@ -15,7 +15,9 @@ story_char_matrix
 }
 \description{
 A matrix of charcoal accumulation rates from Story Lake, Indiana.
-   This matrix has been binned at a 50-year resolution and scaled.
+   This matrix has been binned at a 50-year resolution. Values are on the
+   original measurement scale; scale them (e.g. with [scale()]) before
+   passing them to [mnGLMM()] or [mnTS()].
 }
 \examples{
 data(story_char_matrix)

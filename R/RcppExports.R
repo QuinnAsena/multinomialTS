@@ -8,3 +8,4 @@ mnGLMM_ml_cpp_list <- function(par, par_fixed, Y, X) {
 mnTS_ml_cpp_list <- function(par, par_fixed, Y, X, Tsample) {
     .Call(`_multinomialTS_mnTS_ml_cpp_list`, par, par_fixed, Y, X, Tsample)
 }
+

@@ -1,195 +1,64 @@
-# Testing mnGLMM function runs with correct inputs
+# Baseline fit and input checks for mnGLMM.
+# The shared setup lives in helper-fixtures.R.
+
+fit_glmm <- function(..., s = story_setup()) {
+  args <- list(Y = s$Y[s$Tsample, ], X = s$X[s$Tsample, , drop = FALSE],
+               B.start = s$B.start.glmm, B.fixed = s$B.fixed.glmm,
+               V.fixed = s$V.fixed.glmm)
+  do.call(mnGLMM, utils::modifyList(args, list(...)))
+}
+
 test_that("mnGLMM works with example matrices", {
-  data("story_char_matrix", package = "multinomialTS")
-  data("story_pollen_matrix", package = "multinomialTS")
-
-  Tsample <- which(rowSums(story_pollen_matrix) != 0)
-
-  story_pollen_matrix[Tsample, ]
-
-  X <- scale(story_char_matrix)
-  Y <- story_pollen_matrix
-  p <- ncol(X) + 1
-  n <- ncol(Y)
-
-  V.fixed = diag(n)
-  B.fixed <- matrix(c(rep(0,p),rep(NA, (n - 1) * p)), p, n)
-  B.start <- matrix(c(rep(0,p),rep(.01, (n - 1) * p)), p, n)
-
-  glmm_mod <- multinomialTS::mnGLMM(
-    Y = Y[Tsample, ], X = X[Tsample, ,drop = F],
-    B.start = B.start, B.fixed = B.fixed,
-    V.fixed = V.fixed)
-
-  expect_s3_class(glmm_mod, "mnGLMM")
+  g <- story_glmm()
+  expect_s3_class(g, "mnGLMM")
+  # Regression guard on the fitted likelihood, not just the class.
+  expect_equal(g$logLik, 464.0598885, tolerance = 1e-6)
+  expect_equal(dim(g$B), c(story_setup()$p, story_setup()$n))
+  expect_true(all(is.finite(g$se)))
 })
 
-# Testing mnGLMM function runs with incorrect method for optimiser
 test_that("mnGLMM prints error for optimiser method", {
-  data("story_char_matrix", package = "multinomialTS")
-  data("story_pollen_matrix", package = "multinomialTS")
-
-  Tsample <- which(rowSums(story_pollen_matrix) != 0)
-
-  story_pollen_matrix[Tsample, ]
-
-  X <- scale(story_char_matrix)
-  Y <- story_pollen_matrix
-  p <- ncol(X) + 1
-  n <- ncol(Y)
-
-  V.fixed = diag(n)
-  B.fixed <- matrix(c(rep(0,p),rep(NA, (n - 1) * p)), p, n)
-  B.start <- matrix(c(rep(0,p),rep(.01, (n - 1) * p)), p, n)
-
   expect_error(
-    glmm_mod <- multinomialTS::mnGLMM(
-      Y = Y[Tsample, ], X = X[Tsample, ,drop = F],
-      B.start = B.start, B.fixed = B.fixed,
-      V.fixed = V.fixed, method = "foo-bar"),
-  regexp = "Acceptable methods are Nelder-Mead {optim},  BFGS {optim}, and bobyqa {minqa}.",
-  fixed = TRUE
-  )
+    fit_glmm(method = "foo-bar"),
+    regexp = "Acceptable methods are Nelder-Mead {optim},  BFGS {optim}, and bobyqa {minqa}.",
+    fixed = TRUE)
 })
 
-
-# Testing mnGLMM function runs with incorrect dimensions of Y
-test_that("mnGLMM prints error for incorrect dimensions of X and Y", {
-  data("story_char_matrix", package = "multinomialTS")
-  data("story_pollen_matrix", package = "multinomialTS")
-
-  Tsample <- which(rowSums(story_pollen_matrix) != 0)
-
-  story_pollen_matrix[Tsample, ]
-
-  X <- scale(story_char_matrix)
-  Y <- story_pollen_matrix[Tsample, ]
-  Y <- Y[1:(nrow(Y)-10), ]
-  p <- ncol(X) + 1
-  n <- ncol(Y)
-
-  V.fixed = diag(n)
-  B.fixed <- matrix(c(rep(0,p),rep(NA, (n - 1) * p)), p, n)
-  B.start <- matrix(c(rep(0,p),rep(.01, (n - 1) * p)), p, n)
-
+test_that("mnGLMM prints error when Y has fewer rows than X", {
+  s <- story_setup()
+  Y <- s$Y[s$Tsample, ]
   expect_error(
-    glmm_mod <- multinomialTS::mnGLMM(
-      Y = Y, X = X[Tsample, ,drop = F],
-      B.start = B.start, B.fixed = B.fixed,
-      V.fixed = V.fixed),
-    regexp = "Variables X and Y have different lengths."
-  )
+    fit_glmm(Y = Y[1:(nrow(Y) - 10), ], s = s),
+    regexp = "Variables X and Y have different lengths.")
 })
 
-
-# Testing mnGLMM function runs with incorrect dimensions of X
-test_that("mnGLMM prints error for incorrect dimensions of X and Y", {
-  data("story_char_matrix", package = "multinomialTS")
-  data("story_pollen_matrix", package = "multinomialTS")
-
-  Tsample <- which(rowSums(story_pollen_matrix) != 0)
-
-  story_pollen_matrix[Tsample, ]
-
-  X <- scale(story_char_matrix[1:(nrow(story_char_matrix)-10), ])
-  Y <- story_pollen_matrix
-  p <- ncol(X) + 1
-  n <- ncol(Y)
-
-  V.fixed = diag(n)
-  B.fixed <- matrix(c(rep(0,p),rep(NA, (n - 1) * p)), p, n)
-  B.start <- matrix(c(rep(0,p),rep(.01, (n - 1) * p)), p, n)
-
+test_that("mnGLMM prints error when X has fewer rows than Y", {
+  s <- story_setup()
   expect_error(
-    glmm_mod <- multinomialTS::mnGLMM(
-      Y = Y[Tsample, ], X = X,
-      B.start = B.start, B.fixed = B.fixed,
-      V.fixed = V.fixed),
-    regexp = "Variables X and Y have different lengths."
-  )
+    fit_glmm(X = scale(get("story_char_matrix")[1:50, , drop = FALSE]), s = s),
+    regexp = "Variables X and Y have different lengths.")
 })
 
-
-# Testing mnGLMM function runs with incorrect dimensions of V
 test_that("mnGLMM prints error if V is the incorrect dimensions", {
-  data("story_char_matrix", package = "multinomialTS")
-  data("story_pollen_matrix", package = "multinomialTS")
-
-  Tsample <- which(rowSums(story_pollen_matrix) != 0)
-
-  story_pollen_matrix[Tsample, ]
-
-  X <- scale(story_char_matrix)
-  Y <- story_pollen_matrix
-  p <- ncol(X) + 1
-  n <- ncol(Y)
-
-  V.fixed = diag(n-1)
-  B.fixed <- matrix(c(rep(0,p),rep(NA, (n - 1) * p)), p, n)
-  B.start <- matrix(c(rep(0,p),rep(.01, (n - 1) * p)), p, n)
-
+  s <- story_setup()
   expect_error(
-    glmm_mod <- multinomialTS::mnGLMM(
-      Y = Y[Tsample, ], X = X[Tsample, ,drop = F],
-      B.start = B.start, B.fixed = B.fixed,
-      V.fixed = V.fixed),
-    regexp = "V.fixed should have dimensions equal to the number of categories in Y."
-  )
+    fit_glmm(V.fixed = diag(s$n - 1), s = s),
+    regexp = "V.fixed should have dimensions equal to the number of categories in Y.")
 })
 
-# Testing mnGLMM function runs with incorrect dimensions of V
-test_that("mnGLMM prints error if V is not symetric", {
-  data("story_char_matrix", package = "multinomialTS")
-  data("story_pollen_matrix", package = "multinomialTS")
-
-  Tsample <- which(rowSums(story_pollen_matrix) != 0)
-
-  story_pollen_matrix[Tsample, ]
-
-  X <- scale(story_char_matrix)
-  Y <- story_pollen_matrix
-  p <- ncol(X) + 1
-  n <- ncol(Y)
-
-  V.fixed = diag(n)
-  V.fixed[1,2] <- 0.5
-  B.fixed <- matrix(c(rep(0,p),rep(NA, (n - 1) * p)), p, n)
-  B.start <- matrix(c(rep(0,p),rep(.01, (n - 1) * p)), p, n)
-
+test_that("mnGLMM prints error if V is not symmetric", {
+  s <- story_setup()
+  V.fixed <- diag(s$n)
+  V.fixed[1, 2] <- 0.5
   expect_error(
-    glmm_mod <- multinomialTS::mnGLMM(
-      Y = Y[Tsample, ], X = X[Tsample, ,drop = F],
-      B.start = B.start, B.fixed = B.fixed,
-      V.fixed = V.fixed),
-    regexp = "V.fixed should be symmetric."
-  )
+    fit_glmm(V.fixed = V.fixed, s = s),
+    regexp = "V.fixed should be symmetric.")
 })
 
-# Testing mnGLMM function runs with incorrect dimensions of B
 test_that("mnGLMM prints error if B is the incorrect dimensions", {
-  data("story_char_matrix", package = "multinomialTS")
-  data("story_pollen_matrix", package = "multinomialTS")
-
-  Tsample <- which(rowSums(story_pollen_matrix) != 0)
-
-  story_pollen_matrix[Tsample, ]
-
-  X <- scale(story_char_matrix)
-  Y <- story_pollen_matrix
-  p <- ncol(X) + 1
-  n <- ncol(Y)
-
-  V.fixed = diag(n)
-  B.fixed <- matrix(c(rep(0,p),rep(NA, (n - 1) * p)), p, n)
-  B.fixed <- B.fixed[ ,1:(ncol(B.fixed)-1)]
-  B.start <- matrix(c(rep(0,p),rep(.01, (n - 1) * p)), p, n)
-
+  s <- story_setup()
   expect_error(
-    glmm_mod <- multinomialTS::mnGLMM(
-      Y = Y[Tsample, ], X = X[Tsample, ,drop = F],
-      B.start = B.start, B.fixed = B.fixed,
-      V.fixed = V.fixed),
+    fit_glmm(B.fixed = s$B.fixed.glmm[, 1:(s$n - 1)], s = s),
     regexp = "dimensions of B.fixed should be c(ncol(X)+1, ncol(Y)).",
-    fixed = TRUE
-  )
+    fixed = TRUE)
 })

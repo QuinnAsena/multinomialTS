@@ -13,8 +13,11 @@ Rcpp::List mnGLMM_ml_cpp_list(
     arma::mat Y,
     arma::mat X) {
 
+    // Free parameters are the NaN entries of par_fixed. This must match R's
+    // is.na(par.fixed), which is NaN only: find_nonfinite would also pick up
+    // +/-Inf entries and silently shift the parameter mapping.
     arma::vec parameters = par_fixed;
-    arma::uvec par_nas = arma::find_nonfinite(par_fixed);
+    arma::uvec par_nas = arma::find_nan(par_fixed);
     parameters.elem(par_nas) = par;
 
     arma::uword n    = Y.n_cols;

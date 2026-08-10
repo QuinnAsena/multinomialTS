@@ -5,8 +5,11 @@
 \alias{bootstrap_sensitivity}
 \title{Sunfish Pond bootstrapped sensitivity}
 \format{
-a list where each element is the output of
-a bootstrapped model.
+A list with one element per binning resolution (75- and 150-year
+   bins), each the output of \code{\link{boot.mnTS}}.
+}
+\source{
+Produced by the code in the Sunfish Pond vignette.
 }
 \usage{
 bootstrap_sensitivity
@@ -16,5 +19,6 @@ Bootstrapped sensitivity to binning width
 }
 \examples{
 data(bootstrap_sensitivity)
+names(bootstrap_sensitivity)
 }
 \keyword{datasets}

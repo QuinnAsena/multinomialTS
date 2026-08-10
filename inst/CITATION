@@ -1,0 +1,15 @@
+citHeader("To cite multinomialTS in publications use:")
+
+bibentry(
+  bibtype  = "Manual",
+  title    = "multinomialTS: State-Space Modelling of Multinomially Distributed Data",
+  author   = c(person("Anthony", "Ives"), person("Quinn", "Asena")),
+  year     = "2024",
+  note     = sprintf("R package version %s", meta$Version),
+  url      = "https://quinnasena.github.io/multinomialTS/"
+)
+
+# TODO(maintainer): add the methods/application paper here. The Story Lake
+# dataset documentation cites doi:10.1111/1365-2745.14289; fill in the title,
+# author list, journal and year and add a second bibentry() so users cite the
+# paper alongside the software.

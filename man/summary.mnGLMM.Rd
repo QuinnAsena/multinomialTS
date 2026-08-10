@@ -12,8 +12,17 @@
 \item{...}{Additional arguments (currently unused).}
 }
 \value{
-Prints coefficient estimates from a fitted mnGLMM
+\code{object}, invisibly. Called for the side effect of printing
+    the coefficient estimates from a fitted mnGLMM.
 }
 \description{
 Prints the summary of a mnGLMM model.
+}
+\examples{
+data(story_pollen_matrix)
+sample_idx <- which(rowSums(story_pollen_matrix) != 0)
+n <- ncol(story_pollen_matrix)
+glmm_mod <- mnGLMM(Y = story_pollen_matrix[sample_idx, ], V.fixed = diag(n))
+summary(glmm_mod)
+
 }
