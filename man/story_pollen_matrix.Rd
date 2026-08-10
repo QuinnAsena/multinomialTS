@@ -5,7 +5,7 @@
 \alias{story_pollen_matrix}
 \title{Story Pollen Matrix}
 \format{
-A matrix with `160` rows (samples) and `5` columns (taxa).
+A matrix with \code{160} rows (samples) and \code{5} columns (taxa).
 }
 \source{
 For details see vignette
@@ -15,10 +15,10 @@ story_pollen_matrix
 }
 \description{
 A matrix of pollen taxa counts from Story Lake, Indiana. Data are organised
-   into a reference group of "other" taxa, a functional group of hardwood
-   taxa, and target taxa of Fagus grandifolia, Ulmus spp., and Quercus spp.
-   Data have been binned at a 50-year resolution with empty bins filled with
-   0-values (i.e., rows of 0 are empty bins, see vignette for details).
+into a reference group of "other" taxa, a functional group of hardwood
+taxa, and target taxa of Fagus grandifolia, Ulmus spp., and Quercus spp.
+Data have been binned at a 50-year resolution with empty bins filled with
+0-values (i.e., rows of 0 are empty bins, see vignette for details).
 }
 \examples{
 data(story_pollen_matrix)

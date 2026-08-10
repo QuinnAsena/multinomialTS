@@ -4,7 +4,7 @@ on:
   push:
     tags:
       - 'v*.*.*'
-  workflow_dispatch: # Enables manual runs for GHA debugging
+  workflow_dispatch: # Manual runs build and upload artifacts but publish nothing
 
 permissions:
   contents: write
@@ -42,29 +42,31 @@ jobs:
           use-public-rspm: true
 
       # Installs and caches the dependencies declared in DESCRIPTION rather
-      # than a hand-maintained list.
+      # than a hand-maintained list. "hard" = Depends/Imports/LinkingTo, which
+      # is all a binary build needs (vignettes are not rebuilt).
       - name: Install R package dependencies
         uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::pkgbuild
           dependencies: '"hard"'
 
+      # dest_path is a workspace-relative directory on purpose. Interpolating
+      # ${{ runner.temp }} into a bash script breaks on Windows, where it is a
+      # backslash path that bash would treat as escapes.
+      # pipefail matters: without it the exit status of `... | tee` is tee's,
+      # so a failed build would not fail the step.
       - name: Build binary package
-        id: build
         shell: bash
         run: |
-          set -e
-          mkdir -p "${{ runner.temp }}/build"
-          Rscript -e 'pkgbuild::build(binary = TRUE, dest_path = Sys.getenv("DEST"), args = c("--no-multiarch", "--preclean", "--clean"))' \
-            2>&1 | tee build.log
+          set -euo pipefail
+          mkdir -p pkgbuild-out
+          Rscript -e 'pkgbuild::build(binary = TRUE, dest_path = "pkgbuild-out", args = c("--no-multiarch", "--preclean", "--clean"))'
           VER=$(Rscript -e 'cat(read.dcf("DESCRIPTION")[1,"Version"])')
-          ART=$(ls -1 "${{ runner.temp }}/build"/multinomialTS_*.${{ matrix.ext }} | head -n 1)
-          NEW="${{ runner.temp }}/build/multinomialTS_${VER}-${{ matrix.label }}.${{ matrix.ext }}"
+          ART=$(ls -1 pkgbuild-out/multinomialTS_*.${{ matrix.ext }} | head -n 1)
+          NEW="pkgbuild-out/multinomialTS_${VER}-${{ matrix.label }}.${{ matrix.ext }}"
           mv "$ART" "$NEW"
           echo "Built: $NEW"
-          echo "artifact=$NEW" >> "$GITHUB_OUTPUT"
-        env:
-          DEST: ${{ runner.temp }}/build
+          ls -l pkgbuild-out
 
       # Guards against shipping a binary built for the wrong architecture, which
       # is what happened when both macOS builds ran on the same runner.
@@ -72,8 +74,8 @@ jobs:
         if: runner.os == 'macOS'
         shell: bash
         run: |
-          set -e
-          cd "${{ runner.temp }}/build"
+          set -euo pipefail
+          cd pkgbuild-out
           tar xzf multinomialTS_*-${{ matrix.label }}.tgz
           FOUND=$(lipo -archs multinomialTS/libs/multinomialTS.so)
           echo "Shared object architectures: $FOUND"
@@ -85,16 +87,21 @@ jobs:
             echo "::error::Expected $EXPECT but built $FOUND"
             exit 1
           fi
+          rm -rf multinomialTS
 
-      - name: Upload Release Asset
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: multinomialTS-${{ matrix.label }}
-          path: ${{ runner.temp }}/build/multinomialTS_*-${{ matrix.label }}.${{ matrix.ext }}
+          path: pkgbuild-out/multinomialTS_*-${{ matrix.label }}.${{ matrix.ext }}
+          if-no-files-found: error
 
   release:
     runs-on: ubuntu-latest
     needs: build
+    # Only publish for an actual version tag. Without this guard a manual
+    # workflow_dispatch run would create a release named after the branch.
+    if: startsWith(github.ref, 'refs/tags/v')
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 

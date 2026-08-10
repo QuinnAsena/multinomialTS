@@ -25,11 +25,11 @@ vector with one entry per element of \code{object$Tsample}.}
 }
 \value{
 When \code{nsim = 1}, a list with the simulated response \code{Y}
-    and the model components used to generate it (\code{X}, \code{B0},
-    \code{C}, \code{sigma}, \code{V}, \code{B}). When \code{nsim > 1}, an
-    unnamed list of \code{nsim} such lists. Rows of \code{Y} at time steps
-    not in \code{object$Tsample} are \code{NA}, matching the observation
-    design of the input data.
+and the model components used to generate it (\code{X}, \code{B0},
+\code{C}, \code{sigma}, \code{V}, \code{B}). When \code{nsim > 1}, an
+unnamed list of \code{nsim} such lists. Rows of \code{Y} at time steps
+not in \code{object$Tsample} are \code{NA}, matching the observation
+design of the input data.
 }
 \description{
 Generates simulated datasets from a fitted mnTS object.

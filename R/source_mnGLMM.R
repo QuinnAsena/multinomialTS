@@ -257,7 +257,13 @@ mnGLMM <- function(Y, X = NULL, B.fixed = NULL, B.start = NULL,
 		inv.information.matrix <- NULL
 		}
 
-	fitted$par["dispersion"] <- exp(fitted$par["dispersion"])
+	# Undo the log transform, but only when dispersion was actually estimated.
+	# fitted$par holds free parameters only, so when dispersion is fixed there is
+	# no "dispersion" element and this assignment used to *append* one with the
+	# value exp(NA) = NA, inflating npar by 1 and AIC by 2.
+	if ("dispersion" %in% names(fitted$par)) {
+		fitted$par["dispersion"] <- exp(fitted$par["dispersion"])
+	}
 
 	npar <- length(fitted$par)
 	AIC <- -2 * fitted$logLik + 2 * npar

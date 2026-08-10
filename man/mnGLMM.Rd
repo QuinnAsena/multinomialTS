@@ -73,16 +73,16 @@ numerical Hessian calculator (e.g., \code{numDeriv::hessian}).}
 }
 \value{
 An object of class \code{"mnGLMM"} with components including:
-  \item{B}{Estimated covariate coefficients (p x n matrix).}
-  \item{sigma}{Estimated process noise scale.}
-  \item{V}{Estimated species covariance matrix.}
-  \item{dispersion}{Estimated observation dispersion parameter.}
-  \item{mu}{Fitted multinomial probabilities (Tmax x n matrix).}
-  \item{logLik}{Log-likelihood at the maximum.}
-  \item{AIC}{Akaike Information Criterion.}
-  \item{par}{Estimated parameters as a named vector.}
-  \item{se}{Approximate standard errors from the observed information matrix.}
-  \item{inv.information.matrix}{Inverse of the observed information matrix, or \code{NA} if not invertible.}
+\item{B}{Estimated covariate coefficients (p x n matrix).}
+\item{sigma}{Estimated process noise scale.}
+\item{V}{Estimated species covariance matrix.}
+\item{dispersion}{Estimated observation dispersion parameter.}
+\item{mu}{Fitted multinomial probabilities (Tmax x n matrix).}
+\item{logLik}{Log-likelihood at the maximum.}
+\item{AIC}{Akaike Information Criterion.}
+\item{par}{Estimated parameters as a named vector.}
+\item{se}{Approximate standard errors from the observed information matrix.}
+\item{inv.information.matrix}{Inverse of the observed information matrix, or \code{NA} if not invertible.}
 }
 \description{
 Fits a multivariate generalized linear regression model for multinomially
@@ -112,6 +112,6 @@ summary(glmm_mod)
 
 }
 \seealso{
-[mnTS()], which uses the estimates from \code{mnGLMM} as starting
-    values.
+\code{\link[=mnTS]{mnTS()}}, which uses the estimates from \code{mnGLMM} as starting
+values.
 }

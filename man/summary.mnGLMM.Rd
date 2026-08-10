@@ -13,7 +13,7 @@
 }
 \value{
 \code{object}, invisibly. Called for the side effect of printing
-    the coefficient estimates from a fitted mnGLMM.
+the coefficient estimates from a fitted mnGLMM.
 }
 \description{
 Prints the summary of a mnGLMM model.

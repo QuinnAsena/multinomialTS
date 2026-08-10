@@ -101,6 +101,43 @@ test_that("mnGLMM fits with X = NULL and with default B arguments", {
   expect_equal(g_default$logLik, story_glmm()$logLik, tolerance = 1e-6)
 })
 
+# npar / AIC ------------------------------------------------------------------
+
+test_that("npar counts only free parameters, so AIC is not inflated", {
+  # With dispersion fixed (the default) there is no "dispersion" element in the
+  # free-parameter vector, so exponentiating it used to append one with value
+  # exp(NA) = NA. That made npar one too high and AIC two too high.
+  m <- story_mnTS()
+  g <- story_glmm()
+
+  expect_equal(m$npar, sum(is.na(m$par.fixed)))
+  expect_equal(g$npar, sum(is.na(g$par.fixed)))
+  expect_false("dispersion" %in% names(m$par))
+  expect_false("dispersion" %in% names(g$par))
+  expect_false(anyNA(m$par))
+  expect_false(anyNA(g$par))
+  expect_length(m$se, length(m$par))
+  expect_length(g$se, length(g$par))
+  expect_equal(m$AIC, -2 * m$logLik + 2 * m$npar)
+  expect_equal(g$AIC, -2 * g$logLik + 2 * g$npar)
+})
+
+test_that("an estimated dispersion is still returned on the natural scale", {
+  s <- story_setup()
+  invisible(capture.output(
+    m <- mnTS(Y = s$Y[s$Tsample, ], X = s$X, Tsample = s$Tsample,
+              B0.fixed = s$B0.fixed, B.fixed = s$B.fixed,
+              C.start = s$C.start, C.fixed = s$C.fixed, V.fixed = s$V.fixed,
+              dispersion.fixed = NA, dispersion.start = 1, maxit.optim = QUICK)
+  ))
+  expect_true(is.na(m$par.fixed["dispersion"]))
+  expect_true("dispersion" %in% names(m$par))
+  # par must hold the exponentiated value, matching the reported dispersion.
+  expect_equal(unname(m$par["dispersion"]), m$dispersion, tolerance = 1e-8)
+  expect_gt(m$dispersion, 0)
+  expect_equal(m$npar, sum(is.na(m$par.fixed)))
+})
+
 # simulate --------------------------------------------------------------------
 
 test_that("simulate reuses the observed sampling effort", {

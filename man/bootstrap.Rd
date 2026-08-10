@@ -13,11 +13,11 @@ bootstrap(object, ...)
 }
 \value{
 The value returned by the method dispatched on \code{object};
-    see [bootstrap.mnTS()].
+see \code{\link[=bootstrap.mnTS]{bootstrap.mnTS()}}.
 }
 \description{
 This is a generic bootstrap function for models.
 }
 \seealso{
-[bootstrap.mnTS()]
+\code{\link[=bootstrap.mnTS]{bootstrap.mnTS()}}
 }

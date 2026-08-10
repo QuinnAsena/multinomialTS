@@ -5,7 +5,7 @@
 \alias{story_pollen_wide}
 \title{Story Pollen Wide}
 \format{
-A tibble with `95` rows (observations) and `7` columns.
+A tibble with \code{95} rows (observations) and \code{7} columns.
 }
 \source{
 For details see https://doi.org/10.1111/1365-2745.14289
@@ -15,9 +15,9 @@ story_pollen_wide
 }
 \description{
 A ~10,000-year data set from Story Lake, Indiana, of modelled ages, sample
-   depths, pollen taxa. Data are organised into a reference group of
-   "other" taxa, a functional group of hardwood taxa, and target taxa
-   of Fagus grandifolia, Ulmus spp., and Quercus spp.
+depths, pollen taxa. Data are organised into a reference group of
+"other" taxa, a functional group of hardwood taxa, and target taxa
+of Fagus grandifolia, Ulmus spp., and Quercus spp.
 }
 \examples{
 data(story_pollen_wide)

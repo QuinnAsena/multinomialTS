@@ -7,6 +7,14 @@
 #
 # Keep them behaviourally identical to the C++, including the guard values
 # returned for a non-invertible or non-finite likelihood.
+#
+# One known divergence, in the fitted.values = TRUE branch only: these functions
+# apply abs() to the "sigma" element of the returned `par` vector, whereas the
+# C++ returns it unmodified (it only applies abs() to the separate `sigma`
+# field). sigma enters the likelihood squared, so the optimiser can settle on a
+# negative value and the two then disagree in sign on par["sigma"]. The
+# equivalency tests compare the likelihood and the B/mu/logLik outputs, not
+# `par`, so this is not exercised.
 
 mnTS.ml <- function(par, par.fixed, Y, X = NULL, Tsample, fitted.values = FALSE) {
 

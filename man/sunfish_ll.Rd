@@ -5,9 +5,9 @@
 \alias{sunfish_ll}
 \title{Sunfish Pond level}
 \format{
-A tibble with `299` rows and `4` columns: `age`, `lake_lvl`
-   (cm relative to modern), and the reconstruction bounds `UpperBound`
-   and `LowerBound`.
+A tibble with \code{299} rows and \code{4} columns: \code{age}, \code{lake_lvl}
+(cm relative to modern), and the reconstruction bounds \code{UpperBound}
+and \code{LowerBound}.
 }
 \source{
 Johnson et al., in review. See the Sunfish Pond vignette.

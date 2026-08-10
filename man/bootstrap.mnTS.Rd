@@ -20,9 +20,9 @@ package vignette discusses how to choose a value.}
 }
 \value{
 A list with three elements: \code{coef.table.boot}, a table of
-    bootstrapped coefficients with standard deviations, t-scores, P-values
-    and 68\% bounds; \code{all_mods_pars}, one row of coefficients per
-    successful replicate; and \code{all_mods}, the fitted replicate models.
+bootstrapped coefficients with standard deviations, t-scores, P-values
+and 68\% bounds; \code{all_mods_pars}, one row of coefficients per
+successful replicate; and \code{all_mods}, the fitted replicate models.
 }
 \description{
 Provides bootstrapped confidence intervals for an object of class \code{mnTS}.

@@ -9,17 +9,17 @@ boot(object, ...)
 \arguments{
 \item{object}{An object of class \code{mnTS}.}
 
-\item{...}{Passed to [bootstrap()].}
+\item{...}{Passed to \code{\link[=bootstrap]{bootstrap()}}.}
 }
 \value{
-The value returned by [bootstrap()].
+The value returned by \code{\link[=bootstrap]{bootstrap()}}.
 }
 \description{
-Deprecated in favour of [bootstrap()], which does the same thing under a name
+Deprecated in favour of \code{\link[=bootstrap]{bootstrap()}}, which does the same thing under a name
 that does not collide with \code{boot::boot()} from the recommended
 \pkg{boot} package. This wrapper warns and forwards, and will be removed in a
 future release.
 }
 \seealso{
-[bootstrap()], which replaces this function.
+\code{\link[=bootstrap]{bootstrap()}}, which replaces this function.
 }

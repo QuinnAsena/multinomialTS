@@ -5,7 +5,7 @@
 \alias{story_char_matrix}
 \title{Story Charcoal Matrix}
 \format{
-A `1` column matrix with `160` rows (observations).
+A \code{1} column matrix with \code{160} rows (observations).
 }
 \source{
 For details see vignette
@@ -15,9 +15,9 @@ story_char_matrix
 }
 \description{
 A matrix of charcoal accumulation rates from Story Lake, Indiana.
-   This matrix has been binned at a 50-year resolution. Values are on the
-   original measurement scale; scale them (e.g. with [scale()]) before
-   passing them to [mnGLMM()] or [mnTS()].
+This matrix has been binned at a 50-year resolution. Values are on the
+original measurement scale; scale them (e.g. with \code{\link[=scale]{scale()}}) before
+passing them to \code{\link[=mnGLMM]{mnGLMM()}} or \code{\link[=mnTS]{mnTS()}}.
 }
 \examples{
 data(story_char_matrix)

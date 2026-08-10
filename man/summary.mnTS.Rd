@@ -14,7 +14,7 @@
 }
 \value{
 \code{object}, invisibly. Called for the side effect of printing
-    the model summary to the console.
+the model summary to the console.
 }
 \description{
 Provides a summary of the fitted multinomial state-space model.

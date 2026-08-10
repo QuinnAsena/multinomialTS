@@ -14,8 +14,8 @@
 }
 \value{
 A matrix of estimated coefficients. When an information matrix
-    is available it has columns \code{Coef.}, \code{se}, \code{t} and
-    \code{P}; otherwise it holds point estimates only.
+is available it has columns \code{Coef.}, \code{se}, \code{t} and
+\code{P}; otherwise it holds point estimates only.
 }
 \description{
 Extracts estimated coefficients from a fitted multinomial state-space model.

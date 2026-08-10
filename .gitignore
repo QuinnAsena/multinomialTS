@@ -58,3 +58,4 @@ inst/doc
 *.so
 *.dll
 *.dylib
+pkgbuild-out/

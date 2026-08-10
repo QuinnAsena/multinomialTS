@@ -84,6 +84,17 @@
   `matrixStats::colMeans2()`, because subsetting the one-row parameter matrix
   collapsed it to a vector.
 
+* **`npar` and `AIC` were wrong whenever `dispersion` was held fixed**, which is
+  the default. Undoing the internal log transform of `dispersion` assigned into
+  a parameter vector that does not contain it when it is fixed, which *appended*
+  a spurious `dispersion = NA` element rather than transforming anything. `npar`
+  was therefore one too high and `AIC` two too high, in both `mnTS()` and
+  `mnGLMM()`. Comparisons among models that all fix dispersion were unaffected
+  (the offset was constant), but reported AIC values were wrong and comparing a
+  fixed-dispersion model against one that estimates dispersion was biased.
+  `object$par` no longer carries the spurious `NA` entry, and
+  `length(object$se) == length(object$par)` now holds.
+
 * `print()` now dispatches for `mnTS` and `mnGLMM` objects. The methods existed
   but were absent from `NAMESPACE`, so an installed package fell through to
   `print.default`.

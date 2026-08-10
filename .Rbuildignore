@@ -12,3 +12,4 @@
 ^vignettes/\.quarto$
 ^LICENSE\.md$
 ^data-raw$
+^TODO\.md$

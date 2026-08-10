@@ -350,7 +350,13 @@ mnTS <- function(Y, X = NULL, Tsample = 1:nrow(Y),
 		  inv.information.matrix <- NULL
 		}
 
-	fitted_par["dispersion"] <- exp(fitted_par["dispersion"])
+	# Undo the log transform, but only when dispersion was actually estimated.
+	# fitted_par holds free parameters only, so when dispersion is fixed there is
+	# no "dispersion" element and this assignment used to *append* one with the
+	# value exp(NA) = NA. That inflated npar by 1 and so AIC by 2.
+	if ("dispersion" %in% names(fitted_par)) {
+		fitted_par["dispersion"] <- exp(fitted_par["dispersion"])
+	}
 
 	if (!is.null(X))
 		tX <- t(X)
@@ -819,7 +825,7 @@ boot <- function(object, ...) {
 #'
 #' @return A list with three elements: \code{coef.table.boot}, a table of
 #'     bootstrapped coefficients with standard deviations, t-scores, P-values
-#'     and 68\% bounds; \code{all_mods_pars}, one row of coefficients per
+#'     and 68% bounds; \code{all_mods_pars}, one row of coefficients per
 #'     successful replicate; and \code{all_mods}, the fitted replicate models.
 #'
 #' @examples
