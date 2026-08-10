@@ -96,11 +96,17 @@
 <p><code>macos-13</code> is the last Intel runner GitHub offers. When it is retired, Intel macOS binaries will need either a different approach or dropping.</p>
 </div>
 <div class="section level3">
-<h3 id="id_10-readme-binary-urls-point-at-a-release-that-must-exist">10. README binary URLs point at a release that must exist<a class="anchor" aria-label="anchor" href="#id_10-readme-binary-urls-point-at-a-release-that-must-exist"></a></h3>
+<h3 id="id_10-vignette-re-building-fails-during-r-cmd-check-on-windows">10. Vignette re-building fails during <code>R CMD check</code> on Windows<a class="anchor" aria-label="anchor" href="#id_10-vignette-re-building-fails-during-r-cmd-check-on-windows"></a></h3>
+<p><code>R-CMD-check</code> skips vignettes on the Windows job only (<code>build_args</code> includes <code>--no-build-vignettes</code>, <code>args</code> includes <code>--ignore-vignettes</code>). macOS and all three Linux jobs build them normally, and the pkgdown workflow renders both articles on every push, so rendering is still covered.</p>
+<p>The Windows job failed about 3 minutes in — before any model fitting, which takes ~20 minutes — reporting “Vignette re-building failed” for both vignettes. The suspected cause is the <code>quarto</code> R package’s handling of <code>system2(env = )</code> on Windows: it passes the environment assignment to the CLI as an argument, so <code>quarto TMPDIR=C:\... -V</code> errors with <code>Unknown command "TMPDIR=..."</code>. That is reproducible locally with quarto R package 1.5.1 and CLI 1.7.30, though <code><a href="https://quarto-dev.github.io/quarto-r/reference/quarto_version.html" class="external-link">quarto::quarto_version()</a></code> recovers from it and a direct <code><a href="https://quarto-dev.github.io/quarto-r/reference/quarto_render.html" class="external-link">quarto::quarto_render()</a></code> succeeds — so the exact failure inside the vignette engine is not yet pinned down.</p>
+<p><strong>To diagnose properly</strong> the job log is needed (reading it requires admin rights on the repository). Worth re-testing after a <code>quarto</code> R package update before investing further.</p>
+</div>
+<div class="section level3">
+<h3 id="id_11-readme-binary-urls-point-at-a-release-that-must-exist">11. README binary URLs point at a release that must exist<a class="anchor" aria-label="anchor" href="#id_11-readme-binary-urls-point-at-a-release-that-must-exist"></a></h3>
 <p><code>README.md</code> links to <code>v1.1.0</code> release assets. Those 404 until the <code>v1.1.0</code> tag is pushed and <code>build.yml</code> publishes them.</p>
 </div>
 <div class="section level3">
-<h3 id="id_11-consider-cran">11. Consider CRAN<a class="anchor" aria-label="anchor" href="#id_11-consider-cran"></a></h3>
+<h3 id="id_12-consider-cran">12. Consider CRAN<a class="anchor" aria-label="anchor" href="#id_12-consider-cran"></a></h3>
 <p>The package now passes <code>R CMD check --as-cran</code> cleanly apart from the environmental time NOTE. If CRAN submission is ever the goal, the remaining work is a <code>cran-comments.md</code>, checking on r-hub/win-builder, and confirming the 30-minute vignette build is acceptable (it very likely is not — see item 7).</p>
 </div>
 </div>
