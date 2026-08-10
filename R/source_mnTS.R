@@ -60,7 +60,7 @@
 #'   \item{se}{Approximate standard errors from the observed information matrix.}
 #'   \item{inv.information.matrix}{Inverse of the observed information matrix, or \code{NA} if not invertible.}
 #'
-#' @seealso [mnGLMM()] for obtaining starting values, [boot.mnTS()] for
+#' @seealso [mnGLMM()] for obtaining starting values, [bootstrap.mnTS()] for
 #'     bootstrapped standard errors, and [simulate.mnTS()].
 #'
 #' @examples
@@ -677,7 +677,7 @@ simulate.mnTS <- function(object, nsim = 1, seed = NULL, size = NULL, ...) {
   Tmax <- max(Tsample)
 
   # Multinomial sample sizes. These used to be hard-coded to 100 regardless of
-  # the data, which meant boot.mnTS() resampled with far less sampling effort
+  # the data, which meant bootstrap.mnTS() resampled with far less sampling effort
   # than the real counts and so overstated the bootstrap standard errors.
   # colSums(Y) is the observed total at each sampled time, i.e. the
   # sum(Y[, which(t == Tsample)]) used by the likelihood.
@@ -760,7 +760,7 @@ simulate.mnTS <- function(object, nsim = 1, seed = NULL, size = NULL, ...) {
 }
 
 
-# boot ------------------------------------------------------------
+# bootstrap ------------------------------------------------------------
 #' Multinomial state-space bootstrap
 #'
 #' This is a generic bootstrap function for models.
@@ -769,22 +769,43 @@ simulate.mnTS <- function(object, nsim = 1, seed = NULL, size = NULL, ...) {
 #' @param ... Additional arguments passed to the method.
 #'
 #' @return The value returned by the method dispatched on \code{object};
-#'     see [boot.mnTS()].
+#'     see [bootstrap.mnTS()].
 #'
-#' @section Name clash:
-#' This generic is also the name of the function in the \pkg{boot} package.
-#' If both packages are attached, call \code{multinomialTS::boot()}
-#' explicitly to be unambiguous.
-#'
-#' @seealso [boot.mnTS()]
+#' @seealso [bootstrap.mnTS()]
 #'
 #' @export
-boot <- function(object, ...) {
-  UseMethod("boot")
+bootstrap <- function(object, ...) {
+  UseMethod("bootstrap")
 }
 
 
-# boot.mnTS -------------------------------------------------------
+# boot (deprecated) ---------------------------------------------------
+#' Bootstrap a model (deprecated)
+#'
+#' Deprecated in favour of [bootstrap()], which does the same thing under a name
+#' that does not collide with \code{boot::boot()} from the recommended
+#' \pkg{boot} package. This wrapper warns and forwards, and will be removed in a
+#' future release.
+#'
+#' @param object An object of class \code{mnTS}.
+#' @param ... Passed to [bootstrap()].
+#'
+#' @return The value returned by [bootstrap()].
+#'
+#' @seealso [bootstrap()], which replaces this function.
+#'
+#' @export
+boot <- function(object, ...) {
+  .Deprecated("bootstrap", package = "multinomialTS",
+    msg = paste("multinomialTS::boot() is deprecated and will be removed in a",
+                "future release; use bootstrap() instead. The old name clashed",
+                "with boot::boot() from the recommended boot package, so",
+                "whichever package was attached second masked the other."))
+  bootstrap(object, ...)
+}
+
+
+# bootstrap.mnTS -------------------------------------------------------
 #' Bootstrap method for mnTS objects
 #'
 #' Provides bootstrapped confidence intervals for an object of class \code{mnTS}.
@@ -829,14 +850,14 @@ boot <- function(object, ...) {
 #'                B0.fixed = B0.fixed, B.fixed = B.fixed,
 #'                C.start = C.start, C.fixed = C.fixed,
 #'                V.fixed = V.fixed, dispersion.fixed = 1)
-#' boot_out <- boot(ts_mod, reps = 3)
+#' boot_out <- bootstrap(ts_mod, reps = 3)
 #' boot_out$coef.table.boot
 #' }
 #'
 #' @export
-#' @method boot mnTS
+#' @method bootstrap mnTS
 
-boot.mnTS <- function(object, reps, dispersion.fixed = 1, maxit.optim = 1e+05, ...) {
+bootstrap.mnTS <- function(object, reps, dispersion.fixed = 1, maxit.optim = 1e+05, ...) {
   mod <- object
 
   if (length(reps) != 1L || !is.finite(reps) || reps < 1) {
@@ -908,16 +929,17 @@ boot.mnTS <- function(object, reps, dispersion.fixed = 1, maxit.optim = 1e+05, .
     par.all <- c(par.show.se, logLik = fit_mods[[rep]]$logLik, opt.convergence = fit_mods[[rep]]$opt.convergence)
   })
   all_pars <- do.call(rbind, pars)
-  most_pars <- all_pars[, !colnames(all_pars) %in% c("logLik", "opt.convergence")]
+  # drop = FALSE: with a single surviving replicate this subsetting would
+  # otherwise collapse to a vector and matrixStats would reject it.
+  most_pars <- all_pars[, !colnames(all_pars) %in% c("logLik", "opt.convergence"),
+                        drop = FALSE]
 
-  most_pars_mean <- matrixStats::colMeans2(most_pars, na.rm = T)
-  most_pars_sd <- matrixStats::colSds(most_pars, na.rm = T)
-  # most_pars_upper_68 <- matrixStats::colQuantiles(most_pars, probs = 0.84, na.rm = T)
-  # most_pars_lower_68 <- matrixStats::colQuantiles(most_pars, probs = 0.16, na.rm = T)
+  most_pars_mean <- matrixStats::colMeans2(most_pars, na.rm = TRUE)
+  most_pars_sd <- matrixStats::colSds(most_pars, na.rm = TRUE)
   most_pars_upper_68 <- most_pars_mean + most_pars_sd
   most_pars_lower_68 <- most_pars_mean - most_pars_sd
   t_scores <- most_pars_mean / most_pars_sd
-  p_vals <- 2 * pnorm(q = abs(t_scores), lower.tail = F)
+  p_vals <- 2 * pnorm(q = abs(t_scores), lower.tail = FALSE)
 
   # Count replicates that failed to converge. Summing the codes themselves
   # overcounts: bobyqa reports 0 on success and 1-5 for different failures, so

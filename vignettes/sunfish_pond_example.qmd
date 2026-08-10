@@ -304,7 +304,7 @@ It's always good idea to save the model outputs as they can take a while to run.
 
 plan(multisession, workers = length(bin_sensitivity_res))
 bootstrap_sensitivity <- furrr::future_map(
-  bin_sensitivity_res, multinomialTS::boot, reps = 20,
+  bin_sensitivity_res, multinomialTS::bootstrap, reps = 20,
   .options = furrr_options(seed = 1984))
 
 # saveRDS(bootstrap_sensitivity, "...")
@@ -313,12 +313,16 @@ bootstrap_sensitivity <- furrr::future_map(
 
 Now we have our models bootstrapped, we can plot the output coefficients for the different binning resolutions. While the output provides useful tables of results, these tables need some wrangling before they plot nicely in `ggplot2`. In this example we pull out the $B$ coefficients from the bootstrap output and visualise them per bin resolution. The process is similar for the $C$ coefficients. Currently, this is a bit of a manual slog, not very user-friendly, and we will be updating the package to include helper functions. For now, bear with us :)
 
+::: {.callout-note}
+The remaining code in this vignette is shown but **not run**, because bootstrap output depends on the model version that produced it and so is not bundled with the package. Run the two chunks above on your own data (saving the results with `saveRDS()`, as commented), and the code below will then work against your `bootstrap_sensitivity` object.
+:::
+
 
 ```{r}
 #| label: BootWrangle
 #| message: false
 #| warning: false
-#| eval: true
+#| eval: false
 
 # Named vector mapping model column names to human-readable labels for plot axes
 X_names_list <- c(
@@ -374,7 +378,7 @@ Now that we have everything wrangled and re-named, let's make some visualisation
 #| label: BootPlot
 #| message: false
 #| warning: false
-#| eval: true
+#| eval: false
 
 mod_plots_B <- mods_boot_68_B |>
   mutate(panel = "Lake level effect") |>
@@ -400,8 +404,14 @@ mod_plots_B <- mods_boot_68_B |>
 mod_plots_B
 ```
 
-In this instance, there is no great change in the $B$ coefficients at the different binning resolutions. This is good! We can have some confidence that our inferences are not strongly affected by the window size. The smaller binning window (75-year bins) maintains all observations in independent bins and the model had no issue converging at this resolution. That is a reasonable justification to go with a 75-year binning resolution.
+## Reading the result
 
+When we ran this on the Sunfish Pond data, the $B$ coefficients changed little
+between 75- and 150-year bins, which is reassuring — it means the inferences are
+not an artefact of the prediction resolution. Combined with the fact that 75-year
+bins keep all 69 observations in independent bins, and that the model converged
+without trouble at that resolution, there was a reasonable case for going with
+75-year bins.
 
 
 

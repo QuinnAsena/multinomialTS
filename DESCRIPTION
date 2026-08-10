@@ -1,7 +1,7 @@
 Package: multinomialTS
 Type: Package
 Title: State-Space Modelling of Multinomially Distributed Data
-Version: 1.0.3.9000
+Version: 1.1.0
 Authors@R: c(
     person("Anthony", "Ives", role = "aut"),
     person("Quinn", "Asena", email = "qasena@wisc.edu", role = c("aut", "cre")))

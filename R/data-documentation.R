@@ -63,23 +63,6 @@
 
 
 
-#' Story 100 bootstraps
-#'
-#' 100 bootstraps of the story data as modelled in the vignette. This is the
-#'    \code{coef.table.boot} element of a \code{\link{boot.mnTS}} result, not
-#'    the full bootstrap object.
-#'
-#' @format A matrix with `29` rows (coefficients) and `8` columns:
-#'    `boot_mean`, `se`, `t`, `P`, `upper68`, `lower68`, `n_fail_converged`
-#'    and `n_total`.
-#' @source Produced by bootstrapping the Story Lake model; see vignette.
-#'
-#' @examples
-#' data(story_100_bootstraps)
-#' head(story_100_bootstraps)
-"story_100_bootstraps"
-
-
 #' Sunfish Pond pollen
 #'
 #' A ~13,800 yr pollen record organised into
@@ -108,16 +91,3 @@
 #' @examples
 #' data(sunfish_ll)
 "sunfish_ll"
-
-#' Sunfish Pond bootstrapped sensitivity
-#'
-#' Bootstrapped sensitivity to binning width
-#'
-#' @format A list with one element per binning resolution (75- and 150-year
-#'    bins), each the output of \code{\link{boot.mnTS}}.
-#' @source Produced by the code in the Sunfish Pond vignette.
-#'
-#' @examples
-#' data(bootstrap_sensitivity)
-#' names(bootstrap_sensitivity)
-"bootstrap_sensitivity"

@@ -8,7 +8,7 @@ reference:
   desc: Fit and interrogate multinomial state-space models
   contents:
   - mnTS
-  - boot.mnTS
+  - bootstrap.mnTS
   - coef.mnTS
   - simulate.mnTS
   - summary.mnTS
@@ -21,7 +21,7 @@ reference:
   - print.mnGLMM
 - title: Generic functions
   contents:
-  - boot
+  - bootstrap
 - title: Datasets
   desc: Example datasets bundled with the package
   contents:
@@ -29,10 +29,12 @@ reference:
   - story_pollen_matrix
   - story_char_wide
   - story_char_matrix
-  - story_100_bootstraps
-  - bootstrap_sensitivity
   - sunfish_pollen_wide
   - sunfish_ll
+- title: Deprecated
+  desc: Retained for backwards compatibility; will be removed in a future release
+  contents:
+  - boot
 
 articles:
 - title: Vignettes

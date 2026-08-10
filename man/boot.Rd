@@ -2,29 +2,24 @@
 % Please edit documentation in R/source_mnTS.R
 \name{boot}
 \alias{boot}
-\title{Multinomial state-space bootstrap}
+\title{Bootstrap a model (deprecated)}
 \usage{
 boot(object, ...)
 }
 \arguments{
-\item{object}{An object for which the bootstrap method is defined.}
+\item{object}{An object of class \code{mnTS}.}
 
-\item{...}{Additional arguments passed to the method.}
+\item{...}{Passed to [bootstrap()].}
 }
 \value{
-The value returned by the method dispatched on \code{object};
-    see [boot.mnTS()].
+The value returned by [bootstrap()].
 }
 \description{
-This is a generic bootstrap function for models.
+Deprecated in favour of [bootstrap()], which does the same thing under a name
+that does not collide with \code{boot::boot()} from the recommended
+\pkg{boot} package. This wrapper warns and forwards, and will be removed in a
+future release.
 }
-\section{Name clash}{
-
-This generic is also the name of the function in the \pkg{boot} package.
-If both packages are attached, call \code{multinomialTS::boot()}
-explicitly to be unambiguous.
-}
-
 \seealso{
-[boot.mnTS()]
+[bootstrap()], which replaces this function.
 }

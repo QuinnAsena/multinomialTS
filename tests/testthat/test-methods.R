@@ -136,12 +136,12 @@ test_that("simulate honours size, nsim and seed", {
   expect_identical(before, after)
 })
 
-# boot ------------------------------------------------------------------------
+# bootstrap -------------------------------------------------------------------
 
-test_that("boot returns the documented structure and counts failures correctly", {
+test_that("bootstrap returns the documented structure and counts failures correctly", {
   m <- story_mnTS()
   set.seed(5)
-  invisible(capture.output(b <- boot(m, reps = 2, maxit.optim = QUICK)))
+  invisible(capture.output(b <- bootstrap(m, reps = 2, maxit.optim = QUICK)))
 
   expect_named(b, c("coef.table.boot", "all_mods_pars", "all_mods"))
   expect_true(is.matrix(b$coef.table.boot))
@@ -156,5 +156,21 @@ test_that("boot returns the documented structure and counts failures correctly",
                sum(codes != 0))
   expect_lte(unique(b$coef.table.boot[, "n_fail_converged"]), 2)
 
-  expect_error(boot(m, reps = 0), "positive whole number")
+  expect_error(bootstrap(m, reps = 0), "positive whole number")
+})
+
+test_that("the deprecated boot() still works but warns", {
+  # boot() was renamed to bootstrap() because it clashed with boot::boot() from
+  # the recommended boot package. The old name forwards for one release cycle.
+  m <- story_mnTS()
+  set.seed(5)
+  invisible(capture.output(
+    expect_warning(b <- boot(m, reps = 1, maxit.optim = QUICK), "deprecated")
+  ))
+  expect_named(b, c("coef.table.boot", "all_mods_pars", "all_mods"))
+
+  # bootstrap() is the generic; boot() must not be one, or an unregistered
+  # boot.mnTS would be treated as an apparent S3 method.
+  expect_true("bootstrap.mnTS" %in% as.character(utils::methods(class = "mnTS")))
+  expect_false(any(grepl("^boot\\.mnTS$", as.character(utils::methods(class = "mnTS")))))
 })

@@ -143,6 +143,6 @@ summary(ts_mod)
 
 }
 \seealso{
-[mnGLMM()] for obtaining starting values, [boot.mnTS()] for
+[mnGLMM()] for obtaining starting values, [bootstrap.mnTS()] for
     bootstrapped standard errors, and [simulate.mnTS()].
 }

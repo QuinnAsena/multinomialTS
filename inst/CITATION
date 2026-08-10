@@ -1,15 +1,27 @@
-citHeader("To cite multinomialTS in publications use:")
+citHeader("To cite multinomialTS, please cite both the paper describing the method and the software version you used:")
+
+bibentry(
+  bibtype  = "Article",
+  title    = "Statistical analyses of ecological multinomial time series to identify environmental drivers and biotic interactions",
+  author   = c(person("Quinn", "Asena"),
+               person(c("John", "W."), "Williams"),
+               person("Jonathan", "Johnson"),
+               person("Bryan", "Shuman"),
+               person("Vania", "Stefanova"),
+               person("Anthony", "Ives")),
+  journal  = "Methods in Ecology and Evolution",
+  year     = "2026",
+  volume   = "17",
+  number   = "7",
+  pages    = "2189--2204",
+  doi      = "10.1111/2041-210X.70315"
+)
 
 bibentry(
   bibtype  = "Manual",
   title    = "multinomialTS: State-Space Modelling of Multinomially Distributed Data",
   author   = c(person("Anthony", "Ives"), person("Quinn", "Asena")),
-  year     = "2024",
+  year     = "2026",
   note     = sprintf("R package version %s", meta$Version),
   url      = "https://quinnasena.github.io/multinomialTS/"
 )
-
-# TODO(maintainer): add the methods/application paper here. The Story Lake
-# dataset documentation cites doi:10.1111/1365-2745.14289; fill in the title,
-# author list, journal and year and add a second bibentry() so users cite the
-# paper alongside the software.

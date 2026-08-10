@@ -57,7 +57,7 @@ The best way to install at the moment is to compile from source:
 
 Alternatively, if you are having issues with the build tools, install the binaries:
 
-- `install.packages("https://github.com/QuinnAsena/multinomialTS/releases/download/v1.0.3/multinomialTS_1.0.3-windows.zip", repos = NULL, type = "win.binary")`
+- `install.packages("https://github.com/QuinnAsena/multinomialTS/releases/download/v1.1.0/multinomialTS_1.1.0-windows.zip", repos = NULL, type = "win.binary")`
 
 
 ### macOS
@@ -74,11 +74,11 @@ Alternatively, if you are having issues with the build tools, install the binari
 
 For new M-series macs, use:
 
-- `install.packages("https://github.com/QuinnAsena/multinomialTS/releases/download/v1.0.3/multinomialTS_1.0.3-macOS-arm64.tgz", repos = NULL)`
+- `install.packages("https://github.com/QuinnAsena/multinomialTS/releases/download/v1.1.0/multinomialTS_1.1.0-macOS-arm64.tgz", repos = NULL)`
 
 For Intel macs, use:
 
-- `install.packages("https://github.com/QuinnAsena/multinomialTS/releases/download/v1.0.3/multinomialTS_1.0.3-macOS-x86_64.tgz", repos = NULL)`
+- `install.packages("https://github.com/QuinnAsena/multinomialTS/releases/download/v1.1.0/multinomialTS_1.1.0-macOS-x86_64.tgz", repos = NULL)`
 
 
 ### Linux

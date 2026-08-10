@@ -57,8 +57,6 @@ library(multinomialTS)
 data("story_char_wide", package = "multinomialTS")
 # Read-in the long data for plotting
 data("story_pollen_wide", package = "multinomialTS")
-# Read-in bootstrapped model
-data("story_100_bootstraps", package = "multinomialTS")
 ```
 
 Here is what the state variable ($Y$) data look like:
@@ -453,15 +451,19 @@ coef(mnTS_mod_int)
 
 ## Bootstrapping
 
-We have found that bootstrapping provides better estimates of standard errors (and subsequent P-values). The `boot()` function will bootstrap the model, caution as this may take a long time. To bootstrap a mnTS model you can call:
+We have found that bootstrapping provides better estimates of standard errors (and subsequent P-values). The `bootstrap()` function will bootstrap the model, caution as this may take a long time. To bootstrap a mnTS model you can call:
 
 ```{r}
 #| eval: false
 
 # Not run as this takes a long time!
-mnTS_int_boot <- boot(mnTS_mod_int, reps = 1000)
+mnTS_int_boot <- bootstrap(mnTS_mod_int, reps = 1000)
 
 ```
+
+::: {.callout-note}
+This function used to be called `boot()`. It was renamed because `boot` clashes with `boot::boot()` from the `boot` package, which ships with every R installation. `boot()` still works but warns, and will be removed in a future release.
+:::
 
 We strongly recommend bootstrapping your final models. Bootstrapping a model can take quite some time (depending on the data), so don't be surprised if it runs for a while! The object returned from bootstrapping is a `list` with three elements:
 
@@ -476,7 +478,7 @@ We can do a timing test on 5 bootstraps:
 #| output: false
 
 start_boot <- Sys.time()
-mnTS_int_boot <- boot(mnTS_mod_int, reps = 5)
+mnTS_int_boot <- bootstrap(mnTS_mod_int, reps = 5)
 end_boot <- Sys.time()
 
 ```
@@ -486,7 +488,11 @@ On the system that created this vignette: fitting the initial interaction model 
 
 ### Plotting bootstrapped coefficients
 
-To show how to access and plot the bootstrapped coefficients we will use a pre-run example of 100 bootstraps using the `coef.table.boot` object. Only 100 bootstraps would usually be too few for best results, but we need a small working example for the purposes of demonstration.
+This section shows how to get at the bootstrapped coefficients and plot them, using the `coef.table.boot` element of the 5-replicate run above.
+
+::: {.callout-important}
+Five replicates is **far** too few to interpret. The plots below exist to show you the wrangling and plotting code, not to support any conclusion — with this few replicates the error bars are essentially noise. For real work use as many replicates as your processing power allows (hundreds to thousands), and see the timing advice above for how to budget that.
+:::
 
 Bootstrapping simulates species from the process equation. The simulated species are named y1 ... yn. In future versions I will update the bootstrapping function to have the option of maintaining the species names from the input matrix. But for now, we rename them:
 
@@ -497,7 +503,7 @@ The `y1 ... yn` names map to columns of $Y$ **by position**, so the mapping belo
 ```{r}
 
 # Extract and reshape the summarised coefficient table from the bootstrap output
-plot_boot <- story_100_bootstraps |>
+plot_boot <- mnTS_int_boot$coef.table.boot |>
   dplyr::as_tibble(rownames = "name") |>
   dplyr::filter(grepl("sp.*|char.*", name)) |> # Take species and covariate coefficients
   mutate(name = 

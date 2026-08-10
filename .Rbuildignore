@@ -11,3 +11,4 @@
 ^\.vscode$
 ^vignettes/\.quarto$
 ^LICENSE\.md$
+^data-raw$
