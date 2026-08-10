@@ -20,11 +20,29 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {os: macos-latest,   r: 'release'}
-          - {os: windows-latest, r: 'release'}
-          - {os: ubuntu-latest,  r: 'devel', http-user-agent: 'release'}
-          - {os: ubuntu-latest,  r: 'release'}
-          - {os: ubuntu-latest,  r: 'oldrel-1'}
+          - {os: macos-latest,   r: 'release',
+             build_args: 'c("--no-manual", "--compact-vignettes=gs+qpdf")',
+             args: 'c("--no-manual", "--as-cran")'}
+          - {os: ubuntu-latest,  r: 'devel', http-user-agent: 'release',
+             build_args: 'c("--no-manual", "--compact-vignettes=gs+qpdf")',
+             args: 'c("--no-manual", "--as-cran")'}
+          - {os: ubuntu-latest,  r: 'release',
+             build_args: 'c("--no-manual", "--compact-vignettes=gs+qpdf")',
+             args: 'c("--no-manual", "--as-cran")'}
+          - {os: ubuntu-latest,  r: 'oldrel-1',
+             build_args: 'c("--no-manual", "--compact-vignettes=gs+qpdf")',
+             args: 'c("--no-manual", "--as-cran")'}
+          # Vignettes are skipped on Windows only. Re-building them there fails
+          # inside the quarto vignette engine before any model fitting starts
+          # (~3 min in, whereas a real build takes ~20), while macOS and Linux
+          # build them without trouble. The quarto R package mishandles
+          # system2(env = ) on Windows, passing "TMPDIR=..." to the quarto CLI
+          # as a command argument. See TODO.md.
+          # Vignette rendering is still covered: the pkgdown workflow renders
+          # both articles on every push.
+          - {os: windows-latest, r: 'release',
+             build_args: 'c("--no-manual", "--no-build-vignettes")',
+             args: 'c("--no-manual", "--as-cran", "--ignore-vignettes")'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -51,4 +69,5 @@ jobs:
       - uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
-          build_args: 'c("--no-manual", "--compact-vignettes=gs+qpdf")'
+          build_args: ${{ matrix.config.build_args }}
+          args: ${{ matrix.config.args }}

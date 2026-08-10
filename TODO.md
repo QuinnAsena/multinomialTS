@@ -133,12 +133,33 @@ passes on both macOS jobs.
 `macos-13` is the last Intel runner GitHub offers. When it is retired, Intel
 macOS binaries will need either a different approach or dropping.
 
-### 10. README binary URLs point at a release that must exist
+### 10. Vignette re-building fails during `R CMD check` on Windows
+
+`R-CMD-check` skips vignettes on the Windows job only (`build_args` includes
+`--no-build-vignettes`, `args` includes `--ignore-vignettes`). macOS and all
+three Linux jobs build them normally, and the pkgdown workflow renders both
+articles on every push, so rendering is still covered.
+
+The Windows job failed about 3 minutes in — before any model fitting, which
+takes ~20 minutes — reporting "Vignette re-building failed" for both vignettes.
+The suspected cause is the `quarto` R package's handling of `system2(env = )` on
+Windows: it passes the environment assignment to the CLI as an argument, so
+`quarto TMPDIR=C:\... -V` errors with `Unknown command "TMPDIR=..."`. That is
+reproducible locally with quarto R package 1.5.1 and CLI 1.7.30, though
+`quarto::quarto_version()` recovers from it and a direct
+`quarto::quarto_render()` succeeds — so the exact failure inside the vignette
+engine is not yet pinned down.
+
+**To diagnose properly** the job log is needed (reading it requires admin rights
+on the repository). Worth re-testing after a `quarto` R package update before
+investing further.
+
+### 11. README binary URLs point at a release that must exist
 
 `README.md` links to `v1.1.0` release assets. Those 404 until the `v1.1.0` tag
 is pushed and `build.yml` publishes them.
 
-### 11. Consider CRAN
+### 12. Consider CRAN
 
 The package now passes `R CMD check --as-cran` cleanly apart from the
 environmental time NOTE. If CRAN submission is ever the goal, the remaining work
