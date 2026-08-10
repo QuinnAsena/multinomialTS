@@ -13,7 +13,7 @@ story_pollen_wide
 
 ## Format
 
-A tibble with \`95\` rows (observations) and \`7\` columns.
+A tibble with `95` rows (observations) and `7` columns.
 
 ## Source
 

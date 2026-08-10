@@ -42,10 +42,10 @@ data that fall within a single bin.
 Before fitting a `multinomialTS` model, the raw data need to be shaped
 into two matrices:
 
-- **$Y$**: a site-by-species (time-by-taxon) matrix of counts for the
+- **$`Y`$**: a site-by-species (time-by-taxon) matrix of counts for the
   focal taxa, with a reference taxon in the first column.
-- **$X$**: a matrix of environmental covariates, aligned to the same
-  temporal resolution as $Y$.
+- **$`X`$**: a matrix of environmental covariates, aligned to the same
+  temporal resolution as $`Y`$.
 
 Because the lake level reconstruction is built from short cores, and the
 pollen is from a separate lake core, they do not share a chronology. We
@@ -54,6 +54,7 @@ of this demonstration, we will be binning the data so that observations
 fall within the nearest time bin.
 
 ``` r
+
 library(ggplot2)
 library(dplyr)
 library(tidyr)
@@ -73,8 +74,8 @@ First let’s see what the data look like:
 Code
 
 ``` r
+
 sunfish_pollen_long <- sunfish_pollen_wide |>
-  rename(P.strobus = "P.strobu") |>
   pivot_longer(-age) |>
   mutate(name = factor(name, levels = c(
     "other", "P.strobus", "Tsuga", "Fagus", "Quercus", "Betula"))) |>
@@ -119,9 +120,9 @@ pol_plot + ll_plot + plot_layout(widths = c(0.85, 0.15))
 
 ![](sunfish_pond_example_files/figure-html/PolPlot-1.png)
 
-Pollen counts five key species in the Sunfish Pond record alongside the
-lake levek reconstruction. All other species are grouped in the ‘other’
-species group
+Pollen counts of five key species in the Sunfish Pond record alongside
+the lake level reconstruction. All other species are grouped in the
+‘other’ species group
 
 We can see some patterns in the driver and species responses. See the
 [multinomialTS
@@ -133,10 +134,10 @@ demonstrate fitting multiple bin widths.
 ## Prediction resolution sensitivity
 
 Now we are going to fit the data to multiple bin widths. We are going to
-use the case with no species interactions included in the $C$ matrix. To
-avoid generating too much data for the online vignette, I have used only
-two bin widths (75 and 150 years), but see the commented-out code to
-loop over a sequence (`bin_width <- seq(50, 150, 25)`). The following
+use the case with no species interactions included in the $`C`$ matrix.
+To avoid generating too much data for the online vignette, I have used
+only two bin widths (75 and 150 years), but see the commented-out code
+to loop over a sequence (`bin_width <- seq(50, 150, 25)`). The following
 code loops over the sequence of bin widths and:
 
 - chunks the data into bin widths equal to the number of years (e.g., 50
@@ -145,9 +146,10 @@ code loops over the sequence of bin widths and:
   observation falls within the same bin they are summed together
 - Averages observations of the covariate (lake level) that fall within
   the same bin
-- outputs a list (one element per bin width) of $X$ and $Y$ matrices
+- outputs a list (one element per bin width) of $`X`$ and $`Y`$ matrices
 
 ``` r
+
 # Create some bins
 # bin_width <- seq(50, 150, 25)
 
@@ -161,14 +163,14 @@ bin_sensitivity_data <- lapply(bin_width, \(bw) {
       sunfish_pollen_wide$age,
       breaks = seq(
         from = min(sunfish_pollen_wide$age),
-        to = max(sunfish_pollen_wide$age + bw),
+        to = max(sunfish_pollen_wide$age) + bw,
         by = bw
-      ), include.lowest = T, labels = F)
+      ), include.lowest = TRUE, labels = FALSE)
 
   # Sum pollen counts within each bin; take mean age as the bin's representative age
   sunfish_spp_binned <- bind_cols(bins = sunfish_bins, sunfish_pollen_wide) |>
     group_by(bins) |>
-    summarise(across(c("other", "P.strobu", "Tsuga", "Fagus", "Quercus", "Betula"), \(x) sum(x ,na.rm = TRUE)),
+    summarise(across(c("other", "P.strobus", "Tsuga", "Fagus", "Quercus", "Betula"), \(x) sum(x ,na.rm = TRUE)),
               age = mean(age, na.rm = TRUE)) |>
     arrange(desc(age))
 
@@ -178,9 +180,9 @@ bin_sensitivity_data <- lapply(bin_width, \(bw) {
       sunfish_ll$age,
       breaks = seq(
         from = min(sunfish_pollen_wide$age),
-        to = max(sunfish_pollen_wide$age + bw),
+        to = max(sunfish_pollen_wide$age) + bw,
         by = bw
-      ), include.lowest = T, labels = F)
+      ), include.lowest = TRUE, labels = FALSE)
 
   # Average lake level within each bin; drop bins outside the pollen age range
   ll_mean <- cbind(bins = ll_bins, sunfish_ll) |>
@@ -192,7 +194,7 @@ bin_sensitivity_data <- lapply(bin_width, \(bw) {
 
   # Join pollen and lake level by shared bin index
   sunfish_all <- sunfish_spp_binned |>
-    full_join(ll_mean) |>
+    full_join(ll_mean, by = "bins") |>
     arrange(desc(bins))
 
   # Diagnostic: identify which bins lack a lake-level observation
@@ -203,7 +205,7 @@ bin_sensitivity_data <- lapply(bin_width, \(bw) {
     mutate(across(c(mean_ll), forecast::na.interp))
 
   Y <- sunfish_all_interp |>
-    select(other, P.strobu, Tsuga, Fagus, Quercus, Betula) |>
+    select(other, P.strobus, Tsuga, Fagus, Quercus, Betula) |>
     as.matrix()
 
   # set up X
@@ -220,10 +222,11 @@ bin_sensitivity_data <- lapply(bin_width, \(bw) {
 names(bin_sensitivity_data) <- paste0("bw_", bin_width)
 ```
 
-Let’s check the output to see how many observations in $Y$ were
+Let’s check the output to see how many observations in $`Y`$ were
 aggregated.
 
 ``` r
+
 sum(complete.cases(bin_sensitivity_data$bw_75$Y))
 sum(complete.cases(bin_sensitivity_data$bw_150$Y))
 ```
@@ -242,6 +245,7 @@ run *multinomialTS* in parallel over the bin widths to save some time!
 > you may not want to run the rest of the vignette.
 
 ``` r
+
 plan(multisession, workers = length(bin_sensitivity_data))
 bin_sensitivity_res <- future_lapply(bin_sensitivity_data, \(x) {
 
@@ -263,13 +267,13 @@ bin_sensitivity_res <- future_lapply(bin_sensitivity_data, \(x) {
 
   # Fit the GLMM to get starting values for the full mnTS model
   glmm_mod <- multinomialTS::mnGLMM(Y = Y[which(rowSums(Y) != 0),],
-                                    X = X[which(rowSums(Y) != 0), ,drop = F],
+                                    X = X[which(rowSums(Y) != 0), , drop = FALSE],
                                     B.start = B.start, B.fixed = B.fixed,
                                     V.fixed = V.fixed)
 
   # Use GLMM estimates as starting values for mnTS
-  B0.start <- glmm_mod$B[1, , drop = F]
-  B.start <- glmm_mod$B[2:p, , drop = F]
+  B0.start <- glmm_mod$B[1, , drop = FALSE]
+  B.start <- glmm_mod$B[2:p, , drop = FALSE]
 
   sigma.start <- glmm_mod$sigma
 
@@ -322,9 +326,10 @@ process, then use the result to guide your bootstrapping. We are going
 to do the bootstrapping in parallel too:
 
 ``` r
+
 plan(multisession, workers = length(bin_sensitivity_res))
 bootstrap_sensitivity <- furrr::future_map(
-  bin_sensitivity_res, multinomialTS::boot, rep = 20,
+  bin_sensitivity_res, multinomialTS::bootstrap, reps = 20,
   .options = furrr_options(seed = 1984))
 
 # saveRDS(bootstrap_sensitivity, "...")
@@ -333,13 +338,24 @@ bootstrap_sensitivity <- furrr::future_map(
 Now we have our models bootstrapped, we can plot the output coefficients
 for the different binning resolutions. While the output provides useful
 tables of results, these tables need some wrangling before they plot
-nicely in `ggplot2`. In this example we pull out the $B$ coefficients
+nicely in `ggplot2`. In this example we pull out the $`B`$ coefficients
 from the bootstrap output and visualise them per bin resolution. The
-process is similar for the $C$ coefficients. Currently, this is a bit of
-a manual slog, not very user-friendly, and we will be updating the
+process is similar for the $`C`$ coefficients. Currently, this is a bit
+of a manual slog, not very user-friendly, and we will be updating the
 package to include helper functions. For now, bear with us :)
 
+> **Note**
+>
+> The remaining code in this vignette is shown but **not run**, because
+> bootstrap output depends on the model version that produced it and so
+> is not bundled with the package. Run the two chunks above on your own
+> data (saving the results with
+> [`saveRDS()`](https://rdrr.io/r/base/readRDS.html), as commented), and
+> the code below will then work against your `bootstrap_sensitivity`
+> object.
+
 ``` r
+
 # Named vector mapping model column names to human-readable labels for plot axes
 X_names_list <- c(
   mean_ll ="Lake level"
@@ -363,24 +379,11 @@ mods_boot_68 <- mods_boot |>
             upper_68 = quantile(value, probs = 0.84),
             lower_68 = quantile(value, probs = 0.16)) |>
   mutate(t_scores = boot_mean / boot_sd,
-         p_vals = 2 * pnorm(q = abs(t_scores), lower.tail = F),
+         p_vals = 2 * pnorm(q = abs(t_scores), lower.tail = FALSE),
          sig = p_vals < 0.05)
 
-# Map internal y1–y6 column names back to taxon names.
+# Map internal y1-y6 column names back to taxon names.
 # Order must match the column order in the original Y matrix.
-mods_boot_table <- mods_boot_68 |>
-  mutate(name = str_replace_all(name,
-                                pattern = "y1|y2|y3|y4|y5|y6",
-                                replacement = function(x) case_when(
-                                  x == "y1" ~ "Other",
-                                  x == "y2" ~ "P.strobus",
-                                  x == "y3" ~ "Tsuga",
-                                  x == "y4" ~ "Fagus",
-                                  x == "y5" ~ "Quercus",
-                                  x == "y6" ~ "Betula",
-                                  TRUE ~ x))) |>
-  filter(!str_detect(name, "v."))
-
 mods_boot_68_B <- mods_boot_68 |>
   filter(grepl(paste(names(X_names_list), collapse = "|"), name)) |>
   separate_wider_delim(cols = name, delim = ".", names = c("cov", "name")) |>
@@ -399,10 +402,11 @@ bin_labs <- names(bootstrap_sensitivity)
 names(bin_labs) <- levels(mods_boot_68_B$mod)
 ```
 
-Now that we have everthing wrangled and re-named, let’s make some
+Now that we have everything wrangled and re-named, let’s make some
 visualisations to compare the different binning resolutions.
 
 ``` r
+
 mod_plots_B <- mods_boot_68_B |>
   mutate(panel = "Lake level effect") |>
   ggplot(aes(x = name, y = boot_mean)) +
@@ -427,12 +431,11 @@ mod_plots_B <- mods_boot_68_B |>
 mod_plots_B
 ```
 
-![](sunfish_pond_example_files/figure-html/BootPlot-1.png)
+### Reading the result
 
-In this instance, there is no great change in the $B$ coefficients at
-the different binning resolutions. This is good! We can have some
-confidence that our inferences are not strongly affected by the window
-size. The smaller binning window (75-year bins) maintains all
-observations in independent bins and the model had no issue converging
-at this resolution. That is a reasonable justification to go with a
-75-year binning resolution.
+When we ran this on the Sunfish Pond data, the $`B`$ coefficients
+changed little between 75- and 150-year bins, which is reassuring — it
+means the inferences are not an artefact of the prediction resolution.
+Combined with the fact that 75-year bins keep all 69 observations in
+independent bins, and that the model converged without trouble at that
+resolution, there was a reasonable case for going with 75-year bins.

@@ -1,7 +1,12 @@
 # Story Charcoal Matrix
 
 A matrix of charcoal accumulation rates from Story Lake, Indiana. This
-matrix has been binned at a 50-year resolution and scaled.
+matrix has been binned at a 50-year resolution. Values are on the
+original measurement scale; scale them (e.g. with
+[`scale()`](https://rdrr.io/r/base/scale.html)) before passing them to
+[`mnGLMM()`](https://quinnasena.github.io/multinomialTS/reference/mnGLMM.md)
+or
+[`mnTS()`](https://quinnasena.github.io/multinomialTS/reference/mnTS.md).
 
 ## Usage
 
@@ -11,7 +16,7 @@ story_char_matrix
 
 ## Format
 
-A \`1\` column matrix with \`160\` rows (observations).
+A `1` column matrix with `160` rows (observations).
 
 ## Source
 

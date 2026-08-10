@@ -10,7 +10,7 @@ abiotic variables driving change in the system? This state-space
 approach allows us to estimate coefficients for taxa interactions and
 driver-taxa relationships, that we don’t get from methods such as
 ordination or cluster analysis. We recommend this method as
-complimentary to other methods, as both have their advantages.
+complementary to other methods, as both have their advantages.
 
 ### This vignette
 
@@ -36,17 +36,15 @@ wrangling, for now see [this
 workshop](https://quinnasena.github.io/state-space-workhop-ESA/state-space-walkthrough.html)
 
 ``` r
+
 # Load required packages
+# multinomialTS handles its own dependencies (Rcpp, minqa, numDeriv, ...);
+# the packages below are only for the data wrangling and plotting shown here.
 library(ggplot2)
 library(dplyr)
 library(tidyr)
 library(stringr)
 library(scales)
-library(RcppArmadillo)
-library(minqa)
-library(matrixStats)
-library(numDeriv)
-library(mvtnorm)
 library(multinomialTS)
 
 # Read-in the wrangled data 
@@ -54,18 +52,16 @@ library(multinomialTS)
 data("story_char_wide", package = "multinomialTS")
 # Read-in the long data for plotting
 data("story_pollen_wide", package = "multinomialTS")
-# Read-in bootstrapped model
-data("story_100_bootstraps", package = "multinomialTS")
 ```
 
-Here is what the state variable ($Y$) data look like:
+Here is what the state variable ($`Y`$) data look like:
 
 ``` r
+
 head(story_pollen_wide)
 ```
 
     # A tibble: 6 × 7
-    # Groups:   age, depth [6]
          age depth other hardwood `Fagus grandifolia` Quercus Ulmus
        <dbl> <dbl> <int>    <int>               <int>   <int> <int>
     1 -66.2    0.5   106       60                   8      96     9
@@ -75,9 +71,10 @@ head(story_pollen_wide)
     5 191.   128.    161       34                  13      55    20
     6 203.   132.     88       52                  34      91    19
 
-And our covariate ($X$):
+And our covariate ($`X`$):
 
 ``` r
+
 head(story_char_wide)
 ```
 
@@ -104,6 +101,7 @@ in this example dataset for demonstration purposes.
 Code
 
 ``` r
+
 story_pollen_wide |>
   pivot_longer(-c(age, depth)) |>
   mutate(name = factor(name,levels = c(
@@ -124,12 +122,13 @@ story_pollen_wide |>
 
 ![](multinomialTS-vignette_files/figure-html/unnamed-chunk-3-1.png)
 
-### State variables $Y$
+### State variables $`Y`$
 
 We will start off by choosing a resolution for the model predictions
 (*e.g.,* predicting ecological process at 50 or 100 year intervals).
 
 ``` r
+
 # Time-span of the data divided by the number of observations
 max(story_pollen_wide$age) / nrow(story_pollen_wide)
 ```
@@ -137,6 +136,7 @@ max(story_pollen_wide$age) / nrow(story_pollen_wide)
     [1] 83.48578
 
 ``` r
+
 # Age differences between successive observations
 diff(story_pollen_wide$age)
 ```
@@ -154,6 +154,7 @@ diff(story_pollen_wide$age)
     [91]  71.132 129.632 127.729 137.070
 
 ``` r
+
 # The range of the age differences
 range(diff(story_pollen_wide$age))
 ```
@@ -161,6 +162,7 @@ range(diff(story_pollen_wide$age))
     [1]  11.459 219.725
 
 ``` r
+
 # the average of the age differences
 mean(diff(story_pollen_wide$age))
 ```
@@ -168,6 +170,7 @@ mean(diff(story_pollen_wide$age))
     [1] 85.0778
 
 ``` r
+
 sd(diff(story_pollen_wide$age))
 ```
 
@@ -180,7 +183,7 @@ Now that we know roughly what bin-width to use to maximize the number of
 observations in the state variables, we will apply the same bin-width to
 both the state variables and the covariate data.
 
-### Handling the covariates $X$
+### Handling the covariates $`X`$
 
 Covariates need to be handled according to decisions that were made
 around the state variables, that is, if the state variables were binned
@@ -198,22 +201,24 @@ the covariate to the extent of the state variables and join the two
 datasets by their common variable, age.
 
 ``` r
+
 # Clip covariate data to the extent of the state variables
 # Join the two by age so that we get a square matrix
 story_join <- story_char_wide |>
   dplyr::filter(age <= max(story_pollen_wide$age)) |>
-  left_join(story_pollen_wide)
+  left_join(story_pollen_wide, by = c("age", "depth"))
 
 # Always double check dimensions before/after joining!
 # dim(story_join)
 # tail(story_join)
 ```
 
-Now we have all our data joined. Note that the covariate $X$
+Now we have all our data joined. Note that the covariate $`X`$
 (`char_acc`) has observations every cm, whereas pollen was sampled at
 less frequent intervals (this is OK!).
 
 ``` r
+
 head(story_join, n = 10)
 ```
 
@@ -238,6 +243,7 @@ I always do lots of quick checks like
 to catch any coding mistakes!
 
 ``` r
+
 tail(story_join, n = 10)
 ```
 
@@ -260,12 +266,13 @@ temporal resolution for fitting the model. Choosing a bin-width may take
 some trial and error, I’m going with a bin-width of 50 years.
 
 ``` r
+
 # This code chunks the data into bins and gives us a grouping variable "bins"
 
 bin_width <- 50
 bins <- cut(story_join$age,
             breaks = seq(from = min(story_join$age),
-            to = max(story_join$age + bin_width),
+            to = max(story_join$age) + bin_width,
             by = bin_width), include.lowest = TRUE, labels = FALSE)
 ```
 
@@ -275,17 +282,18 @@ count data, we want the *sum*. This is because of the underlying
 multinomial distribution in the model.
 
 ``` r
+
 # Assign bin indices, then summarise: mean age and charcoal per bin; sum pollen counts per bin
 story_binned <- bind_cols(bins = bins, story_join) |>
   group_by(bins) |>
   summarise(
-    age = mean(age, na.rm = T), # the center of the bin
-    char_acc = mean(char_acc, na.rm = T), # mean charcoal accumulation rate per bin
-    other = sum(other, na.rm = T), # the sums of the count data
-    hardwood = sum(hardwood, na.rm = T),
-    `Fagus grandifolia` = sum(`Fagus grandifolia`, na.rm = T),
-    Ulmus = sum(Ulmus, na.rm = T),
-    Quercus = sum(Quercus, na.rm = T)
+    age = mean(age, na.rm = TRUE), # the center of the bin
+    char_acc = mean(char_acc, na.rm = TRUE), # mean charcoal accumulation rate per bin
+    other = sum(other, na.rm = TRUE), # the sums of the count data
+    hardwood = sum(hardwood, na.rm = TRUE),
+    `Fagus grandifolia` = sum(`Fagus grandifolia`, na.rm = TRUE),
+    Ulmus = sum(Ulmus, na.rm = TRUE),
+    Quercus = sum(Quercus, na.rm = TRUE)
   ) |>
   arrange(desc(age))
 # Be aware that the gaps in the pollen data are now filled with 0's not NA
@@ -302,6 +310,7 @@ story_binned <- bind_cols(bins = bins, story_join) |>
 Let’s see what the data look like binned at a 50 year resolution:
 
 ``` r
+
 head(story_binned, n = 10)
 ```
 
@@ -325,12 +334,13 @@ data, containing 93 state variable observations. The original number of
 pollen observations was 95, so we have not summed many observations
 within the same bins.
 
-`multinomialTS` requires two matrices, a site-by-species matrix $Y$, and
-a covariate matrix $X$, so we will leave `tibbles` behind and split the
-data. $X$ variables may be of different types (e.g., continuous,
-categorical…) but should be scaled relative to each other.
+`multinomialTS` requires two matrices, a site-by-species matrix $`Y`$,
+and a covariate matrix $`X`$, so we will leave `tibbles` behind and
+split the data. $`X`$ variables may be of different types (e.g.,
+continuous, categorical…) but should be scaled relative to each other.
 
 ``` r
+
 story_pollen_matrix <- story_binned |>  # Select taxa
   select(other, hardwood, Ulmus, `Fagus grandifolia`, Quercus) |> 
   rename("Fagus" = "Fagus grandifolia") |> 
@@ -350,6 +360,7 @@ head(story_pollen_matrix)
     [6,]    34       65    68     1     129
 
 ``` r
+
 story_char_matrix_scaled <- story_binned |> # select covariates
   select(char_acc) |> 
   as.matrix() |> 
@@ -370,8 +381,8 @@ head(story_char_matrix_scaled)
 OK, now we have:
 
 - Chosen a temporal resolution for the model of 50-year bins
-- Organised the data into a site-by-species matrix $Y$ at 50-year bins
-- Binned and scaled covariate matrix $X$
+- Organised the data into a site-by-species matrix $`Y`$ at 50-year bins
+- Binned and scaled covariate matrix $`X`$
 
 With that, we can fit the model.
 
@@ -379,16 +390,16 @@ With that, we can fit the model.
 
 The
 [`mnTS()`](https://quinnasena.github.io/multinomialTS/reference/mnTS.md)
-function will provide estimates for biotic interactions ($C$ matrix),
-taxa-driver relationships ($B$ matrix), and cross-correlated error ($V$
-matrix). But the model needs initial starting values for these
+function will provide estimates for biotic interactions ($`C`$ matrix),
+taxa-driver relationships ($`B`$ matrix), and cross-correlated error
+($`V`$ matrix). But the model needs initial starting values for these
 parameters to begin with. We get initial starting conditions from the
 data by running the
 [`mnGLMM()`](https://quinnasena.github.io/multinomialTS/reference/mnGLMM.md)
 function.
 [`mnGLMM()`](https://quinnasena.github.io/multinomialTS/reference/mnGLMM.md)
-returns estimates for the $B$ and $V$ matrices (not the $C$ matrix) and
-assumes that there are no time gaps in the data.
+returns estimates for the $`B`$ and $`V`$ matrices (not the $`C`$
+matrix) and assumes that there are no time gaps in the data.
 
 > **Tip**
 >
@@ -397,11 +408,11 @@ assumes that there are no time gaps in the data.
 > and
 > [`mnTS()`](https://quinnasena.github.io/multinomialTS/reference/mnTS.md)
 > are all suffixed with `.start` (e.g., `B.start` will be the starting
-> values for the $B$ matrix).
+> values for the $`B`$ matrix).
 >
 > The arguments of the parameters to be *estimated* are all suffixed
 > with `.fixed` (e.g., `B.fixed` will be parameters that are estimated
-> from $B$ matrix).
+> from $`B`$ matrix).
 
 #### Setting-up parameters for `mnGLMM()`
 
@@ -415,11 +426,12 @@ We need:
   [`mnGLMM()`](https://quinnasena.github.io/multinomialTS/reference/mnGLMM.md)):
   `p`
 - An integer of the number of state variables: `n`
-- A matrix of starting values for $B$: `B.start.glmm`
-- A matrix of $B$ parameters to estimate: `B.fixed.glmm`
-- A matrix of $V$ parameters to estimate: `V.fixed.glmm`
+- A matrix of starting values for $`B`$: `B.start.glmm`
+- A matrix of $`B`$ parameters to estimate: `B.fixed.glmm`
+- A matrix of $`V`$ parameters to estimate: `V.fixed.glmm`
 
 ``` r
+
 # Row indices of non-empty time bins (bins containing at least one pollen observation)
 sample_idx <- which(rowSums(story_pollen_matrix) != 0)
 # Verify: all rows should have non-zero counts
@@ -437,6 +449,7 @@ head(story_pollen_matrix[sample_idx, ])
 Set-up the remaining parameters:
 
 ``` r
+
 # p = number of covariates + intercept; n = number of taxa
 p <- ncol(story_char_matrix_scaled) + 1
 n <- ncol(story_pollen_matrix)
@@ -460,7 +473,7 @@ and/or the covariates, as we will see later in the output of the model.
 
 Remember that
 [`mnGLMM()`](https://quinnasena.github.io/multinomialTS/reference/mnGLMM.md)
-does not handle gaps in the data and only fits complete $X$ and $Y$
+does not handle gaps in the data and only fits complete $`X`$ and $`Y`$
 matrices. We have created a variable for our observation indices
 (`sample_idx`), so for
 [`mnGLMM()`](https://quinnasena.github.io/multinomialTS/reference/mnGLMM.md)
@@ -468,10 +481,11 @@ we will index the matrices by this variable: e.g.,
 `story_pollen_matrix[sample_idx, ]`.
 
 ``` r
+
 # fit glmm
 start_time <- Sys.time()
 glmm_mod <- mnGLMM(Y = story_pollen_matrix[sample_idx, ],
-                   X = story_char_matrix_scaled[sample_idx, ,drop = F],
+                   X = story_char_matrix_scaled[sample_idx, , drop = FALSE],
                    B.start = B.start.glmm,
                    B.fixed = B.fixed.glmm,
                    V.fixed = V.fixed.glmm)
@@ -481,29 +495,32 @@ end_time <- Sys.time()
 I like to keep track of how long the models take to run. This will vary
 depending on the data set and the system hardware, but can be useful
 benchmarking for running models repeatedly. Note the time increase as we
-progess from
+progress from
 [`mnGLMM()`](https://quinnasena.github.io/multinomialTS/reference/mnGLMM.md)
 to
 [`mnTS()`](https://quinnasena.github.io/multinomialTS/reference/mnTS.md)
 without, and then with interactions.
 
 ``` r
+
 end_time - start_time
 ```
 
-    Time difference of 5.422492 secs
+    Time difference of 1.101739 secs
 
 The outputs of
 [`mnGLMM()`](https://quinnasena.github.io/multinomialTS/reference/mnGLMM.md)
 can be examined with the `summary(glmm_mod)` function.
 
 ``` r
+
 summary(glmm_mod)
 ```
 
+
     Call: mnGLMM with Tmax =  93  n =  5
 
-    logLik = 506.1927,  AIC = -984.3855 [df = 14]
+    logLik = 506.1927,  AIC = -986.3855 [df = 13]
 
     dispersion parameter =  1
 
@@ -515,7 +532,7 @@ summary(glmm_mod)
     char_acc.Ulmus       -0.27877593 0.10904241 -2.5565827 1.057059e-02
     (intercept).Fagus    -0.26462962 0.11061637 -2.3923188 1.674229e-02
     char_acc.Fagus       -0.44518066 0.11465595 -3.8827524 1.032807e-04
-    (intercept).Quercus   0.99820847 0.08800697 11.3423798 8.091372e-30
+    (intercept).Quercus   0.99820847 0.08800697 11.3423798 8.091369e-30
     char_acc.Quercus     -0.06223354 0.09098390 -0.6840061 4.939713e-01
 
 
@@ -547,30 +564,31 @@ needs:
 - the number of covariates: `p`
 - the number of state variables: `n`
 - starting values for each matrix:
-  - $B0$: `B0.start.mnTS` (intercept)
-  - $B$: `B.start.mnTS` (driver-taxa)
-  - $C$: `C.start.mnTS` (taxa interactions)
-  - $V$: `V.start.mnTS` (cross-correlated error)
+  - $`B0`$: `B0.start.mnTS` (intercept)
+  - $`B`$: `B.start.mnTS` (driver-taxa)
+  - $`C`$: `C.start.mnTS` (taxa interactions)
+  - $`V`$: `V.start.mnTS` (cross-correlated error)
 - parameters to estimate for each matrix:
-  - $B0$: `B0.fixed.mnTS`
-  - $B$: `B.fixed.mnTS`
-  - $C$: `C.fixed.mnTS`
-  - $V$: `V.fixed.mnTS`
+  - $`B0`$: `B0.fixed.mnTS`
+  - $`B`$: `B.fixed.mnTS`
+  - $`C`$: `C.fixed.mnTS`
+  - $`V`$: `V.fixed.mnTS`
 
 We are using the output from
 [`mnGLMM()`](https://quinnasena.github.io/multinomialTS/reference/mnGLMM.md)
-as starting values for the matrices $B0$, $B$, and $V$.
+as starting values for the matrices $`B0`$, $`B`$, and $`V`$.
 [`mnGLMM()`](https://quinnasena.github.io/multinomialTS/reference/mnGLMM.md)
-does not provide estimates for $C$, so we handle $C$ a little
+does not provide estimates for $`C`$, so we handle $`C`$ a little
 differently and we input values close to zero for each parameter
 estimated and let
 [`mnTS()`](https://quinnasena.github.io/multinomialTS/reference/mnTS.md)
 do the rest.
 
 ``` r
+
 # Use GLMM estimates as starting values for mnTS: row 1 = intercepts, row 2 = covariate slopes
-B0.start.mnTS <- glmm_mod$B[1, , drop = F]
-B.start.mnTS <- glmm_mod$B[2, , drop = F]
+B0.start.mnTS <- glmm_mod$B[1, , drop = FALSE]
+B.start.mnTS <- glmm_mod$B[2, , drop = FALSE]
 
 # Allow all V elements to be estimated; fix reference taxon variance V[1,1] to 1 for identifiability
 V.fixed.mnTS <- matrix(NA, n, n)
@@ -596,8 +614,8 @@ Remember,
 [`mnTS()`](https://quinnasena.github.io/multinomialTS/reference/mnTS.md)
 *does* handle gaps in the state-variables where there are data in the
 covariate matrix. In the following code, we use the complete (no gaps)
-$Y$ matrix `story_pollen_matrix[sample_idx, ]` with dimensions: 93, 5.
-And the full $X$ matrix: `story_char_matrix_scaled` with dimensions:
+$`Y`$ matrix `story_pollen_matrix[sample_idx, ]` with dimensions: 93, 5.
+And the full $`X`$ matrix: `story_char_matrix_scaled` with dimensions:
 160, 1. We will fit the model twice:
 
 - Without taxa interactions.
@@ -607,9 +625,10 @@ And the full $X$ matrix: `story_char_matrix_scaled` with dimensions:
 >
 > Note the use of sample_idx in `story_pollen_matrix[sample_idx, ]` and
 > `Tsample = sample_idx`. This is important as it tells the model where
-> there are observations of $Y$ in relation to observations in $X$.
+> there are observations of $`Y`$ in relation to observations in $`X`$.
 
 ``` r
+
 start_time <- Sys.time()
 mnTS_mod <- mnTS(Y = story_pollen_matrix[sample_idx, ],
                  X = story_char_matrix_scaled, Tsample = sample_idx,
@@ -624,12 +643,12 @@ end_time <- Sys.time()
 end_time - start_time
 ```
 
-    Time difference of 1.24724 mins
+    Time difference of 1.244556 mins
 
-In this following code we set-up $C$ to define which interactions to
-estimate. Here we set-up a two-way interaction between key species. $C$
-is not restricted to being symmetrical matix, i.e., you can choose to
-have a one-way interaction effect.
+In this following code we set-up $`C`$ to define which interactions to
+estimate. Here we set-up a two-way interaction between key species.
+$`C`$ is not restricted to being symmetrical matrix, i.e., you can
+choose to have a one-way interaction effect.
 
 > **Tip**
 >
@@ -642,6 +661,7 @@ have a one-way interaction effect.
 > optimize faster.
 
 ``` r
+
 # C matrix with two-way interactions between Quercus (row/col 5) and Fagus (row/col 4)
 # Off-diagonal elements [5,4] and [4,5] are initialised near zero and freed for estimation
 C.start.int.mnTS  <- .5 * diag(n)
@@ -662,7 +682,7 @@ end_time <- Sys.time()
 end_time - start_time
 ```
 
-    Time difference of 2.905757 mins
+    Time difference of 2.890067 mins
 
 ### Interpreting outputs
 
@@ -683,12 +703,14 @@ sorts out those `NaN` values that occasionally occur! Let’s check out
 the coefficients of interaction model:
 
 ``` r
+
 summary(mnTS_mod_int)
 ```
 
+
     Call: mnTS with Tmax =  93  n =  5
 
-    logLik = 750.2299,  AIC = -1438.46 [df = 31]
+    logLik = 750.2299,  AIC = -1440.46 [df = 30]
 
     dispersion parameter =  1
 
@@ -742,6 +764,7 @@ summary(mnTS_mod_int)
     Quercus  0.1369287 0.03353239 0.03038602 0.02417582 0.02668429
 
 ``` r
+
 coef(mnTS_mod_int)
 ```
 
@@ -766,14 +789,25 @@ coef(mnTS_mod_int)
 
 We have found that bootstrapping provides better estimates of standard
 errors (and subsequent P-values). The
-[`boot()`](https://quinnasena.github.io/multinomialTS/reference/boot.md)
+[`bootstrap()`](https://quinnasena.github.io/multinomialTS/reference/bootstrap.md)
 function will bootstrap the model, caution as this may take a long time.
 To bootstrap a mnTS model you can call:
 
 ``` r
+
 # Not run as this takes a long time!
-mnTS_int_boot <- boot(mnTS_mod_int, reps = 1000)
+mnTS_int_boot <- bootstrap(mnTS_mod_int, reps = 1000)
 ```
+
+> **Note**
+>
+> This function used to be called
+> [`boot()`](https://quinnasena.github.io/multinomialTS/reference/boot.md).
+> It was renamed because `boot` clashes with
+> [`boot::boot()`](https://rdrr.io/pkg/boot/man/boot.html) from the
+> `boot` package, which ships with every R installation.
+> [`boot()`](https://quinnasena.github.io/multinomialTS/reference/boot.md)
+> still works but warns, and will be removed in a future release.
 
 We strongly recommend bootstrapping your final models. Bootstrapping a
 model can take quite some time (depending on the data), so don’t be
@@ -794,14 +828,15 @@ is a `list` with three elements:
 We can do a timing test on 5 bootstraps:
 
 ``` r
+
 start_boot <- Sys.time()
-mnTS_int_boot <- boot(mnTS_mod_int, reps = 5)
+mnTS_int_boot <- bootstrap(mnTS_mod_int, reps = 5)
 end_boot <- Sys.time()
 ```
 
 On the system that created this vignette: fitting the initial
-interaction model for Story Lake took 2.91 minutes; 5 replicate
-bootstraps took 5.66 minutes. The timing will depend greatly on the data
+interaction model for Story Lake took 2.89 minutes; 5 replicate
+bootstraps took 5.59 minutes. The timing will depend greatly on the data
 being fit and the system you are running. To speed things up, it can be
 useful to process the bootstraps in parallel, check out the [Sunfish
 Pond
@@ -811,19 +846,38 @@ and standard errors.
 
 #### Plotting bootstrapped coefficients
 
-To show how to access and plot the bootstrapped coefficients we will use
-a pre-run example of 100 bootstraps using the `coef.table.boot` object.
-Only 100 bootstraps would usually be too few for best results, but we
-need a small working example for the purposes of demonstration.
+This section shows how to get at the bootstrapped coefficients and plot
+them, using the `coef.table.boot` element of the 5-replicate run above.
+
+> **Important**
+>
+> Five replicates is **far** too few to interpret. The plots below exist
+> to show you the wrangling and plotting code, not to support any
+> conclusion — with this few replicates the error bars are essentially
+> noise. For real work use as many replicates as your processing power
+> allows (hundreds to thousands), and see the timing advice above for
+> how to budget that.
 
 Bootstrapping simulates species from the process equation. The simulated
-species are named y1 … yn. in future versions I will update the
+species are named y1 … yn. In future versions I will update the
 bootstrapping function to have the option of maintaining the species
 names from the input matrix. But for now, we rename them:
 
+> **Warning**
+>
+> The `y1 ... yn` names map to columns of $`Y`$**by position**, so the
+> mapping below is specific to the column order we built above (`other`,
+> `hardwood`, `Ulmus`, `Fagus`, `Quercus`). Note that the packaged
+> `story_pollen_matrix` dataset has `Ulmus` and `Fagus grandifolia` the
+> other way round — always take the mapping from
+> [`colnames()`](https://rdrr.io/r/base/colnames.html) of the matrix you
+> actually fitted, or the coefficients will be attributed to the wrong
+> taxa.
+
 ``` r
+
 # Extract and reshape the summarised coefficient table from the bootstrap output
-plot_boot <- story_100_bootstraps |>
+plot_boot <- mnTS_int_boot$coef.table.boot |>
   dplyr::as_tibble(rownames = "name") |>
   dplyr::filter(grepl("sp.*|char.*", name)) |> # Take species and covariate coefficients
   mutate(name = 
@@ -843,6 +897,7 @@ I’m going to separate the plots into covariate coefficients and species
 coefficients. Let’s take the covariates first:
 
 ``` r
+
 plot_cov <- plot_boot |> 
   dplyr::filter(grepl("char.*", name))
   
@@ -852,7 +907,7 @@ ggplot(plot_cov, aes(x = name, y = boot_mean)) +
   geom_hline(yintercept = 0, linetype = "dashed", alpha = 0.2) +
   geom_errorbar(aes(ymin = lower68, ymax = upper68),
                     width = .4, alpha = 0.5) +
-  labs(x = "Taxa", y = "MultinomialTS coefficient estimate") +
+  labs(x = "Taxa", y = "multinomialTS coefficient estimate") +
   theme_bw() 
 ```
 
@@ -861,6 +916,7 @@ ggplot(plot_cov, aes(x = name, y = boot_mean)) +
 Now let’s grab the species coefficients:
 
 ``` r
+
 plot_spp <- plot_boot |> 
   dplyr::filter(grepl("sp.*", name)) |>  mutate(name = factor(name,
     levels = c(
@@ -879,7 +935,7 @@ ggplot(plot_spp, aes(x = name, y = boot_mean)) +
   geom_hline(yintercept = 0, linetype = "dashed", alpha = 0.2) +
   geom_errorbar(aes(ymin = lower68, ymax = upper68),
                     width = .4, alpha = 0.5) +
-  labs(x = "Taxa", y = "MultinomialTS coefficient estimate") +
+  labs(x = "Taxa", y = "multinomialTS coefficient estimate") +
   theme_bw() +
   theme(
         axis.text.x = element_text(angle = 45, hjust = 1)

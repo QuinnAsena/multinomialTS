@@ -12,8 +12,8 @@
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="sunfish_pond_example_files/libs/quarto-html/popper.min.js"></script><script src="sunfish_pond_example_files/libs/quarto-html/tippy.umd.min.js"></script><link href="sunfish_pond_example_files/libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="sunfish_pond_example_files/libs/quarto-html/light-border.css" rel="stylesheet">
@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">multinomialTS</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -39,11 +39,13 @@
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="active nav-item"><a class="nav-link" href="../articles/index.html">Articles</a></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/QuinnAsena/multinomialTS/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
@@ -55,9 +57,9 @@
       <img src="../logo.png" class="logo" alt=""><h1>Sunfish pond example</h1>
 
       <p class="author">Quinn Asena, Tony Ives, and Jack Williams</p>
-      <p class="date">2026-04-12</p>
+      <p class="date">2026-08-10</p>
 
-
+      <small class="dont-index">Source: <a href="https://github.com/QuinnAsena/multinomialTS/blob/main/vignettes/sunfish_pond_example.qmd" class="external-link"><code>vignettes/sunfish_pond_example.qmd</code></a></small>
       <div class="d-none name"><code></code></div>
     </div>
 
@@ -102,7 +104,6 @@
 <div class="cell">
 <details class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sunfish_pollen_long</span> <span class="op">&lt;-</span> <span class="va">sunfish_pollen_wide</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html" class="external-link">rename</a></span><span class="op">(</span>P.strobus <span class="op">=</span> <span class="st">"P.strobu"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html" class="external-link">pivot_longer</a></span><span class="op">(</span><span class="op">-</span><span class="va">age</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">name</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>    <span class="st">"other"</span>, <span class="st">"P.strobus"</span>, <span class="st">"Tsuga"</span>, <span class="st">"Fagus"</span>, <span class="st">"Quercus"</span>, <span class="st">"Betula"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -146,7 +147,7 @@
 </details><div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure><p><img src="sunfish_pond_example_files/figure-html/PolPlot-1.png" width="672"></p>
-<figcaption>Pollen counts five key species in the Sunfish Pond record alongside the lake levek reconstruction. All other species are grouped in the ‘other’ species group</figcaption></figure>
+<figcaption>Pollen counts of five key species in the Sunfish Pond record alongside the lake level reconstruction. All other species are grouped in the ‘other’ species group</figcaption></figure>
 </div>
 </div>
 </div>
@@ -175,14 +176,14 @@
 <span>      <span class="va">sunfish_pollen_wide</span><span class="op">$</span><span class="va">age</span>,</span>
 <span>      breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span></span>
 <span>        from <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">sunfish_pollen_wide</span><span class="op">$</span><span class="va">age</span><span class="op">)</span>,</span>
-<span>        to <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">sunfish_pollen_wide</span><span class="op">$</span><span class="va">age</span> <span class="op">+</span> <span class="va">bw</span><span class="op">)</span>,</span>
+<span>        to <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">sunfish_pollen_wide</span><span class="op">$</span><span class="va">age</span><span class="op">)</span> <span class="op">+</span> <span class="va">bw</span>,</span>
 <span>        by <span class="op">=</span> <span class="va">bw</span></span>
-<span>      <span class="op">)</span>, include.lowest <span class="op">=</span> <span class="cn">T</span>, labels <span class="op">=</span> <span class="cn">F</span><span class="op">)</span></span>
+<span>      <span class="op">)</span>, include.lowest <span class="op">=</span> <span class="cn">TRUE</span>, labels <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span>  <span class="co"># Sum pollen counts within each bin; take mean age as the bin's representative age</span></span>
 <span>  <span class="va">sunfish_spp_binned</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_cols.html" class="external-link">bind_cols</a></span><span class="op">(</span>bins <span class="op">=</span> <span class="va">sunfish_bins</span>, <span class="va">sunfish_pollen_wide</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">bins</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/across.html" class="external-link">across</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"other"</span>, <span class="st">"P.strobu"</span>, <span class="st">"Tsuga"</span>, <span class="st">"Fagus"</span>, <span class="st">"Quercus"</span>, <span class="st">"Betula"</span><span class="op">)</span>, \<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">x</span> ,na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/across.html" class="external-link">across</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"other"</span>, <span class="st">"P.strobus"</span>, <span class="st">"Tsuga"</span>, <span class="st">"Fagus"</span>, <span class="st">"Quercus"</span>, <span class="st">"Betula"</span><span class="op">)</span>, \<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">x</span> ,na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>              age <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">age</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/desc.html" class="external-link">desc</a></span><span class="op">(</span><span class="va">age</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -192,9 +193,9 @@
 <span>      <span class="va">sunfish_ll</span><span class="op">$</span><span class="va">age</span>,</span>
 <span>      breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span></span>
 <span>        from <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">sunfish_pollen_wide</span><span class="op">$</span><span class="va">age</span><span class="op">)</span>,</span>
-<span>        to <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">sunfish_pollen_wide</span><span class="op">$</span><span class="va">age</span> <span class="op">+</span> <span class="va">bw</span><span class="op">)</span>,</span>
+<span>        to <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">sunfish_pollen_wide</span><span class="op">$</span><span class="va">age</span><span class="op">)</span> <span class="op">+</span> <span class="va">bw</span>,</span>
 <span>        by <span class="op">=</span> <span class="va">bw</span></span>
-<span>      <span class="op">)</span>, include.lowest <span class="op">=</span> <span class="cn">T</span>, labels <span class="op">=</span> <span class="cn">F</span><span class="op">)</span></span>
+<span>      <span class="op">)</span>, include.lowest <span class="op">=</span> <span class="cn">TRUE</span>, labels <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span>  <span class="co"># Average lake level within each bin; drop bins outside the pollen age range</span></span>
 <span>  <span class="va">ll_mean</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span>bins <span class="op">=</span> <span class="va">ll_bins</span>, <span class="va">sunfish_ll</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -206,7 +207,7 @@
 <span></span>
 <span>  <span class="co"># Join pollen and lake level by shared bin index</span></span>
 <span>  <span class="va">sunfish_all</span> <span class="op">&lt;-</span> <span class="va">sunfish_spp_binned</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">full_join</a></span><span class="op">(</span><span class="va">ll_mean</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">full_join</a></span><span class="op">(</span><span class="va">ll_mean</span>, by <span class="op">=</span> <span class="st">"bins"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/desc.html" class="external-link">desc</a></span><span class="op">(</span><span class="va">bins</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span>  <span class="co"># Diagnostic: identify which bins lack a lake-level observation</span></span>
@@ -217,7 +218,7 @@
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/across.html" class="external-link">across</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">mean_ll</span><span class="op">)</span>, <span class="fu">forecast</span><span class="fu">::</span><span class="va"><a href="https://pkg.robjhyndman.com/forecast/reference/na.interp.html" class="external-link">na.interp</a></span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span>  <span class="va">Y</span> <span class="op">&lt;-</span> <span class="va">sunfish_all_interp</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">other</span>, <span class="va">P.strobu</span>, <span class="va">Tsuga</span>, <span class="va">Fagus</span>, <span class="va">Quercus</span>, <span class="va">Betula</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">other</span>, <span class="va">P.strobus</span>, <span class="va">Tsuga</span>, <span class="va">Fagus</span>, <span class="va">Quercus</span>, <span class="va">Betula</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span>  <span class="co"># set up X</span></span>
@@ -270,13 +271,13 @@
 <span></span>
 <span>  <span class="co"># Fit the GLMM to get starting values for the full mnTS model</span></span>
 <span>  <span class="va">glmm_mod</span> <span class="op">&lt;-</span> <span class="fu">multinomialTS</span><span class="fu">::</span><span class="fu"><a href="../reference/mnGLMM.html">mnGLMM</a></span><span class="op">(</span>Y <span class="op">=</span> <span class="va">Y</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="va">Y</span><span class="op">)</span> <span class="op">!=</span> <span class="fl">0</span><span class="op">)</span>,<span class="op">]</span>,</span>
-<span>                                    X <span class="op">=</span> <span class="va">X</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="va">Y</span><span class="op">)</span> <span class="op">!=</span> <span class="fl">0</span><span class="op">)</span>, ,drop <span class="op">=</span> <span class="cn">F</span><span class="op">]</span>,</span>
+<span>                                    X <span class="op">=</span> <span class="va">X</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="va">Y</span><span class="op">)</span> <span class="op">!=</span> <span class="fl">0</span><span class="op">)</span>, , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span>,</span>
 <span>                                    B.start <span class="op">=</span> <span class="va">B.start</span>, B.fixed <span class="op">=</span> <span class="va">B.fixed</span>,</span>
 <span>                                    V.fixed <span class="op">=</span> <span class="va">V.fixed</span><span class="op">)</span></span>
 <span></span>
 <span>  <span class="co"># Use GLMM estimates as starting values for mnTS</span></span>
-<span>  <span class="va">B0.start</span> <span class="op">&lt;-</span> <span class="va">glmm_mod</span><span class="op">$</span><span class="va">B</span><span class="op">[</span><span class="fl">1</span>, , drop <span class="op">=</span> <span class="cn">F</span><span class="op">]</span></span>
-<span>  <span class="va">B.start</span> <span class="op">&lt;-</span> <span class="va">glmm_mod</span><span class="op">$</span><span class="va">B</span><span class="op">[</span><span class="fl">2</span><span class="op">:</span><span class="va">p</span>, , drop <span class="op">=</span> <span class="cn">F</span><span class="op">]</span></span>
+<span>  <span class="va">B0.start</span> <span class="op">&lt;-</span> <span class="va">glmm_mod</span><span class="op">$</span><span class="va">B</span><span class="op">[</span><span class="fl">1</span>, , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span></span>
+<span>  <span class="va">B.start</span> <span class="op">&lt;-</span> <span class="va">glmm_mod</span><span class="op">$</span><span class="va">B</span><span class="op">[</span><span class="fl">2</span><span class="op">:</span><span class="va">p</span>, , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span></span>
 <span></span>
 <span>  <span class="va">sigma.start</span> <span class="op">&lt;-</span> <span class="va">glmm_mod</span><span class="op">$</span><span class="va">sigma</span></span>
 <span></span>
@@ -321,12 +322,18 @@
 <div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="va">multisession</span>, workers <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">bin_sensitivity_res</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">bootstrap_sensitivity</span> <span class="op">&lt;-</span> <span class="fu">furrr</span><span class="fu">::</span><span class="fu"><a href="https://furrr.futureverse.org/reference/future_map.html" class="external-link">future_map</a></span><span class="op">(</span></span>
-<span>  <span class="va">bin_sensitivity_res</span>, <span class="fu">multinomialTS</span><span class="fu">::</span><span class="va"><a href="../reference/boot.html">boot</a></span>, rep <span class="op">=</span> <span class="fl">20</span>,</span>
+<span>  <span class="va">bin_sensitivity_res</span>, <span class="fu">multinomialTS</span><span class="fu">::</span><span class="va"><a href="../reference/bootstrap.html">bootstrap</a></span>, reps <span class="op">=</span> <span class="fl">20</span>,</span>
 <span>  .options <span class="op">=</span> <span class="fu"><a href="https://furrr.futureverse.org/reference/furrr_options.html" class="external-link">furrr_options</a></span><span class="op">(</span>seed <span class="op">=</span> <span class="fl">1984</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># saveRDS(bootstrap_sensitivity, "...")</span></span></code></pre></div>
 </div>
 <p>Now we have our models bootstrapped, we can plot the output coefficients for the different binning resolutions. While the output provides useful tables of results, these tables need some wrangling before they plot nicely in <code>ggplot2</code>. In this example we pull out the <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math> coefficients from the bootstrap output and visualise them per bin resolution. The process is similar for the <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math> coefficients. Currently, this is a bit of a manual slog, not very user-friendly, and we will be updating the package to include helper functions. For now, bear with us :)</p>
+<div>
+<blockquote>
+<p><strong>Note</strong></p>
+<p>The remaining code in this vignette is shown but <strong>not run</strong>, because bootstrap output depends on the model version that produced it and so is not bundled with the package. Run the two chunks above on your own data (saving the results with <code><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS()</a></code>, as commented), and the code below will then work against your <code>bootstrap_sensitivity</code> object.</p>
+</blockquote>
+</div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Named vector mapping model column names to human-readable labels for plot axes</span></span>
@@ -352,24 +359,11 @@
 <span>            upper_68 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">value</span>, probs <span class="op">=</span> <span class="fl">0.84</span><span class="op">)</span>,</span>
 <span>            lower_68 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">value</span>, probs <span class="op">=</span> <span class="fl">0.16</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>t_scores <span class="op">=</span> <span class="va">boot_mean</span> <span class="op">/</span> <span class="va">boot_sd</span>,</span>
-<span>         p_vals <span class="op">=</span> <span class="fl">2</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">pnorm</a></span><span class="op">(</span>q <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">t_scores</span><span class="op">)</span>, lower.tail <span class="op">=</span> <span class="cn">F</span><span class="op">)</span>,</span>
+<span>         p_vals <span class="op">=</span> <span class="fl">2</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">pnorm</a></span><span class="op">(</span>q <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">t_scores</span><span class="op">)</span>, lower.tail <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,</span>
 <span>         sig <span class="op">=</span> <span class="va">p_vals</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Map internal y1–y6 column names back to taxon names.</span></span>
+<span><span class="co"># Map internal y1-y6 column names back to taxon names.</span></span>
 <span><span class="co"># Order must match the column order in the original Y matrix.</span></span>
-<span><span class="va">mods_boot_table</span> <span class="op">&lt;-</span> <span class="va">mods_boot_68</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>name <span class="op">=</span> <span class="fu"><a href="https://stringr.tidyverse.org/reference/str_replace.html" class="external-link">str_replace_all</a></span><span class="op">(</span><span class="va">name</span>,</span>
-<span>                                pattern <span class="op">=</span> <span class="st">"y1|y2|y3|y4|y5|y6"</span>,</span>
-<span>                                replacement <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
-<span>                                  <span class="va">x</span> <span class="op">==</span> <span class="st">"y1"</span> <span class="op">~</span> <span class="st">"Other"</span>,</span>
-<span>                                  <span class="va">x</span> <span class="op">==</span> <span class="st">"y2"</span> <span class="op">~</span> <span class="st">"P.strobus"</span>,</span>
-<span>                                  <span class="va">x</span> <span class="op">==</span> <span class="st">"y3"</span> <span class="op">~</span> <span class="st">"Tsuga"</span>,</span>
-<span>                                  <span class="va">x</span> <span class="op">==</span> <span class="st">"y4"</span> <span class="op">~</span> <span class="st">"Fagus"</span>,</span>
-<span>                                  <span class="va">x</span> <span class="op">==</span> <span class="st">"y5"</span> <span class="op">~</span> <span class="st">"Quercus"</span>,</span>
-<span>                                  <span class="va">x</span> <span class="op">==</span> <span class="st">"y6"</span> <span class="op">~</span> <span class="st">"Betula"</span>,</span>
-<span>                                  <span class="cn">TRUE</span> <span class="op">~</span> <span class="va">x</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_detect.html" class="external-link">str_detect</a></span><span class="op">(</span><span class="va">name</span>, <span class="st">"v."</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
 <span><span class="va">mods_boot_68_B</span> <span class="op">&lt;-</span> <span class="va">mods_boot_68</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">X_names_list</span><span class="op">)</span>, collapse <span class="op">=</span> <span class="st">"|"</span><span class="op">)</span>, <span class="va">name</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/separate_wider_delim.html" class="external-link">separate_wider_delim</a></span><span class="op">(</span>cols <span class="op">=</span> <span class="va">name</span>, delim <span class="op">=</span> <span class="st">"."</span>, names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cov"</span>, <span class="st">"name"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -387,7 +381,7 @@
 <span><span class="va">bin_labs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">bootstrap_sensitivity</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">bin_labs</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">mods_boot_68_B</span><span class="op">$</span><span class="va">mod</span><span class="op">)</span></span></code></pre></div>
 </div>
-<p>Now that we have everthing wrangled and re-named, let’s make some visualisations to compare the different binning resolutions.</p>
+<p>Now that we have everything wrangled and re-named, let’s make some visualisations to compare the different binning resolutions.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mod_plots_B</span> <span class="op">&lt;-</span> <span class="va">mods_boot_68_B</span> <span class="op">|&gt;</span></span>
@@ -412,15 +406,11 @@
 <span>  <span class="op">)</span></span>
 <span></span>
 <span><span class="va">mod_plots_B</span></span></code></pre></div>
-<div class="cell-output-display">
-<div>
-<figure><p><img src="sunfish_pond_example_files/figure-html/BootPlot-1.png" width="672"></p>
-</figure>
 </div>
-</div>
-</div>
-<p>In this instance, there is no great change in the <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math> coefficients at the different binning resolutions. This is good! We can have some confidence that our inferences are not strongly affected by the window size. The smaller binning window (75-year bins) maintains all observations in independent bins and the model had no issue converging at this resolution. That is a reasonable justification to go with a 75-year binning resolution.</p>
-</section><script id="quarto-html-after-body" type="application/javascript">
+<section class="level2"><h3 id="reading-the-result">Reading the result<a class="anchor" aria-label="anchor" href="#reading-the-result"></a>
+</h3>
+<p>When we ran this on the Sunfish Pond data, the <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math> coefficients changed little between 75- and 150-year bins, which is reassuring — it means the inferences are not an artefact of the prediction resolution. Combined with the fact that 75-year bins keep all 69 observations in independent bins, and that the model converged without trouble at that resolution, there was a reasonable case for going with 75-year bins.</p>
+</section></section><script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
@@ -508,16 +498,17 @@
       }
     }
   });
-  </script></main>
+  </script></main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Quinn Asena.</p>
+  <p>Developed by Anthony Ives, Quinn Asena.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

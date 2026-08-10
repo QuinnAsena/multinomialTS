@@ -15,7 +15,7 @@ story_pollen_matrix
 
 ## Format
 
-A matrix with \`160\` rows (samples) and \`5\` columns (taxa).
+A matrix with `160` rows (samples) and `5` columns (taxa).
 
 ## Source
 

@@ -12,7 +12,7 @@ story_char_wide
 
 ## Format
 
-A tibble with \`736\` rows and \`3\` columns.
+A tibble with `736` rows and `3` columns.
 
 ## Source
 

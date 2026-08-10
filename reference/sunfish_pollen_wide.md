@@ -11,7 +11,13 @@ sunfish_pollen_wide
 
 ## Format
 
-A tibble 69 x 7 tibble.
+A tibble with `69` rows (samples) and `7` columns: `age`, the reference
+group `other`, and the focal taxa `Betula`, `Fagus`, `P.strobus`,
+`Quercus` and `Tsuga`.
+
+## Source
+
+Johnson et al., in review. See the Sunfish Pond vignette.
 
 ## Examples
 

@@ -1,10 +1,10 @@
-pandoc: 3.1.11
-pkgdown: 2.2.0
+pandoc: 3.8.3
+pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
   multinomialTS-vignette: multinomialTS-vignette.html
   sunfish_pond_example: sunfish_pond_example.html
-last_built: 2026-04-12T22:21Z
+last_built: 2026-08-10T18:11Z
 urls:
   reference: https://quinnasena.github.io/multinomialTS/reference
   article: https://quinnasena.github.io/multinomialTS/articles

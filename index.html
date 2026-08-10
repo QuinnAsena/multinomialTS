@@ -12,8 +12,8 @@
 <link rel="icon" sizes="any" href="favicon.ico">
 <link rel="manifest" href="site.webmanifest">
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="State-Space Modelling of Multinomially Distributed Data">
 <meta name="description" content="This is a package for state-space modelling of multinomially distributed data e.g., community count data or palaeoecological time series.">
@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="index.html">multinomialTS</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -39,11 +39,13 @@
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="articles/index.html">Articles</a></li>
+<li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="search.json">
 </form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/QuinnAsena/multinomialTS/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
@@ -56,7 +58,44 @@
 <img src="logo.png" class="logo" alt=""><h1 id="multinomialts">multinomialTS<a class="anchor" aria-label="anchor" href="#multinomialts"></a>
 </h1>
 </div>
-<p>This is the initial working version of <code>multinomialTS</code>. See <a href="https://quinnasena.github.io/multinomialTS/index.html">the vignettes on the package website</a> on how to use the model.</p>
+<!-- badges: start -->
+
+<p><code>multinomialTS</code> fits state-space models to multinomially distributed data, such as community count data or palaeoecological time series. It estimates taxon-taxon interactions, driver-taxon relationships, and cross-correlated error, and it handles time gaps in the response where covariates are observed.</p>
+<p>See <a href="https://quinnasena.github.io/multinomialTS/index.html">the vignettes on the package website</a> on how to use the model.</p>
+<div class="section level2">
+<h2 id="quick-start">Quick start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
+</h2>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://quinnasena.github.io/multinomialTS/">multinomialTS</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">story_pollen_matrix</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">story_char_matrix</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Rows of Y with counts; X must cover every time step the model iterates over.</span></span>
+<span><span class="va">sample_idx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="va">story_pollen_matrix</span><span class="op">)</span> <span class="op">!=</span> <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="va">Y</span> <span class="op">&lt;-</span> <span class="va">story_pollen_matrix</span><span class="op">[</span><span class="va">sample_idx</span>, <span class="op">]</span></span>
+<span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/scale.html" class="external-link">scale</a></span><span class="op">(</span><span class="va">story_char_matrix</span><span class="op">)</span></span>
+<span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">Y</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># mnGLMM provides starting values for mnTS.</span></span>
+<span><span class="va">glmm_mod</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/mnGLMM.html">mnGLMM</a></span><span class="op">(</span>Y <span class="op">=</span> <span class="va">Y</span>, X <span class="op">=</span> <span class="va">X</span><span class="op">[</span><span class="va">sample_idx</span>, , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span>, V.fixed <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">V.fixed</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="va">n</span>, <span class="va">n</span><span class="op">)</span>; <span class="va">V.fixed</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
+<span><span class="va">B.fixed</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span>, <span class="va">n</span><span class="op">)</span>; <span class="va">B.fixed</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
+<span><span class="va">C.start</span> <span class="op">&lt;-</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>; <span class="va">C.fixed</span> <span class="op">&lt;-</span> <span class="va">C.start</span></span>
+<span><span class="va">C.fixed</span><span class="op">[</span><span class="va">C.fixed</span> <span class="op">!=</span> <span class="fl">0</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">NA</span></span>
+<span></span>
+<span><span class="va">ts_mod</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/mnTS.html">mnTS</a></span><span class="op">(</span>Y <span class="op">=</span> <span class="va">Y</span>, X <span class="op">=</span> <span class="va">X</span>, Tsample <span class="op">=</span> <span class="va">sample_idx</span>,</span>
+<span>               B0.start <span class="op">=</span> <span class="va">glmm_mod</span><span class="op">$</span><span class="va">B</span><span class="op">[</span><span class="fl">1</span>, , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span>,</span>
+<span>               B.start  <span class="op">=</span> <span class="va">glmm_mod</span><span class="op">$</span><span class="va">B</span><span class="op">[</span><span class="fl">2</span>, , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span>, B.fixed <span class="op">=</span> <span class="va">B.fixed</span>,</span>
+<span>               C.start <span class="op">=</span> <span class="va">C.start</span>, C.fixed <span class="op">=</span> <span class="va">C.fixed</span>,</span>
+<span>               V.start <span class="op">=</span> <span class="va">glmm_mod</span><span class="op">$</span><span class="va">V</span>, V.fixed <span class="op">=</span> <span class="va">V.fixed</span>,</span>
+<span>               sigma.start <span class="op">=</span> <span class="va">glmm_mod</span><span class="op">$</span><span class="va">sigma</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">ts_mod</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Bootstrapping gives better standard errors than the Wald approximation.</span></span>
+<span><span class="co"># boot_out &lt;- boot(ts_mod, reps = 1000)</span></span></code></pre></div>
+</div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -70,7 +109,7 @@
 </ul>
 <p>Alternatively, if you are having issues with the build tools, install the binaries:</p>
 <ul>
-<li><code>install.packages("https://github.com/QuinnAsena/multinomialTS/releases/download/v1.0.3/multinomialTS_1.0.3-windows.zip", repos = NULL, type = "win.binary")</code></li>
+<li><code>install.packages("https://github.com/QuinnAsena/multinomialTS/releases/download/v1.1.0/multinomialTS_1.1.0-windows.zip", repos = NULL, type = "win.binary")</code></li>
 </ul>
 </div>
 <div class="section level3">
@@ -84,19 +123,48 @@
 <p>Alternatively, if you are having issues with the build tools, install the binaries:</p>
 <p>For new M-series macs, use:</p>
 <ul>
-<li><code>install.packages("https://github.com/QuinnAsena/multinomialTS/releases/download/v1.0.3/multinomialTS_1.0.3-macOS-arm64.tgz", repos = NULL)</code></li>
+<li><code>install.packages("https://github.com/QuinnAsena/multinomialTS/releases/download/v1.1.0/multinomialTS_1.1.0-macOS-arm64.tgz", repos = NULL)</code></li>
 </ul>
 <p>For Intel macs, use:</p>
 <ul>
-<li><code>install.packages("https://github.com/QuinnAsena/multinomialTS/releases/download/v1.0.3/multinomialTS_1.0.3-macOS-x86_64.tgz", repos = NULL)</code></li>
+<li><code>install.packages("https://github.com/QuinnAsena/multinomialTS/releases/download/v1.1.0/multinomialTS_1.1.0-macOS-x86_64.tgz", repos = NULL)</code></li>
+</ul>
+</div>
+<div class="section level3">
+<h3 id="linux">Linux<a class="anchor" aria-label="anchor" href="#linux"></a>
+</h3>
+<p>Compile from source. You need a C++ compiler (<code>g++</code> or <code>clang++</code>) plus BLAS and LAPACK development headers, which most distributions package:</p>
+<ul>
+<li>Debian/Ubuntu: <code>sudo apt-get install build-essential libblas-dev liblapack-dev</code>
+</li>
+<li>Fedora/RHEL: <code>sudo dnf install gcc-c++ blas-devel lapack-devel</code>
+</li>
+</ul>
+<p>Then:</p>
+<ul>
+<li><code>devtools::install_github("https://github.com/QuinnAsena/multinomialTS")</code></li>
 </ul>
 </div>
 </div>
+<div class="section level2">
+<h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
+</h2>
+<p><code>citation("multinomialTS")</code> gives the current reference.</p>
 </div>
-  </main><aside class="col-md-3"><div class="license">
+</div>
+  </main><aside class="col-md-3"><div class="links">
+<h2 data-toc-skip>Links</h2>
+<ul class="list-unstyled">
+<li><a href="https://github.com/QuinnAsena/multinomialTS/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/QuinnAsena/multinomialTS/issues" class="external-link">Report a bug</a></li>
+</ul>
+</div>
+
+<div class="license">
 <h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
-<li><a href="https://opensource.org/licenses/mit-license.php" class="external-link">MIT</a></li>
+<li><a href="LICENSE.html">Full license</a></li>
+<li><small><a href="https://opensource.org/licenses/mit-license.php" class="external-link">MIT</a> + file <a href="LICENSE-text.html">LICENSE</a></small></li>
 </ul>
 </div>
 
@@ -111,22 +179,30 @@
 <div class="developers">
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
-<li>Quinn Asena <br><small class="roles"> Maintainer </small>   </li>
+<li>Anthony Ives <br><small class="roles"> Author </small>   </li>
+<li>Quinn Asena <br><small class="roles"> Author, maintainer </small>   </li>
 </ul>
 </div>
 
-
+<div class="dev-status">
+<h2 data-toc-skip>Dev status</h2>
+<ul class="list-unstyled">
+<li><a href="https://github.com/QuinnAsena/multinomialTS/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/QuinnAsena/multinomialTS/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
+<li><a href="https://github.com/QuinnAsena/multinomialTS/actions/workflows/pkgdown.yaml" class="external-link"><img src="https://github.com/QuinnAsena/multinomialTS/actions/workflows/pkgdown.yaml/badge.svg" alt="pkgdown"></a></li>
+<li><a href="https://opensource.org/licenses/MIT" class="external-link"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT"></a></li>
+</ul>
+</div>
 
   </aside>
 </div>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Quinn Asena.</p>
+  <p>Developed by Anthony Ives, Quinn Asena.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>
