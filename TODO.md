@@ -86,7 +86,68 @@ results in the last few digits, which the equivalency tests assert to
 machine precision. Doing it means deciding on a tolerance for those
 tests.
 
-### 5. No guard on `mu` reaching 0 or 1
+### 5. Carry taxon and driver names through to every output matrix
+
+Output matrices should carry the row and column names of the input data,
+so results can be read and plotted without relying on column order.
+Coverage is currently uneven. Verified on the Story Lake model:
+
+| Output | Named? |
+|----|----|
+| `mnTS`: `B0`, `B`, `C`, `V` | yes — taxa on both margins of `C`/`V`, covariates × taxa for `B` |
+| `mnTS`: `mu`, `y`, `se.y.fitted`, `se.mu.upper.fitted`, `se.mu.lower.fitted` | **no** — all `Tmax × n` and unnamed |
+| `mnGLMM`: `B`, `V`, `mu` | **no** |
+| `simulate()$Y`, and therefore [`bootstrap()`](https://quinnasena.github.io/multinomialTS/reference/bootstrap.md) coefficient names | **no** — becomes `y1 … yn` |
+
+Three separate pieces of work, in rough order of value:
+
+**(a) `mnGLMM`’s `B`, `V` and `mu` are unnamed — a regression from the
+C++ port.** The pure-R `mnGLMM.ml()` set them
+(`colnames(B) <- colnames(Y)`, `rownames(B) <- colnames(X)`, and both
+margins of `V`) — that code still exists, but only in
+`tests/testthat/helper-reference-impl.R`, because the reference
+implementation is no longer what runs. Armadillo returns bare matrices,
+and
+[`mnGLMM()`](https://quinnasena.github.io/multinomialTS/reference/mnGLMM.md)
+never re-applies the names, whereas
+[`mnTS()`](https://quinnasena.github.io/multinomialTS/reference/mnTS.md)
+does exactly that after its own C++ call. So `summary(glmm_mod)` prints
+`B` and `V` with `[,1] [,2] …` headers. Fixing it means copying the
+pattern
+[`mnTS()`](https://quinnasena.github.io/multinomialTS/reference/mnTS.md)
+already uses. Cheapest and clearest win of the three.
+
+**(b)
+[`mnTS()`](https://quinnasena.github.io/multinomialTS/reference/mnTS.md)’s
+fitted-value matrices are unnamed.** `mu`, `y` and the three `se.*`
+matrices are `Tmax × n`, so they want taxon column names. Row names are
+less obvious: the natural label is the time step, but the model iterates
+`1:max(Tsample)` while the user thinks in ages or depths, which the
+package never sees. Column names alone would still be a clear
+improvement — anyone plotting fitted values currently has to trust
+column order.
+
+**(c) Bootstrap coefficients come back as `y1 … yn`.**
+[`simulate.mnTS()`](https://quinnasena.github.io/multinomialTS/reference/simulate.mnTS.md)
+builds `Y.sim` without column names, so refitting inside
+[`bootstrap.mnTS()`](https://quinnasena.github.io/multinomialTS/reference/bootstrap.mnTS.md)
+triggers
+[`mnTS()`](https://quinnasena.github.io/multinomialTS/reference/mnTS.md)’s
+fallback naming and every coefficient is labelled positionally. Both
+vignettes then hand-map `y1 … yn` back to taxa, which is fragile — the
+main vignette carries a `callout-warning` about it precisely because the
+packaged `story_pollen_matrix` has a different column order from the
+matrix the vignette builds, so the mapping is not transferable. The fix
+is to preserve `colnames(mod$Y)` on the simulated matrix. The vignette
+prose already promises this (“in future versions I will update the
+bootstrapping function to have the option of maintaining the species
+names”), so the note there should be updated at the same time.
+
+**Note when doing (c):** it changes the row names of `coef.table.boot`,
+which is user-visible output. Worth a NEWS entry, and both vignettes’
+relabelling code becomes unnecessary.
+
+### 6. No guard on `mu` reaching 0 or 1
 
 `arma::pow(mu % (1 - mu), -1)` (`src/source_mnTS_list.cpp`,
 `src/source_mnGLMM.cpp`) produces `Inf` if any fitted probability hits 0
@@ -98,7 +159,7 @@ would give a clearer diagnostic.
 
 ## Code quality
 
-### 6. Run `styler::style_pkg()`
+### 7. Run `styler::style_pkg()`
 
 `R/` mixes tab indentation (the original code) with spaces (the newer
 methods), sometimes inside a single function.
@@ -109,7 +170,7 @@ in it, so that subsequent `git blame` and code review stay usable. Run
 it, commit it alone, then confirm the test suite and `R CMD check` are
 unchanged.
 
-### 7. Vignette build cost
+### 8. Vignette build cost
 
 `vignettes/multinomialTS-vignette.qmd` takes about **30 minutes** to
 render: it fits `mnGLMM`, two `mnTS` models, and a 5-replicate bootstrap
@@ -122,7 +183,7 @@ shipping precomputed *bootstrap* output is what created the stale-data
 problem fixed in 1.1.0 — see `data-raw/README.md` — so any
 precomputation needs a regeneration script under `data-raw/`.
 
-### 8. `boot()` deprecation shim
+### 9. `boot()` deprecation shim
 
 [`boot()`](https://quinnasena.github.io/multinomialTS/reference/boot.md)
 forwards to
@@ -135,7 +196,7 @@ release, along with its `man/boot.Rd` and the `Deprecated` section of
 
 ## Packaging / infrastructure
 
-### 9. `build.yml`: validated for Windows and Apple Silicon, `release` job still untested
+### 10. `build.yml`: validated for Windows and Apple Silicon, `release` job still untested
 
 The binary-build workflow was substantially rewritten for 1.1.0
 ([`pkgbuild::build()`](https://pkgbuild.r-lib.org/reference/build.html)
@@ -178,7 +239,7 @@ Worth noting this removed a broken asset, not a working one: before
 Silicon since early 2024, so every published `macOS-x86_64` binary was
 really arm64.
 
-### 10. Vignette re-building fails during `R CMD check` on Windows
+### 11. Vignette re-building fails during `R CMD check` on Windows
 
 `R-CMD-check` skips vignettes on the Windows job only (`build_args`
 includes `--no-build-vignettes`, `args` includes `--ignore-vignettes`).
@@ -203,15 +264,29 @@ pinned down.
 admin rights on the repository). Worth re-testing after a `quarto` R
 package update before investing further.
 
-### 11. README binary URLs point at a release that must exist
+### 12. Release checklist (recurring)
 
-`README.md` links to `v1.1.0` release assets. Those 404 until the
-`v1.1.0` tag is pushed and `build.yml` publishes them.
+Not an open bug — a reminder, because the README pins version numbers.
+For each release:
 
-### 12. Consider CRAN
+1.  Bump `Version:` in `DESCRIPTION` and add a matching
+    `# multinomialTS x.y.z` heading to `NEWS.md`. The heading must
+    contain a parseable version —
+    `# multinomialTS (development version)` makes `R CMD check` report
+    “No news entries found”.
+2.  Update the two binary install URLs in `README.md` to the new
+    version. They 404 until the tag is pushed and `build.yml` publishes
+    the assets.
+3.  Push the tag; `build.yml` builds the binaries and publishes the
+    release. Confirm both assets attached and that the URLs resolve.
+
+Done for v1.1.0: assets published, both URLs verified returning HTTP
+200.
+
+### 13. Consider CRAN
 
 The package now passes `R CMD check --as-cran` cleanly apart from the
 environmental time NOTE. If CRAN submission is ever the goal, the
 remaining work is a `cran-comments.md`, checking on r-hub/win-builder,
 and confirming the 30-minute vignette build is acceptable (it very
-likely is not — see item 7).
+likely is not — see item 8).

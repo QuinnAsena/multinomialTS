@@ -65,32 +65,62 @@
 <p><strong>Deferred because</strong> it is a different algorithm and would perturb results in the last few digits, which the equivalency tests assert to machine precision. Doing it means deciding on a tolerance for those tests.</p>
 </div>
 <div class="section level3">
-<h3 id="id_5-no-guard-on-mu-reaching-0-or-1">5. No guard on <code>mu</code> reaching 0 or 1<a class="anchor" aria-label="anchor" href="#id_5-no-guard-on-mu-reaching-0-or-1"></a></h3>
+<h3 id="id_5-carry-taxon-and-driver-names-through-to-every-output-matrix">5. Carry taxon and driver names through to every output matrix<a class="anchor" aria-label="anchor" href="#id_5-carry-taxon-and-driver-names-through-to-every-output-matrix"></a></h3>
+<p>Output matrices should carry the row and column names of the input data, so results can be read and plotted without relying on column order. Coverage is currently uneven. Verified on the Story Lake model:</p>
+<table class="table"><colgroup><col width="50%"><col width="50%"></colgroup><thead><tr><th>Output</th>
+<th>Named?</th>
+</tr></thead><tbody><tr><td>
+<code>mnTS</code>: <code>B0</code>, <code>B</code>, <code>C</code>, <code>V</code>
+</td>
+<td>yes — taxa on both margins of <code>C</code>/<code>V</code>, covariates × taxa for <code>B</code>
+</td>
+</tr><tr><td>
+<code>mnTS</code>: <code>mu</code>, <code>y</code>, <code>se.y.fitted</code>, <code>se.mu.upper.fitted</code>, <code>se.mu.lower.fitted</code>
+</td>
+<td>
+<strong>no</strong> — all <code>Tmax × n</code> and unnamed</td>
+</tr><tr><td>
+<code>mnGLMM</code>: <code>B</code>, <code>V</code>, <code>mu</code>
+</td>
+<td><strong>no</strong></td>
+</tr><tr><td>
+<code>simulate()$Y</code>, and therefore <code><a href="reference/bootstrap.html">bootstrap()</a></code> coefficient names</td>
+<td>
+<strong>no</strong> — becomes <code>y1 … yn</code>
+</td>
+</tr></tbody></table><p>Three separate pieces of work, in rough order of value:</p>
+<p><strong>(a) <code>mnGLMM</code>’s <code>B</code>, <code>V</code> and <code>mu</code> are unnamed — a regression from the C++ port.</strong> The pure-R <code>mnGLMM.ml()</code> set them (<code>colnames(B) &lt;- colnames(Y)</code>, <code>rownames(B) &lt;- colnames(X)</code>, and both margins of <code>V</code>) — that code still exists, but only in <code>tests/testthat/helper-reference-impl.R</code>, because the reference implementation is no longer what runs. Armadillo returns bare matrices, and <code><a href="reference/mnGLMM.html">mnGLMM()</a></code> never re-applies the names, whereas <code><a href="reference/mnTS.html">mnTS()</a></code> does exactly that after its own C++ call. So <code>summary(glmm_mod)</code> prints <code>B</code> and <code>V</code> with <code>[,1] [,2] …</code> headers. Fixing it means copying the pattern <code><a href="reference/mnTS.html">mnTS()</a></code> already uses. Cheapest and clearest win of the three.</p>
+<p><strong>(b) <code><a href="reference/mnTS.html">mnTS()</a></code>’s fitted-value matrices are unnamed.</strong> <code>mu</code>, <code>y</code> and the three <code>se.*</code> matrices are <code>Tmax × n</code>, so they want taxon column names. Row names are less obvious: the natural label is the time step, but the model iterates <code>1:max(Tsample)</code> while the user thinks in ages or depths, which the package never sees. Column names alone would still be a clear improvement — anyone plotting fitted values currently has to trust column order.</p>
+<p><strong>(c) Bootstrap coefficients come back as <code>y1 … yn</code>.</strong> <code><a href="reference/simulate.mnTS.html">simulate.mnTS()</a></code> builds <code>Y.sim</code> without column names, so refitting inside <code><a href="reference/bootstrap.mnTS.html">bootstrap.mnTS()</a></code> triggers <code><a href="reference/mnTS.html">mnTS()</a></code>’s fallback naming and every coefficient is labelled positionally. Both vignettes then hand-map <code>y1 … yn</code> back to taxa, which is fragile — the main vignette carries a <code>callout-warning</code> about it precisely because the packaged <code>story_pollen_matrix</code> has a different column order from the matrix the vignette builds, so the mapping is not transferable. The fix is to preserve <code>colnames(mod$Y)</code> on the simulated matrix. The vignette prose already promises this (“in future versions I will update the bootstrapping function to have the option of maintaining the species names”), so the note there should be updated at the same time.</p>
+<p><strong>Note when doing (c):</strong> it changes the row names of <code>coef.table.boot</code>, which is user-visible output. Worth a NEWS entry, and both vignettes’ relabelling code becomes unnecessary.</p>
+</div>
+<div class="section level3">
+<h3 id="id_6-no-guard-on-mu-reaching-0-or-1">6. No guard on <code>mu</code> reaching 0 or 1<a class="anchor" aria-label="anchor" href="#id_6-no-guard-on-mu-reaching-0-or-1"></a></h3>
 <p><code>arma::pow(mu % (1 - mu), -1)</code> (<code>src/source_mnTS_list.cpp</code>, <code>src/source_mnGLMM.cpp</code>) produces <code>Inf</code> if any fitted probability hits 0 or 1. The <code>rcond</code> check downstream catches the consequence and returns the <code>1e+10</code> guard value, so the optimiser recovers, but a direct check would give a clearer diagnostic.</p>
 <hr></div>
 </div>
 <div class="section level2">
 <h2 id="code-quality">Code quality<a class="anchor" aria-label="anchor" href="#code-quality"></a></h2>
 <div class="section level3">
-<h3 id="id_6-run-stylerstyle_pkg">6. Run <code>styler::style_pkg()</code>
-<a class="anchor" aria-label="anchor" href="#id_6-run-stylerstyle_pkg"></a></h3>
+<h3 id="id_7-run-stylerstyle_pkg">7. Run <code>styler::style_pkg()</code>
+<a class="anchor" aria-label="anchor" href="#id_7-run-stylerstyle_pkg"></a></h3>
 <p><code>R/</code> mixes tab indentation (the original code) with spaces (the newer methods), sometimes inside a single function.</p>
 <p><strong>Deferred because</strong> a whole-package restyle produces a large whitespace-only diff. It should be <strong>its own commit</strong>, with nothing else in it, so that subsequent <code>git blame</code> and code review stay usable. Run it, commit it alone, then confirm the test suite and <code>R CMD check</code> are unchanged.</p>
 </div>
 <div class="section level3">
-<h3 id="id_7-vignette-build-cost">7. Vignette build cost<a class="anchor" aria-label="anchor" href="#id_7-vignette-build-cost"></a></h3>
+<h3 id="id_8-vignette-build-cost">8. Vignette build cost<a class="anchor" aria-label="anchor" href="#id_8-vignette-build-cost"></a></h3>
 <p><code>vignettes/multinomialTS-vignette.qmd</code> takes about <strong>30 minutes</strong> to render: it fits <code>mnGLMM</code>, two <code>mnTS</code> models, and a 5-replicate bootstrap at build time. That cost is paid on every <code>R CMD build</code> and every pkgdown deploy.</p>
 <p>Options: reduce <code>maxit.optim</code> in the vignette, fit a smaller subset, or precompute the fits and ship them as internal objects. Note that shipping precomputed <em>bootstrap</em> output is what created the stale-data problem fixed in 1.1.0 — see <code>data-raw/README.md</code> — so any precomputation needs a regeneration script under <code>data-raw/</code>.</p>
 </div>
 <div class="section level3">
-<h3 id="id_8-boot-deprecation-shim">8. <code>boot()</code> deprecation shim<a class="anchor" aria-label="anchor" href="#id_8-boot-deprecation-shim"></a></h3>
+<h3 id="id_9-boot-deprecation-shim">9. <code>boot()</code> deprecation shim<a class="anchor" aria-label="anchor" href="#id_9-boot-deprecation-shim"></a></h3>
 <p><code><a href="reference/boot.html">boot()</a></code> forwards to <code><a href="reference/bootstrap.html">bootstrap()</a></code> with a deprecation warning (<code>R/source_mnTS.R</code>). Remove it in a future release, along with its <code>man/boot.Rd</code> and the <code>Deprecated</code> section of <code>_pkgdown.yml</code>.</p>
 <hr></div>
 </div>
 <div class="section level2">
 <h2 id="packaging--infrastructure">Packaging / infrastructure<a class="anchor" aria-label="anchor" href="#packaging--infrastructure"></a></h2>
 <div class="section level3">
-<h3 id="id_9-buildyml-validated-for-windows-and-apple-silicon-release-job-still-untested">9. <code>build.yml</code>: validated for Windows and Apple Silicon, <code>release</code> job still untested<a class="anchor" aria-label="anchor" href="#id_9-buildyml-validated-for-windows-and-apple-silicon-release-job-still-untested"></a></h3>
+<h3 id="id_10-buildyml-validated-for-windows-and-apple-silicon-release-job-still-untested">10. <code>build.yml</code>: validated for Windows and Apple Silicon, <code>release</code> job still untested<a class="anchor" aria-label="anchor" href="#id_10-buildyml-validated-for-windows-and-apple-silicon-release-job-still-untested"></a></h3>
 <p>The binary-build workflow was substantially rewritten for 1.1.0 (<code><a href="https://pkgbuild.r-lib.org/reference/build.html" class="external-link">pkgbuild::build()</a></code> instead of <code>devtools::build()</code>, dependencies via <code>setup-r-dependencies</code>, a <code>lipo</code> architecture check, a tag guard on the <code>release</code> job).</p>
 <p>A manual <code>workflow_dispatch</code> run confirmed the <strong>windows</strong> and <strong>macOS-arm64</strong> legs build and upload artifacts correctly. The Intel leg has since been removed (see below).</p>
 <p><strong>Still unverified: the <code>release</code> job.</strong> It is guarded to tag pushes, so a manual dispatch never exercises it. The first <code>v*.*.*</code> tag push will be its first run. Failure is benign — <code>needs: build</code> means a failed build blocks publication entirely, so a partial release is not possible — but be ready to delete the tag and release and retry:</p>
@@ -104,18 +134,22 @@
 </div>
 </div>
 <div class="section level3">
-<h3 id="id_10-vignette-re-building-fails-during-r-cmd-check-on-windows">10. Vignette re-building fails during <code>R CMD check</code> on Windows<a class="anchor" aria-label="anchor" href="#id_10-vignette-re-building-fails-during-r-cmd-check-on-windows"></a></h3>
+<h3 id="id_11-vignette-re-building-fails-during-r-cmd-check-on-windows">11. Vignette re-building fails during <code>R CMD check</code> on Windows<a class="anchor" aria-label="anchor" href="#id_11-vignette-re-building-fails-during-r-cmd-check-on-windows"></a></h3>
 <p><code>R-CMD-check</code> skips vignettes on the Windows job only (<code>build_args</code> includes <code>--no-build-vignettes</code>, <code>args</code> includes <code>--ignore-vignettes</code>). macOS and all three Linux jobs build them normally, and the pkgdown workflow renders both articles on every push, so rendering is still covered.</p>
 <p>The Windows job failed about 3 minutes in — before any model fitting, which takes ~20 minutes — reporting “Vignette re-building failed” for both vignettes. The suspected cause is the <code>quarto</code> R package’s handling of <code>system2(env = )</code> on Windows: it passes the environment assignment to the CLI as an argument, so <code>quarto TMPDIR=C:\... -V</code> errors with <code>Unknown command "TMPDIR=..."</code>. That is reproducible locally with quarto R package 1.5.1 and CLI 1.7.30, though <code><a href="https://quarto-dev.github.io/quarto-r/reference/quarto_version.html" class="external-link">quarto::quarto_version()</a></code> recovers from it and a direct <code><a href="https://quarto-dev.github.io/quarto-r/reference/quarto_render.html" class="external-link">quarto::quarto_render()</a></code> succeeds — so the exact failure inside the vignette engine is not yet pinned down.</p>
 <p><strong>To diagnose properly</strong> the job log is needed (reading it requires admin rights on the repository). Worth re-testing after a <code>quarto</code> R package update before investing further.</p>
 </div>
 <div class="section level3">
-<h3 id="id_11-readme-binary-urls-point-at-a-release-that-must-exist">11. README binary URLs point at a release that must exist<a class="anchor" aria-label="anchor" href="#id_11-readme-binary-urls-point-at-a-release-that-must-exist"></a></h3>
-<p><code>README.md</code> links to <code>v1.1.0</code> release assets. Those 404 until the <code>v1.1.0</code> tag is pushed and <code>build.yml</code> publishes them.</p>
+<h3 id="id_12-release-checklist-recurring">12. Release checklist (recurring)<a class="anchor" aria-label="anchor" href="#id_12-release-checklist-recurring"></a></h3>
+<p>Not an open bug — a reminder, because the README pins version numbers. For each release:</p>
+<ol style="list-style-type: decimal"><li>Bump <code>Version:</code> in <code>DESCRIPTION</code> and add a matching <code># multinomialTS x.y.z</code> heading to <code>NEWS.md</code>. The heading must contain a parseable version — <code># multinomialTS (development version)</code> makes <code>R CMD check</code> report “No news entries found”.</li>
+<li>Update the two binary install URLs in <code>README.md</code> to the new version. They 404 until the tag is pushed and <code>build.yml</code> publishes the assets.</li>
+<li>Push the tag; <code>build.yml</code> builds the binaries and publishes the release. Confirm both assets attached and that the URLs resolve.</li>
+</ol><p>Done for v1.1.0: assets published, both URLs verified returning HTTP 200.</p>
 </div>
 <div class="section level3">
-<h3 id="id_12-consider-cran">12. Consider CRAN<a class="anchor" aria-label="anchor" href="#id_12-consider-cran"></a></h3>
-<p>The package now passes <code>R CMD check --as-cran</code> cleanly apart from the environmental time NOTE. If CRAN submission is ever the goal, the remaining work is a <code>cran-comments.md</code>, checking on r-hub/win-builder, and confirming the 30-minute vignette build is acceptable (it very likely is not — see item 7).</p>
+<h3 id="id_13-consider-cran">13. Consider CRAN<a class="anchor" aria-label="anchor" href="#id_13-consider-cran"></a></h3>
+<p>The package now passes <code>R CMD check --as-cran</code> cleanly apart from the environmental time NOTE. If CRAN submission is ever the goal, the remaining work is a <code>cran-comments.md</code>, checking on r-hub/win-builder, and confirming the 30-minute vignette build is acceptable (it very likely is not — see item 8).</p>
 </div>
 </div>
 </div>

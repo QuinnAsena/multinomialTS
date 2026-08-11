@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   multinomialTS-vignette: multinomialTS-vignette.html
   sunfish_pond_example: sunfish_pond_example.html
-last_built: 2026-08-11T14:24Z
+last_built: 2026-08-11T16:47Z
 urls:
   reference: https://quinnasena.github.io/multinomialTS/reference
   article: https://quinnasena.github.io/multinomialTS/articles
