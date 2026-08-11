@@ -75,15 +75,18 @@ The best way to install at the moment is to compile from source:
   `devtools::install_github("https://github.com/QuinnAsena/multinomialTS")`
 
 Alternatively, if you are having issues with the build tools, install
-the binaries:
+the binary.
 
-For new M-series macs, use:
+For Apple Silicon (M-series) macs, use:
 
 - `install.packages("https://github.com/QuinnAsena/multinomialTS/releases/download/v1.1.0/multinomialTS_1.1.0-macOS-arm64.tgz", repos = NULL)`
 
-For Intel macs, use:
-
-- `install.packages("https://github.com/QuinnAsena/multinomialTS/releases/download/v1.1.0/multinomialTS_1.1.0-macOS-x86_64.tgz", repos = NULL)`
+**Intel macs:** there is no pre-built binary. Every macOS machine GitHub
+Actions offers is now Apple Silicon, and R packages with compiled code
+cannot be cross-compiled, so please install from source using the
+`devtools` route above. Binaries labelled `macOS-x86_64` in releases
+before v1.1.0 were in fact built on Apple Silicon and will not load on
+an Intel mac.
 
 ### Linux
 

@@ -135,22 +135,48 @@ release, along with its `man/boot.Rd` and the `Deprecated` section of
 
 ## Packaging / infrastructure
 
-### 9. `build.yml` has never run end to end
+### 9. `build.yml`: validated for Windows and Apple Silicon, `release` job still untested
 
-The binary-build workflow was substantially rewritten for 1.1.0: Intel
-macOS moved to a `macos-13` runner, `devtools::build()` became
-[`pkgbuild::build()`](https://pkgbuild.r-lib.org/reference/build.html),
-dependency installation moved to `setup-r-dependencies`, and an
-architecture check via `lipo` was added.
+The binary-build workflow was substantially rewritten for 1.1.0
+([`pkgbuild::build()`](https://pkgbuild.r-lib.org/reference/build.html)
+instead of `devtools::build()`, dependencies via `setup-r-dependencies`,
+a `lipo` architecture check, a tag guard on the `release` job).
 
-**Before tagging a release**, trigger it manually from the Actions tab
-(*Build Binaries* → *Run workflow*). The `release` job is guarded to tag
-pushes only, so a manual run builds and uploads artifacts without
-publishing anything. Check that all three artifacts appear and that the
-macOS architecture check passes on both macOS jobs.
+A manual `workflow_dispatch` run confirmed the **windows** and
+**macOS-arm64** legs build and upload artifacts correctly. The Intel leg
+has since been removed (see below).
 
-`macos-13` is the last Intel runner GitHub offers. When it is retired,
-Intel macOS binaries will need either a different approach or dropping.
+**Still unverified: the `release` job.** It is guarded to tag pushes, so
+a manual dispatch never exercises it. The first `v*.*.*` tag push will
+be its first run. Failure is benign — `needs: build` means a failed
+build blocks publication entirely, so a partial release is not possible
+— but be ready to delete the tag and release and retry:
+
+``` sh
+git push --delete origin v1.1.0 && git tag -d v1.1.0
+```
+
+#### Intel macOS: dropped, and why
+
+`macos-13` was the last free Intel runner and **has been retired**. Jobs
+requesting a retired label queue indefinitely rather than failing, which
+is what happened: the Intel leg sat “Waiting for a runner” for 18 hours.
+
+The remaining Intel labels (`macos-15-intel`, `macos-26-intel`,
+`macos-*-large`) are *larger runners*, which GitHub bills even for
+public repositories — “Larger runners are always charged for, even when
+used by public repositories or when you have quota available from your
+plan.” R packages with compiled code cannot be cross-compiled, so an
+Intel binary needs a native Intel machine.
+
+The Intel leg was therefore removed rather than paid for. Reinstating it
+means either enabling billing and switching to `macos-15-intel`, or
+attaching a self-hosted Intel runner.
+
+Worth noting this removed a broken asset, not a working one: before
+1.1.0 both macOS legs ran on `macos-latest`, which has been Apple
+Silicon since early 2024, so every published `macOS-x86_64` binary was
+really arm64.
 
 ### 10. Vignette re-building fails during `R CMD check` on Windows
 

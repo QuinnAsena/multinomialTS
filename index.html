@@ -120,15 +120,12 @@
 <li><p>If you have xcode-select and devtools installed, you can build the latest version of the package directly from github using: <code>devtools::install_github("https://github.com/QuinnAsena/multinomialTS")</code></p></li>
 <li><p>On apple it is nice and easy to download xcode-select by opening a terminal and copying this code: <code>xcode-select --install</code>. Then try and run: <code>devtools::install_github("https://github.com/QuinnAsena/multinomialTS")</code></p></li>
 </ul>
-<p>Alternatively, if you are having issues with the build tools, install the binaries:</p>
-<p>For new M-series macs, use:</p>
+<p>Alternatively, if you are having issues with the build tools, install the binary.</p>
+<p>For Apple Silicon (M-series) macs, use:</p>
 <ul>
 <li><code>install.packages("https://github.com/QuinnAsena/multinomialTS/releases/download/v1.1.0/multinomialTS_1.1.0-macOS-arm64.tgz", repos = NULL)</code></li>
 </ul>
-<p>For Intel macs, use:</p>
-<ul>
-<li><code>install.packages("https://github.com/QuinnAsena/multinomialTS/releases/download/v1.1.0/multinomialTS_1.1.0-macOS-x86_64.tgz", repos = NULL)</code></li>
-</ul>
+<p><strong>Intel macs:</strong> there is no pre-built binary. Every macOS machine GitHub Actions offers is now Apple Silicon, and R packages with compiled code cannot be cross-compiled, so please install from source using the <code>devtools</code> route above. Binaries labelled <code>macOS-x86_64</code> in releases before v1.1.0 were in fact built on Apple Silicon and will not load on an Intel mac.</p>
 </div>
 <div class="section level3">
 <h3 id="linux">Linux<a class="anchor" aria-label="anchor" href="#linux"></a>
