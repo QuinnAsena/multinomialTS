@@ -41,6 +41,16 @@
 * `sunfish_pollen_wide`'s truncated `P.strobu` column has been renamed to
   `P.strobus`.
 
+* **Intel macOS binaries are no longer published.** Releases now ship a Windows
+  binary and an Apple Silicon (`macOS-arm64`) binary. Every standard macOS
+  machine GitHub Actions offers is Apple Silicon — the last free Intel image has
+  been retired — and R packages with compiled code cannot be cross-compiled.
+  Intel mac users should install from source; see the README. Note that the
+  `macOS-x86_64` assets in releases up to v1.0.3 were themselves built on Apple
+  Silicon and would not load on an Intel mac, so this removes an asset that did
+  not work rather than one that did. Release binaries are now checked with
+  `lipo` so a mislabelled architecture fails the build.
+
 ## Bug fixes
 
 * `mnTS()` now rejects a `Tsample` that is not strictly increasing. An

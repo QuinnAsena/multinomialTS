@@ -22,14 +22,15 @@ jobs:
           - os: windows-latest
             label: windows
             ext: zip
-          # macos-14 and later runners are Apple Silicon; macos-13 is the last
-          # Intel runner. R packages with compiled code cannot be
-          # cross-compiled, so each architecture needs its own native runner.
+          # Apple Silicon only. Every standard GitHub-hosted macOS runner is
+          # arm64 now: macos-13 was the last free Intel image and has been
+          # retired, and the remaining Intel labels (macos-*-intel, macos-*-large)
+          # are larger runners, which GitHub bills even on public repositories.
+          # R packages with compiled code cannot be cross-compiled, so an Intel
+          # binary would need a native Intel machine. Intel Mac users install
+          # from source instead -- see README.
           - os: macos-latest
             label: macOS-arm64
-            ext: tgz
-          - os: macos-13
-            label: macOS-x86_64
             ext: tgz
 
     steps:
@@ -68,8 +69,9 @@ jobs:
           echo "Built: $NEW"
           ls -l pkgbuild-out
 
-      # Guards against shipping a binary built for the wrong architecture, which
-      # is what happened when both macOS builds ran on the same runner.
+      # Confirms the asset name matches what was actually built. Before 1.1.0
+      # both macOS binaries came off the same Apple Silicon runner, so the one
+      # published as x86_64 was really arm64 and would not load on an Intel Mac.
       - name: Verify macOS architecture
         if: runner.os == 'macOS'
         shell: bash
@@ -79,12 +81,8 @@ jobs:
           tar xzf multinomialTS_*-${{ matrix.label }}.tgz
           FOUND=$(lipo -archs multinomialTS/libs/multinomialTS.so)
           echo "Shared object architectures: $FOUND"
-          case "${{ matrix.label }}" in
-            macOS-arm64)  EXPECT=arm64 ;;
-            macOS-x86_64) EXPECT=x86_64 ;;
-          esac
-          if ! echo "$FOUND" | grep -qw "$EXPECT"; then
-            echo "::error::Expected $EXPECT but built $FOUND"
+          if ! echo "$FOUND" | grep -qw arm64; then
+            echo "::error::${{ matrix.label }} should be arm64 but built $FOUND"
             exit 1
           fi
           rm -rf multinomialTS
